@@ -1,0 +1,235 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1440px;
+
+  /* Brand Primary: Deep Blue */
+  --color-primary: #0A2E5C;
+  --color-primary-light: #14427D;
+  --color-primary-dark: #061D3B;
+  --color-primary-soft: #EBF3FC;
+
+  /* Brand Secondary: Green */
+  --color-secondary: #65B741;
+  --color-secondary-light: #7BC857;
+  --color-secondary-dark: #4E932E;
+  --color-secondary-soft: #F0F9EC;
+
+  /* Brand Accent */
+  --color-accent: #70B82C;
+  --color-accent-light: #86D251;
+  --color-accent-cyan: #00A3E0;
+
+  /* Surfaces & Backgrounds */
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F1F5F9;
+
+  /* Typography & Foreground */
+  --color-foreground: #0F172A;
+  --color-muted: #64748B;
+  --color-muted-foreground: #475569;
+  --color-muted-light: #94A3B8;
+
+  /* Borders */
+  --color-border: #E2E8F0;
+  --color-border-dark: #1E293B;
+
+  /* Dark Sections */
+  --color-dark: #0B192C;
+  --color-dark-deep: #060E18;
+  --color-darkSurface: #112240;
+  --color-darkSurface-elevated: #162C52;
+  --color-dark-surface: #112240;
+  --color-dark-surface-elevated: #162C52;
+
+  /* Feedback */
+  --color-success: #22C55E;
+
+  /* Typography Scale */
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+
+  --text-h1: 2.75rem;
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h1--font-weight: 700;
+
+  --text-h2: 2.25rem;
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.015em;
+  --text-h2--font-weight: 600;
+
+  --text-h3: 1.75rem;
+  --text-h3--line-height: 1.3;
+  --text-h3--letter-spacing: -0.01em;
+  --text-h3--font-weight: 600;
+
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.4;
+  --text-h4--font-weight: 600;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body--font-weight: 400;
+
+  --text-body-small: 0.875rem;
+  --text-body-small--line-height: 1.5;
+  --text-body-small--font-weight: 400;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0.04em;
+  --text-caption--font-weight: 500;
+
+  --text-button: 0.9375rem;
+  --text-button--line-height: 1.2;
+  --text-button--letter-spacing: 0.01em;
+  --text-button--font-weight: 600;
+
+  /* Spacing */
+  --spacing-section-sm: 3.5rem;
+  --spacing-section: 5.5rem;
+  --spacing-section-lg: 7.5rem;
+  --spacing-card-sm: 1.25rem;
+  --spacing-card: 2rem;
+  --spacing-card-lg: 2.5rem;
+
+  /* Border Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  --shadow-hover: 0 10px 25px -4px rgba(15, 23, 42, 0.08), 0 6px 12px -2px rgba(15, 23, 42, 0.04);
+  --shadow-dark-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+  --shadow-dark-hover: 0 10px 30px -4px rgba(0, 0, 0, 0.45);
+}
+
+/* Custom Responsive Container */
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  width: 100%;
+  max-width: 1320px;
+  @media (width >= 640px) {
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 1024px) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 1280px) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Base Styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  /* Semantic Typography Base Classes */
+  h1 {
+    @apply font-sans font-bold tracking-tight text-foreground;
+  }
+
+  h2 {
+    @apply font-sans font-semibold tracking-tight text-foreground;
+  }
+
+  h3 {
+    @apply font-sans font-semibold text-foreground;
+  }
+
+  h4 {
+    @apply font-sans font-semibold text-foreground;
+  }
+
+  p {
+    @apply text-muted leading-relaxed;
+  }
+}
+
+/* Typography Utilities */
+@utility typography-display {
+  @apply text-display;
+}
+@utility typography-h1 {
+  @apply text-h1;
+}
+@utility typography-h2 {
+  @apply text-h2;
+}
+@utility typography-h3 {
+  @apply text-h3;
+}
+@utility typography-h4 {
+  @apply text-h4;
+}
+@utility typography-body {
+  @apply text-body;
+}
+@utility typography-body-small {
+  @apply text-body-small;
+}
+@utility typography-caption {
+  @apply text-caption;
+}
+@utility typography-button {
+  @apply text-button;
+}
+
+/* Corpox-Style Realistic 2D Trusted Cards */
+.trust-card-2d {
+  position: relative;
+  background: linear-gradient(180deg, #0E223D 0%, #081526 100%);
+  border: 1px solid rgba(28, 53, 88, 0.9);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow, border-color;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.trust-card-2d:hover {
+  border-color: #65B741 !important;
+  box-shadow: 0 0 26px rgba(101, 183, 65, 0.45), 0 20px 40px -10px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(101, 183, 65, 0.1) !important;
+  transform: translateY(-8px) scale(1.015);
+}
+
+.trust-card-2d:hover .trust-card-corner {
+  transform: scale(1.4);
+  background-color: #7BC857 !important;
+  box-shadow: 0 0 14px rgba(101, 183, 65, 0.9);
+}
+
+.trust-card-2d:hover .trust-card-label {
+  color: #86D251 !important;
+}
+
+.trust-card-2d:hover .trust-card-desc {
+  color: #E2E8F0 !important;
+}
