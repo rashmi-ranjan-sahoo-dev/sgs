@@ -36,6 +36,10 @@ export default function PageLoader({ onComplete }) {
       const tl = gsap.timeline({
         onComplete: () => {
           setIsDone(true);
+          if (typeof window !== 'undefined') {
+            window.__pageLoaderDone = true;
+            window.dispatchEvent(new CustomEvent('pageLoaderDone'));
+          }
           if (onComplete) onComplete();
         },
       });
@@ -78,6 +82,12 @@ export default function PageLoader({ onComplete }) {
             yPercent: -100,
             duration: 1.0,
             ease: 'power4.inOut',
+            onStart: () => {
+              if (typeof window !== 'undefined') {
+                window.__pageLoaderOpening = true;
+                window.dispatchEvent(new CustomEvent('pageLoaderOpening'));
+              }
+            },
           },
           '-=0.1'
         );
@@ -94,13 +104,17 @@ export default function PageLoader({ onComplete }) {
       role="status"
       aria-live="polite"
       aria-label="Loading SIRI Group website"
-      className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#061D3B] text-white select-none overflow-hidden"
+      className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#0F172A] text-white select-none overflow-hidden"
       style={{ willChange: 'transform' }}
     >
       {/* Ambient soft glow inside loader */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute w-[400px] h-[400px] rounded-full bg-secondary/15 blur-3xl opacity-50"
+        className="pointer-events-none absolute w-[400px] h-[400px] rounded-full bg-[#0072CE]/15 blur-3xl opacity-50"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute w-[300px] h-[300px] rounded-full bg-[#72BF44]/10 blur-2xl opacity-40 translate-x-20 translate-y-20"
       />
 
       <div

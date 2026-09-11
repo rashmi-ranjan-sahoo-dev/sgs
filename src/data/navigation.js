@@ -6,7 +6,7 @@
 export const NAV_LINKS = [
   {
     label: 'Home',
-    href: '#home',
+    href: '#hero',
   },
   {
     label: 'About Us',
@@ -18,50 +18,60 @@ export const NAV_LINKS = [
     hasDropdown: true,
     children: [
       {
-        label: 'HR Solutions',
+        id: 'hr',
+        title: 'HR Solutions',
         href: '#services-hr',
-        description: 'Permanent staffing, executive search, bulk hiring & payroll solutions.',
-        badge: 'Core Service',
+        description: 'Talent acquisition, staffing, payroll & executive hiring',
+        tag: 'Recruitment',
+        color: '#0072CE',
       },
       {
-        label: 'Manpower Services',
+        id: 'manpower',
+        title: 'Manpower Services',
         href: '#services-manpower',
-        description: 'Skilled, semi-skilled & industrial workforce staffing solutions.',
-        badge: 'Workforce',
+        description: 'Skilled, semi-skilled & industrial workforce solutions',
+        tag: 'Workforce',
+        color: '#72BF44',
       },
       {
-        label: 'CSR Solutions',
+        id: 'csr',
+        title: 'CSR Solutions',
         href: '#services-csr',
-        description: 'Community development, education, healthcare & sustainability initiatives.',
-        badge: 'Impact',
+        description: 'Community development, impact assessment & NGO partnerships',
+        tag: 'Impact',
+        color: '#10B981',
       },
       {
-        label: 'Corporate Travel',
+        id: 'travel',
+        title: 'Corporate Travel',
         href: '#services-travel',
-        description: 'End-to-end flight bookings, hotel reservations, visa & risk management.',
-        badge: 'Travel',
+        description: 'Flight bookings, hotel reservations, visa & travel desks',
+        tag: 'Mobility',
+        color: '#0284C7',
       },
       {
-        label: 'Corporate Loans',
+        id: 'loans',
+        title: 'Corporate Loans (Siri Fin Hub)',
         href: '#services-loans',
-        description: 'B2B business loans, working capital, MSME & tailored project finance.',
-        badge: 'Fin Hub',
+        description: 'B2B loans, working capital, MSME & project finance',
+        tag: 'Finance',
+        color: '#6366F1',
       },
     ],
   },
   {
     label: 'Why Choose Us',
-    href: '#why-choose-us',
+    href: '#why-partner',
   },
   {
     label: 'Testimonials',
     href: '#testimonials',
   },
-  {
-    label: 'Contact Us',
-    href: '#contact',
-    isCta: true,
-  },
 ];
+
+export const CTA_BUTTON = {
+  label: 'Contact Us',
+  href: '#contact',
+};
 
 export default NAV_LINKS;

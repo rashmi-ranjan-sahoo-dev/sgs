@@ -10,30 +10,40 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1440px;
 
-  /* Brand Primary: Deep Blue */
-  --color-primary: #0A2E5C;
-  --color-primary-light: #14427D;
-  --color-primary-dark: #061D3B;
-  --color-primary-soft: #EBF3FC;
+  /* Brand Primary: Core SIRI Blue (CTAs, key highlights, active links) */
+  --color-primary: #0072CE;
+  --color-primary-hover: #005FA8;
+  --color-primary-light: #F0F7FD;
+  --color-primary-focus: rgba(0, 114, 206, 0.25);
+  --color-primary-dark: #005FA8;
+  --color-primary-soft: #F0F7FD;
 
-  /* Brand Secondary: Green */
-  --color-secondary: #65B741;
-  --color-secondary-light: #7BC857;
-  --color-secondary-dark: #4E932E;
-  --color-secondary-soft: #F0F9EC;
+  /* Brand Accent: SIRI Lime Green (Badges, checkmarks, starburst icons) */
+  --color-accent: #72BF44;
+  --color-accent-hover: #5FA336;
+  --color-accent-light: #F2FBF0;
 
-  /* Brand Accent */
-  --color-accent: #70B82C;
-  --color-accent-light: #86D251;
-  --color-accent-cyan: #00A3E0;
+  /* Brand Secondary: Aligned with Accent SIRI Lime Green */
+  --color-secondary: #72BF44;
+  --color-secondary-hover: #5FA336;
+  --color-secondary-light: #F2FBF0;
+  --color-secondary-dark: #5FA336;
+  --color-secondary-soft: #F2FBF0;
+
+  /* Neutral: Deep charcoal slate for primary headings and body text (NO deep navy) */
+  --color-neutral-dark: #1E293B;
+  --color-neutral-muted: #64748B;
+  --color-neutral-border: #E2E8F0;
+  --color-neutral-surface: #FFFFFF;
+  --color-neutral-backdrop: rgba(255, 255, 255, 0.90);
 
   /* Surfaces & Backgrounds */
   --color-background: #F8FAFC;
   --color-surface: #FFFFFF;
   --color-surface-subtle: #F1F5F9;
 
-  /* Typography & Foreground */
-  --color-foreground: #0F172A;
+  /* Typography & Foreground (NO deep navy) */
+  --color-foreground: #1E293B;
   --color-muted: #64748B;
   --color-muted-foreground: #475569;
   --color-muted-light: #94A3B8;
@@ -42,16 +52,19 @@
   --color-border: #E2E8F0;
   --color-border-dark: #1E293B;
 
-  /* Dark Sections */
-  --color-dark: #0B192C;
-  --color-dark-deep: #060E18;
-  --color-darkSurface: #112240;
-  --color-darkSurface-elevated: #162C52;
-  --color-dark-surface: #112240;
-  --color-dark-surface-elevated: #162C52;
+  /* Dark Sections (Charcoal / Slate, NO deep navy) */
+  --color-dark: #1E293B;
+  --color-dark-deep: #0F172A;
+  --color-darkSurface: #1E293B;
+  --color-darkSurface-elevated: #334155;
+  --color-dark-surface: #1E293B;
+  --color-dark-surface-elevated: #334155;
 
   /* Feedback */
-  --color-success: #22C55E;
+  --color-success: #72BF44;
+
+  /* Brand Gradient: Logo-matched gradient */
+  --background-image-brand-gradient: linear-gradient(135deg, #72BF44 0%, #0072CE 100%);
 
   /* Typography Scale */
   --text-display: 3.5rem;
@@ -201,11 +214,15 @@
   @apply text-button;
 }
 
+@utility bg-brand-gradient {
+  background-image: linear-gradient(135deg, #72BF44 0%, #0072CE 100%);
+}
+
 /* Corpox-Style Realistic 2D Trusted Cards */
 .trust-card-2d {
   position: relative;
-  background: linear-gradient(180deg, #0E223D 0%, #081526 100%);
-  border: 1px solid rgba(28, 53, 88, 0.9);
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+  border: 1px solid rgba(226, 232, 240, 0.15);
   border-radius: 1rem;
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -215,19 +232,19 @@
 }
 
 .trust-card-2d:hover {
-  border-color: #65B741 !important;
-  box-shadow: 0 0 26px rgba(101, 183, 65, 0.45), 0 20px 40px -10px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(101, 183, 65, 0.1) !important;
+  border-color: #72BF44 !important;
+  box-shadow: 0 0 26px rgba(114, 191, 68, 0.45), 0 20px 40px -10px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(114, 191, 68, 0.1) !important;
   transform: translateY(-8px) scale(1.015);
 }
 
 .trust-card-2d:hover .trust-card-corner {
   transform: scale(1.4);
-  background-color: #7BC857 !important;
-  box-shadow: 0 0 14px rgba(101, 183, 65, 0.9);
+  background-color: #72BF44 !important;
+  box-shadow: 0 0 14px rgba(114, 191, 68, 0.9);
 }
 
 .trust-card-2d:hover .trust-card-label {
-  color: #86D251 !important;
+  color: #72BF44 !important;
 }
 
 .trust-card-2d:hover .trust-card-desc {

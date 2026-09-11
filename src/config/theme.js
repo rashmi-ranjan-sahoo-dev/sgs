@@ -5,56 +5,78 @@
  * Brand Identity: Professional, Trustworthy, Modern, Premium, Growth-oriented
  */
 
-export const THEME_COLORS = {
-  // Primary: Deep Blue (brand identity, main headings, primary UI, navigation)
+// Primary Brand Colors (SIRI Groups Official Palette)
+export const themeColors = {
   primary: {
-    DEFAULT: '#0A2E5C',
-    light: '#14427D',
-    dark: '#061D3B',
-    soft: '#EBF3FC',
+    DEFAULT: '#0072CE',      // Core SIRI Blue (CTAs, key highlights, active links)
+    hover: '#005FA8',        // Deeper blue for interactive press/hover states
+    light: '#F0F7FD',        // Soft ice blue tint for subtle card/section washes
+    focus: 'rgba(0, 114, 206, 0.25)', // Focus ring glow
   },
-  // Secondary: Green (supporting identity, CSR language, growth/impact)
-  secondary: {
-    DEFAULT: '#65B741',
-    light: '#7BC857',
-    dark: '#4E932E',
-    soft: '#F0F9EC',
-  },
-  // Accent: Light green & brand cyan highlights (CTA emphasis, small details)
   accent: {
-    DEFAULT: '#70B82C',
-    light: '#86D251',
-    cyan: '#00A3E0',
+    DEFAULT: '#72BF44',      // SIRI Lime Green (Badges, checkmarks, starburst icons)
+    hover: '#5FA336',        // Darker green for hover
+    light: '#F2FBF0',        // Light mint wash for badge backgrounds
   },
-  // Clean backgrounds & surfaces
+  neutral: {
+    dark: '#1E293B',         // Deep charcoal slate for primary headings and body text (NO deep navy)
+    muted: '#64748B',        // Balanced secondary gray for descriptions/subtitles
+    border: '#E2E8F0',       // Subtle clean border line
+    surface: '#FFFFFF',      // Pure white card and navbar surface
+    backdrop: 'rgba(255, 255, 255, 0.90)', // Glassmorphic navbar/pill fill
+  },
+  gradient: {
+    brand: 'linear-gradient(135deg, #72BF44 0%, #0072CE 100%)', // Logo-matched gradient
+  }
+};
+
+export const THEME_COLORS = {
+  primary: {
+    DEFAULT: themeColors.primary.DEFAULT,
+    hover: themeColors.primary.hover,
+    light: themeColors.primary.light,
+    dark: '#005FA8',
+    soft: themeColors.primary.light,
+    focus: themeColors.primary.focus,
+  },
+  secondary: {
+    DEFAULT: themeColors.accent.DEFAULT,
+    hover: themeColors.accent.hover,
+    light: themeColors.accent.light,
+    dark: '#5FA336',
+    soft: themeColors.accent.light,
+  },
+  accent: {
+    DEFAULT: themeColors.accent.DEFAULT,
+    hover: themeColors.accent.hover,
+    light: themeColors.accent.light,
+    cyan: '#0072CE',
+  },
   background: '#F8FAFC',
   surface: {
-    DEFAULT: '#FFFFFF',
+    DEFAULT: themeColors.neutral.surface,
     subtle: '#F1F5F9',
   },
-  // Typography colors
-  foreground: '#0F172A',
+  foreground: themeColors.neutral.dark,
   muted: {
-    DEFAULT: '#64748B',
+    DEFAULT: themeColors.neutral.muted,
     foreground: '#475569',
     light: '#94A3B8',
   },
-  // Borders & dividers
   border: {
-    DEFAULT: '#E2E8F0',
-    dark: '#1E293B',
+    DEFAULT: themeColors.neutral.border,
+    dark: themeColors.neutral.dark,
   },
-  // High-contrast & dark sections
   dark: {
-    DEFAULT: '#0B192C',
-    deep: '#060E18',
+    DEFAULT: themeColors.neutral.dark,
+    deep: '#0F172A',
   },
   darkSurface: {
-    DEFAULT: '#112240',
-    elevated: '#162C52',
+    DEFAULT: '#1E293B',
+    elevated: '#334155',
   },
-  // Feedback
   success: '#22C55E',
+  gradient: themeColors.gradient,
 };
 
 export const TYPOGRAPHY = {

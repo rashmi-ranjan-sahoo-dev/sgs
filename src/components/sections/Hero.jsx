@@ -1,808 +1,632 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import {
-  HERO_SLIDES,
-  HERO_BRAND_TAGLINE,
-  HERO_SUPPORT_CONTACT,
-} from '@/data/heroSlides';
-import FunFacts from './FunFacts';
+import siriAboutMain from '@/assets/images/about/siri-about-main.jpg';
+import siriLogo from '@/assets/images/siri-logo.png';
 
 /**
- * SIRI Group Hero Section Component
+ * Mobile-First, Highly Responsive Hero Section (Raycast-Style Aesthetic)
  *
- * Inspired by Consulo Home-2 Layout & Aesthetics:
- * - Subheading badge with sparkle accents
- * - Display typography with custom curved decorative highlight
- * - Dual action: Primary 'Get Started' CTA + Consulo-style Phone consultation link
- * - Infinite 2D rotating stamp badge (Consulo signature '.banner-badge')
- * - 2D floating glassmorphic metric card with continuous subtle floating animation
- * - 3-slide automatic rotation every 8 seconds (rock-solid timer with infinite loop)
- * - Interactive Next/Prev arrows and segmented thumbnail progress indicators
- * - Fully responsive across mobile, tablet, laptop, and 4K desktop
+ * Updates:
+ * - High-visibility animated SIRI Blue to Lime Green gradient canvas moving top-to-bottom and left-to-right infinitely
+ * - 4 luminous atmospheric orbs oscillating smoothly in 2D
+ * - Sculpted curved cutout on the image with exact concentric socket fitting for the ring
+ * - Ring color and background redesigned to harmoniously match the hero gradient background
+ * - Official SIRI Group logo centered inside the rotating ring
+ * - Mobile category cards styled like reference screenshot with continuous smooth floating 2D animations
+ * - Header left untouched
  */
-export default function Hero() {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // Animation and timer refs
+export default function Hero({ onOpenServicesModal }) {
   const heroRef = useRef(null);
-  const isAnimatingRef = useRef(false);
-  const isInitialMountRef = useRef(true);
-  const timerTweenRef = useRef(null);
-  const rotatingBadgeRef = useRef(null);
-  const floatingMetricRef = useRef(null);
-  const underlinePathRef = useRef(null);
-  const imageCardRef = useRef(null);
-  const controlsRef = useRef(null);
-  const bottomBarRef = useRef(null);
+  const tagRef = useRef(null);
+  const headlineLinesRef = useRef([]);
+  const ctaGroupRef = useRef(null);
+  const capsuleContainerRef = useRef(null);
+  const capsuleRef = useRef(null);
+  const badgeSpinRef = useRef(null);
+  const desktopChipsRef = useRef([]);
+  const mobileChipsRef = useRef([]);
 
-  // Content refs for slide transitions
-  const categoryRef = useRef(null);
-  const titleRef = useRef(null);
-  const subtitleRef = useRef(null);
-  const ctaRef = useRef(null);
-  const imageRefs = useRef([]);
-  const progressRefs = useRef([]);
+  // Atmospheric floating mesh orb refs
+  const topOrbRef = useRef(null);
+  const bottomOrbRef = useRef(null);
+  const centerOrbRef = useRef(null);
+  const leftOrbRef = useRef(null);
 
-  const SLIDE_DURATION = 8; // 8 seconds per slide
+  const serviceChips = [
+    { id: 'hr', icon: '👥', label: 'HR & Manpower Solutions', href: '#services-hr' },
+    { id: 'csr', icon: '🌱', label: 'CSR Project Management', href: '#services-csr' },
+    { id: 'travel', icon: '✈️', label: 'Globe Corporate Travel', href: '#services-travel' },
+    { id: 'loans', icon: '💼', label: 'Siri Fin Hub B2B Loans', href: '#services-loans' },
+  ];
 
-  /**
-   * Transition cleanly to target slide index
-   */
-  const goToSlide = useCallback(
-    (targetIndex) => {
-      if (isAnimatingRef.current || targetIndex === activeIndex) return;
-
-      isAnimatingRef.current = true;
-      const prevIndex = activeIndex;
-
-      // Kill and reset timer tween
-      if (timerTweenRef.current) {
-        timerTweenRef.current.kill();
-        timerTweenRef.current = null;
-      }
-
-      // Reset all progress bars
-      progressRefs.current.forEach((bar, idx) => {
-        if (bar) {
-          gsap.set(bar, { scaleX: idx === targetIndex ? 0 : 0 });
-        }
-      });
-
-      // Check motion preference
-      const prefersReducedMotion =
-        typeof window !== 'undefined' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      if (prefersReducedMotion) {
-        if (imageRefs.current[prevIndex]) {
-          gsap.to(imageRefs.current[prevIndex], { opacity: 0, duration: 0.2 });
-        }
-        if (imageRefs.current[targetIndex]) {
-          gsap.to(imageRefs.current[targetIndex], { opacity: 1, duration: 0.2 });
-        }
-        setActiveIndex(targetIndex);
-        isAnimatingRef.current = false;
-        return;
-      }
-
-      // Step 1: Smoothly animate outgoing text elements
-      const outgoingElements = [
-        categoryRef.current,
-        titleRef.current,
-        subtitleRef.current,
-        ctaRef.current,
-      ].filter(Boolean);
-
-      gsap.to(outgoingElements, {
-        opacity: 0,
-        y: -12,
-        duration: 0.25,
-        stagger: 0.02,
-        ease: 'power2.in',
-        onComplete: () => {
-          // Step 2: Cross-fade images
-          const prevImg = imageRefs.current[prevIndex];
-          const nextImg = imageRefs.current[targetIndex];
-
-          if (prevImg) {
-            gsap.to(prevImg, {
-              opacity: 0,
-              duration: 0.75,
-              ease: 'power2.inOut',
-            });
-          }
-
-          if (nextImg) {
-            gsap.fromTo(
-              nextImg,
-              { opacity: 0, scale: 1.05 },
-              {
-                opacity: 1,
-                scale: 1,
-                duration: 0.85,
-                ease: 'power2.out',
-              }
-            );
-          }
-
-          // Step 3: Update React state to mount new text
-          setActiveIndex(targetIndex);
-
-          // Step 4: Animate incoming text in with fresh stagger
-          requestAnimationFrame(() => {
-            const incomingElements = [
-              categoryRef.current,
-              titleRef.current,
-              subtitleRef.current,
-              ctaRef.current,
-            ].filter(Boolean);
-
-            gsap.fromTo(
-              incomingElements,
-              { opacity: 0, y: 16 },
-              {
-                opacity: 1,
-                y: 0,
-                duration: 0.52,
-                stagger: 0.07,
-                ease: 'power3.out',
-                onComplete: () => {
-                  isAnimatingRef.current = false;
-                },
-              }
-            );
-          });
-        },
-      });
-    },
-    [activeIndex]
-  );
-
-  const handleNext = useCallback(() => {
-    goToSlide((activeIndex + 1) % HERO_SLIDES.length);
-  }, [activeIndex, goToSlide]);
-
-  const handlePrev = useCallback(() => {
-    goToSlide((activeIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
-  }, [activeIndex, goToSlide]);
-
-  /**
-   * Initial Opening Entrance Animation (Slow, Cool, Cinematic for all screens)
-   */
   useEffect(() => {
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (prefersReducedMotion) return;
-
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        delay: 1.15, // Starts gracefully as the PageLoader curtain reveals
-        defaults: { ease: 'power3.out' },
-      });
-
-      // 1. Subheading pill with sparkles
-      if (categoryRef.current) {
-        tl.fromTo(
-          categoryRef.current,
-          { opacity: 0, y: 28 },
-          { opacity: 1, y: 0, duration: 0.85 }
-        );
+      // ─────────────────────────────────────────────────────────────
+      // 1. Continuous Floating Primary Gradient Mesh Orbs (Infinite 2D Loops)
+      // ─────────────────────────────────────────────────────────────
+      if (!prefersReducedMotion) {
+        // Orb 1: Core SIRI Blue Top-Right (top-to-bottom & left-to-right float)
+        if (topOrbRef.current) {
+          gsap.to(topOrbRef.current, {
+            x: 55,
+            y: -45,
+            scale: 1.15,
+            duration: 10,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          });
+        }
+        // Orb 2: Core SIRI Lime Green Bottom-Left (smooth multi-axis float)
+        if (bottomOrbRef.current) {
+          gsap.to(bottomOrbRef.current, {
+            x: -45,
+            y: 50,
+            scale: 1.18,
+            duration: 12,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          });
+        }
+        // Orb 3: Brand Combo Gradient Center-Right
+        if (centerOrbRef.current) {
+          gsap.to(centerOrbRef.current, {
+            x: 40,
+            y: 35,
+            rotate: 140,
+            scale: 1.12,
+            duration: 14,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          });
+        }
+        // Orb 4: Luminous Blue Top-Left
+        if (leftOrbRef.current) {
+          gsap.to(leftOrbRef.current, {
+            x: -35,
+            y: -35,
+            scale: 1.1,
+            duration: 9.5,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          });
+        }
       }
 
-      // 2. Display Title
-      if (titleRef.current) {
-        tl.fromTo(
-          titleRef.current,
-          { opacity: 0, y: 35 },
-          { opacity: 1, y: 0, duration: 1.05 },
-          '-=0.65'
-        );
-      }
-
-      // 3. Draw curved brush underline SVG path
-      if (underlinePathRef.current) {
-        tl.fromTo(
-          underlinePathRef.current,
-          { strokeDasharray: 100, strokeDashoffset: 100 },
-          { strokeDashoffset: 0, duration: 0.95, ease: 'power2.out' },
-          '-=0.55'
-        );
-      }
-
-      // 4. Subtitle paragraph
-      if (subtitleRef.current) {
-        tl.fromTo(
-          subtitleRef.current,
-          { opacity: 0, y: 22 },
-          { opacity: 1, y: 0, duration: 0.85 },
-          '-=0.6'
-        );
-      }
-
-      // 5. Actions wrap (CTA + Phone Consultation)
-      if (ctaRef.current) {
-        tl.fromTo(
-          ctaRef.current,
-          { opacity: 0, y: 22, scale: 0.94 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.85 },
-          '-=0.5'
-        );
-      }
-
-      // 6. Right Visual Image Card (zooms smoothly from scale 1.12 to 1.0)
-      if (imageCardRef.current) {
-        tl.fromTo(
-          imageCardRef.current,
-          { opacity: 0, scale: 1.12, y: 30 },
-          { opacity: 1, scale: 1, y: 0, duration: 1.3, ease: 'power3.out' },
-          '-=1.2'
-        );
-      }
-
-      // 7. Rotating Stamp Badge (pops in with spring and begins continuous 360° rotation)
-      if (rotatingBadgeRef.current) {
-        tl.fromTo(
-          rotatingBadgeRef.current,
-          { opacity: 0, scale: 0, rotation: -60 },
-          { opacity: 1, scale: 1, rotation: 0, duration: 1.0, ease: 'back.out(1.6)' },
-          '-=0.8'
-        );
-      }
-
-      // 8. Floating Metric Card (settles into position)
-      if (floatingMetricRef.current) {
-        tl.fromTo(
-          floatingMetricRef.current,
-          { opacity: 0, y: 32 },
-          { opacity: 1, y: 0, duration: 0.85 },
-          '-=0.7'
-        );
-      }
-
-      // 9. Slide navigation controls & bottom status strip
-      if (controlsRef.current) {
-        tl.fromTo(
-          controlsRef.current,
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.75 },
-          '-=0.5'
-        );
-      }
-
-      if (bottomBarRef.current) {
-        tl.fromTo(
-          bottomBarRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.8 },
-          '-=0.4'
-        );
-      }
-    }, heroRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  /**
-   * 8-Second Progress Bar and Automatic Carousel Cycle
-   */
-  useEffect(() => {
-    const activeProgressBar = progressRefs.current[activeIndex];
-    if (!activeProgressBar) return;
-
-    // Set origin to left and scale to 0
-    gsap.set(activeProgressBar, { scaleX: 0, transformOrigin: 'left center' });
-
-    // For first slide on initial mount, delay timer by 2.2s so user enjoys the opening animation
-    const delay = isInitialMountRef.current ? 2.2 : 0;
-    isInitialMountRef.current = false;
-
-    // Tween the progress bar continuously for 8 seconds
-    const tween = gsap.to(activeProgressBar, {
-      scaleX: 1,
-      duration: SLIDE_DURATION,
-      delay,
-      ease: 'none',
-      transformOrigin: 'left center',
-      onComplete: () => {
-        // Automatically advance to the next slide in infinite loop
-        handleNext();
-      },
-    });
-
-    timerTweenRef.current = tween;
-
-    return () => {
-      tween.kill();
-    };
-  }, [activeIndex, handleNext]);
-
-  /**
-   * 2D Continuous Animations (Consulo Signature Elements)
-   */
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // 1. Consulo Infinite 2D Rotating Stamp Badge
-      if (rotatingBadgeRef.current) {
-        gsap.to(rotatingBadgeRef.current, {
+      // ─────────────────────────────────────────────────────────────
+      // 2. Rotating Circular Ring Infinite Spin (20s linear loop)
+      // ─────────────────────────────────────────────────────────────
+      if (badgeSpinRef.current) {
+        gsap.to(badgeSpinRef.current, {
           rotation: 360,
-          duration: 22,
-          repeat: -1,
+          duration: 20,
           ease: 'none',
+          repeat: -1,
+          transformOrigin: '50% 50%',
         });
       }
 
-      // 2. Floating 2D Metric Card (gentle organic bobbing)
-      if (floatingMetricRef.current) {
-        gsap.to(floatingMetricRef.current, {
-          y: -8,
-          duration: 2.8,
-          yoyo: true,
-          repeat: -1,
-          ease: 'sine.inOut',
+      // ─────────────────────────────────────────────────────────────
+      // 3. Desktop Floating Service Chips Oscillation
+      // ─────────────────────────────────────────────────────────────
+      if (!prefersReducedMotion) {
+        const validDesktopChips = desktopChipsRef.current.filter(Boolean);
+        if (validDesktopChips.length > 0) {
+          validDesktopChips.forEach((chip, index) => {
+            gsap.to(chip, {
+              y: index % 2 === 0 ? -7 : 7,
+              duration: 3.2 + index * 0.3,
+              repeat: -1,
+              yoyo: true,
+              ease: 'sine.inOut',
+              delay: index * 0.2,
+            });
+          });
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // 4. Mobile Category Cards Floating Oscillation (Smooth 2D Loop)
+      // ─────────────────────────────────────────────────────────────
+      if (!prefersReducedMotion) {
+        const validMobileChips = mobileChipsRef.current.filter(Boolean);
+        if (validMobileChips.length > 0) {
+          validMobileChips.forEach((chip, index) => {
+            gsap.to(chip, {
+              y: index % 2 === 0 ? -5 : 5,
+              x: index % 2 === 0 ? 3 : -3,
+              duration: 3.0 + index * 0.35,
+              repeat: -1,
+              yoyo: true,
+              ease: 'sine.inOut',
+              delay: index * 0.15,
+            });
+          });
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // 5. Entrance Sequence (PageLoader-Aware)
+      // ─────────────────────────────────────────────────────────────
+      const runEntrance = () => {
+        if (prefersReducedMotion) return;
+
+        const tl = gsap.timeline({
+          defaults: { ease: 'power3.out' },
         });
+
+        // 5a. Pill Tagline: y: -15 -> 0, opacity: 0 -> 1, duration: 1.0s
+        if (tagRef.current) {
+          tl.fromTo(
+            tagRef.current,
+            { y: -15, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1.0 }
+          );
+        }
+
+        // 5b. Headline lines: y: 35 -> 0, opacity: 0 -> 1, stagger: 0.12s, duration: 1.2s
+        const validHeadlineLines = headlineLinesRef.current.filter(Boolean);
+        if (validHeadlineLines.length > 0) {
+          tl.fromTo(
+            validHeadlineLines,
+            { y: 35, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1.2, stagger: 0.12 },
+            '-=0.7'
+          );
+        }
+
+        // 5c. Action Buttons: y: 25 -> 0, opacity: 0 -> 1, duration: 1.0s
+        if (ctaGroupRef.current) {
+          tl.fromTo(
+            ctaGroupRef.current,
+            { y: 25, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1.0 },
+            '-=0.7'
+          );
+        }
+
+        // 5d. Showcase Capsule: scale: 0.94 -> 1.0, y: 40 -> 0, opacity: 0 -> 1, duration: 1.4s
+        if (capsuleContainerRef.current) {
+          tl.fromTo(
+            capsuleContainerRef.current,
+            { scale: 0.94, y: 40, opacity: 0 },
+            { scale: 1.0, y: 0, opacity: 1, duration: 1.4 },
+            '-=0.8'
+          );
+        }
+
+        // 5e. Floating Chips & Badges: scale: 0.8 -> 1.0, opacity: 0 -> 1, stagger: 0.15s, duration: 0.8s
+        const allChips = [
+          ...desktopChipsRef.current.filter(Boolean),
+          ...mobileChipsRef.current.filter(Boolean),
+        ];
+        if (allChips.length > 0) {
+          tl.fromTo(
+            allChips,
+            { scale: 0.8, opacity: 0 },
+            { scale: 1.0, opacity: 1, duration: 0.8, stagger: 0.15 },
+            '-=0.7'
+          );
+        }
+      };
+
+      // Synchronization with PageLoader
+      if (typeof window !== 'undefined') {
+        if (window.__pageLoaderDone) {
+          runEntrance();
+        } else {
+          let hasRun = false;
+          const handleLoaderDone = () => {
+            if (!hasRun) {
+              hasRun = true;
+              runEntrance();
+            }
+          };
+
+          window.addEventListener('pageLoaderDone', handleLoaderDone);
+          const safetyTimer = setTimeout(() => {
+            if (!hasRun) {
+              hasRun = true;
+              runEntrance();
+            }
+          }, 800);
+
+          return () => {
+            window.removeEventListener('pageLoaderDone', handleLoaderDone);
+            clearTimeout(safetyTimer);
+          };
+        }
       }
     }, heroRef);
 
     return () => ctx.revert();
   }, []);
 
-  const currentSlide = HERO_SLIDES[activeIndex];
+  // ─────────────────────────────────────────────────────────────
+  // 6. Interactive 3D Mouse Perspective Tilt on Showcase Capsule
+  // ─────────────────────────────────────────────────────────────
+  const handleMouseMove = (e) => {
+    if (typeof window === 'undefined' || window.innerWidth < 1024) return;
+    if (!capsuleRef.current) return;
+
+    const rect = capsuleRef.current.getBoundingClientRect();
+    const x = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+    const y = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
+
+    gsap.to(capsuleRef.current, {
+      rotateY: x * 3.5,
+      rotateX: -y * 3.5,
+      transformPerspective: 1200,
+      duration: 0.45,
+      ease: 'power2.out',
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (capsuleRef.current) {
+      gsap.to(capsuleRef.current, {
+        rotateY: 0,
+        rotateX: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+      });
+    }
+  };
+
+  // Primary CTA Click Handler
+  const handlePrimaryCtaClick = (e) => {
+    if (onOpenServicesModal) {
+      e.preventDefault();
+      onOpenServicesModal();
+    } else {
+      const target = document.querySelector('#services');
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <section
-      ref={heroRef}
       id="hero"
-      aria-label="SIRI Group Key Solutions"
-      aria-roledescription="carousel"
-      className="relative min-h-[100dvh] flex flex-col justify-between pt-28 pb-2 sm:pt-32 sm:pb-3 lg:pt-36 lg:pb-4 overflow-hidden bg-background"
+      ref={heroRef}
+      className="relative min-h-screen flex flex-col items-center justify-start pt-20 pb-8 sm:pt-24 sm:pb-10 lg:pt-28 lg:pb-12 overflow-x-clip select-none transition-colors duration-500 hero-animated-gradient-bg"
     >
-      {/* ─────────────────────────────────────────────────────────────
-          1. Layered Background Aesthetics (Consulo Inspiration)
-      ───────────────────────────────────────────────────────────── */}
-      {/* Architectural Dot Grid Pattern */}
+      {/* ─────────────────────────────────────────────────────────
+          Styles: Shifting Gradient Background & Fitted Image Mask Cutout
+      ───────────────────────────────────────────────────────── */}
+      <style>{`
+        @keyframes heroGradientFloat {
+          0% {
+            background-position: 0% 0%;
+          }
+          25% {
+            background-position: 100% 30%;
+          }
+          50% {
+            background-position: 80% 100%;
+          }
+          75% {
+            background-position: 0% 70%;
+          }
+          100% {
+            background-position: 0% 0%;
+          }
+        }
+
+        .hero-animated-gradient-bg {
+          background-image: linear-gradient(
+            135deg,
+            rgba(0, 114, 206, 0.24) 0%,
+            rgba(224, 242, 254, 0.88) 28%,
+            rgba(240, 253, 244, 0.88) 62%,
+            rgba(114, 191, 68, 0.26) 100%
+          );
+          background-size: 200% 200%;
+          animation: heroGradientFloat 16s ease-in-out infinite alternate;
+        }
+
+        .siri-hero-capsule-socket {
+          --cutout-r: 48px;
+          --cutout-x: 44px;
+          --cutout-y: 20px;
+        }
+        @media (min-width: 640px) {
+          .siri-hero-capsule-socket {
+            --cutout-r: 66px;
+            --cutout-x: 58px;
+            --cutout-y: 26px;
+          }
+        }
+        @media (min-width: 1024px) {
+          .siri-hero-capsule-socket {
+            --cutout-r: 74px;
+            --cutout-x: 66px;
+            --cutout-y: 30px;
+          }
+        }
+
+        .siri-hero-image-curve {
+          -webkit-mask-image: radial-gradient(circle var(--cutout-r) at calc(100% - var(--cutout-x)) var(--cutout-y), transparent 98%, #000 100%);
+          mask-image: radial-gradient(circle var(--cutout-r) at calc(100% - var(--cutout-x)) var(--cutout-y), transparent 98%, #000 100%);
+        }
+      `}</style>
+
+      {/* ─────────────────────────────────────────────────────────
+          1. Subtle Raycast-Style Canvas Dot-Grid Background Overlay
+      ───────────────────────────────────────────────────────── */}
       <div
+        className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-15"
+        style={{
+          backgroundImage: 'radial-gradient(#0072CE 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#0A2E5C_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.035]"
       />
 
-      {/* Ambient Gradient Light Glows */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-40 right-[-10%] w-[650px] h-[650px] rounded-full bg-primary-soft/70 blur-3xl opacity-60"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-[-15%] w-[550px] h-[550px] rounded-full bg-secondary-soft/60 blur-3xl opacity-55"
-      />
+      {/* ─────────────────────────────────────────────────────────
+          2. Atmospheric Infinitely Floating Primary Color Mesh Orbs (Rich & Visible)
+      ───────────────────────────────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden="true">
+        {/* Orb 1: Core SIRI Blue (#0072CE) Top-Right (Floating Smoothly) */}
+        <div
+          ref={topOrbRef}
+          className="absolute -top-12 -right-12 sm:top-0 sm:right-0 w-84 h-84 sm:w-[560px] sm:h-[560px] lg:w-[740px] lg:h-[740px] rounded-full bg-gradient-to-br from-[#0072CE] to-[#0284C7] opacity-45 dark:opacity-30 blur-[75px] sm:blur-[115px] will-change-transform"
+        />
 
-      {/* ─────────────────────────────────────────────────────────────
-          2. Main Content Grid (Two-Column Desktop, Stacked Mobile)
-      ───────────────────────────────────────────────────────────── */}
-      <div className="container relative z-10 mx-auto my-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-10 xl:gap-14 items-center">
-          {/* ============================================================ */}
-          {/* LEFT COLUMN: Content, Display Typography, Actions            */}
-          {/* ============================================================ */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            {/* Consulo Subheading Pill with Sparkle Accents */}
-            <div
-              ref={categoryRef}
-              className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-surface border border-border text-xs sm:text-caption font-bold tracking-wider text-primary w-fit mb-5 shadow-subtle will-change-transform"
-            >
-              {/* Left sparkle star */}
-              <svg
-                className="w-3.5 h-3.5 text-secondary shrink-0"
-                viewBox="0 0 14 14"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M8.714 5.286C11.751 5.421 14 5.941 14 7s-2.249 1.58-5.286 1.714C8.579 11.751 8.059 14 7 14s-1.58-2.249-1.714-5.286C2.249 8.579 0 8.059 0 7s2.249-1.58 5.286-1.714C5.421 2.249 5.941 0 7 0s1.58 2.249 1.714 5.286" />
-              </svg>
+        {/* Orb 2: Core SIRI Lime Green (#72BF44) Bottom-Left (Floating Smoothly) */}
+        <div
+          ref={bottomOrbRef}
+          className="absolute top-1/2 -left-16 sm:top-1/3 sm:left-2 w-76 h-76 sm:w-[520px] sm:h-[520px] lg:w-[680px] lg:h-[680px] rounded-full bg-gradient-to-tr from-[#72BF44] to-[#84CC16] opacity-40 dark:opacity-25 blur-[70px] sm:blur-[110px] will-change-transform"
+        />
 
-              <span className="uppercase text-secondary font-extrabold tracking-widest">
-                {currentSlide.category}
-              </span>
-              <span className="text-muted/60">&bull;</span>
-              <span className="text-muted-foreground font-semibold">
-                {currentSlide.badge}
-              </span>
+        {/* Orb 3: Brand Combo Gradient (#72BF44 to #0072CE) Mid-Right */}
+        <div
+          ref={centerOrbRef}
+          className="absolute top-1/4 right-1/8 w-68 h-68 sm:w-[440px] sm:h-[440px] rounded-full bg-gradient-to-br from-[#72BF44] via-[#00A3E0] to-[#0072CE] opacity-35 dark:opacity-22 blur-[65px] sm:blur-[100px] will-change-transform"
+        />
 
-              {/* Right sparkle star */}
-              <svg
-                className="w-3.5 h-3.5 text-secondary shrink-0"
-                viewBox="0 0 14 14"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M8.714 5.286C11.751 5.421 14 5.941 14 7s-2.249 1.58-5.286 1.714C8.579 11.751 8.059 14 7 14s-1.58-2.249-1.714-5.286C2.249 8.579 0 8.059 0 7s2.249-1.58 5.286-1.714C5.421 2.249 5.941 0 7 0s1.58 2.249 1.714 5.286" />
-              </svg>
-            </div>
-
-            {/* Consulo-Style Display Title with Custom Curved Highlight */}
-            <h1
-              ref={titleRef}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.35rem] xl:text-[3.9rem] font-bold text-primary tracking-tight leading-[1.12] mb-5 min-h-[2.35em] flex items-center will-change-transform"
-            >
-              <span>
-                {currentSlide.titleParts.before}{' '}
-                <span className="relative inline-block text-secondary">
-                  <span>{currentSlide.titleParts.highlight}</span>
-                  {/* Consulo artistic curved brush underline */}
-                  <svg
-                    className="absolute -bottom-1.5 left-0 w-full h-3 text-secondary/70 overflow-visible"
-                    viewBox="0 0 100 12"
-                    fill="none"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      ref={underlinePathRef}
-                      d="M2 9C28 2.5 72 2.5 98 8.5"
-                      stroke="currentColor"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>{' '}
-                {currentSlide.titleParts.after}
-              </span>
-            </h1>
-
-            {/* Slide Subtitle (Stable vertical bounding box) */}
-            <p
-              ref={subtitleRef}
-              className="text-muted-foreground text-base sm:text-lg md:text-[1.1rem] leading-relaxed max-w-xl mb-8 min-h-[3.8em] flex items-start will-change-transform"
-            >
-              {currentSlide.subtitle}
-            </p>
-
-            {/* Consulo-Style Actions Wrap: Primary CTA + Phone Consultation */}
-            <div
-              ref={ctaRef}
-              className="flex flex-wrap items-center gap-5 sm:gap-6 mb-10 sm:mb-12 will-change-transform"
-            >
-              {/* Primary Get Started Button with Circular Arrow Container */}
-              <a
-                href={currentSlide.href}
-                className="group relative inline-flex items-center gap-3.5 px-7 py-3.5 rounded-xl bg-primary text-white font-semibold text-button shadow-card hover:bg-primary-light hover:shadow-hover transition-all duration-300 transform active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-              >
-                <span>{currentSlide.ctaText}</span>
-                <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-1">
-                  <svg
-                    className="w-3.5 h-3.5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                    />
-                  </svg>
-                </span>
-              </a>
-
-              {/* Consulo-Style Direct Consultation Phone Call Element */}
-              <a
-                href={HERO_SUPPORT_CONTACT.href}
-                className="group flex items-center gap-3.5 text-foreground hover:text-primary transition-colors duration-200"
-                aria-label={`Call SIRI Group at ${HERO_SUPPORT_CONTACT.phone}`}
-              >
-                <div className="w-11 h-11 rounded-xl bg-surface border border-border flex items-center justify-center shadow-subtle group-hover:border-secondary group-hover:bg-secondary-soft transition-all duration-200">
-                  <svg
-                    className="w-5 h-5 text-secondary transition-transform duration-200 group-hover:scale-110"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
-                    />
-                  </svg>
-                </div>
-                <div className="text-left">
-                  <span className="block text-[11px] font-semibold text-muted uppercase tracking-wider">
-                    {HERO_SUPPORT_CONTACT.label}
-                  </span>
-                  <span className="block text-sm sm:text-base font-bold text-primary group-hover:text-secondary transition-colors duration-200">
-                    {HERO_SUPPORT_CONTACT.phone}
-                  </span>
-                </div>
-              </a>
-            </div>
-
-            {/* ────────────────────────────────────────────────────────── */}
-            {/* Consulo-Style Slide Controls: Arrows + Thumbnails          */}
-            {/* ────────────────────────────────────────────────────────── */}
-            <div
-              ref={controlsRef}
-              className="pt-6 border-t border-border/85 will-change-transform"
-              role="tablist"
-              aria-label="SIRI Group service solutions"
-            >
-              <div className="flex items-center justify-between gap-4 mb-3">
-                <span className="text-xs font-bold text-primary tracking-wider uppercase flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-secondary" />
-                  Solutions Overview ({activeIndex + 1} of {HERO_SLIDES.length})
-                </span>
-
-                {/* Next & Previous Interactive Arrow Buttons */}
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    aria-label="Previous Slide"
-                    className="w-8 h-8 rounded-full border border-border bg-surface flex items-center justify-center text-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 shadow-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary active:scale-95"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.75 19.5L8.25 12l7.5-7.5"
-                      />
-                    </svg>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    aria-label="Next Slide"
-                    className="w-8 h-8 rounded-full border border-border bg-surface flex items-center justify-center text-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 shadow-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary active:scale-95"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* 3 Interactive Slide Tab Cards with 8s Progress Bars */}
-              <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
-                {HERO_SLIDES.map((slide, index) => {
-                  const isActive = index === activeIndex;
-                  return (
-                    <button
-                      key={slide.id}
-                      role="tab"
-                      aria-selected={isActive}
-                      aria-label={`Slide ${slide.id}: ${slide.category}`}
-                      tabIndex={0}
-                      onClick={() => goToSlide(index)}
-                      className={`group text-left p-2.5 sm:p-3 rounded-xl border transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
-                        isActive
-                          ? 'bg-surface border-secondary shadow-card'
-                          : 'bg-surface/50 border-border hover:bg-surface hover:border-border/80'
-                      }`}
-                    >
-                      {/* Segmented Progress Track */}
-                      <div className="w-full h-1 bg-border/70 rounded-full overflow-hidden mb-2 relative">
-                        <div
-                          ref={(el) => (progressRefs.current[index] = el)}
-                          className={`absolute inset-0 h-full w-full rounded-full ${
-                            isActive ? 'bg-secondary' : 'bg-transparent'
-                          }`}
-                          style={{
-                            transform: 'scaleX(0)',
-                            transformOrigin: 'left center',
-                          }}
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={`text-xs font-bold transition-colors duration-200 ${
-                            isActive ? 'text-secondary' : 'text-muted'
-                          }`}
-                        >
-                          {slide.id}
-                        </span>
-                        <span
-                          className={`text-xs font-semibold tracking-tight truncate hidden sm:inline transition-colors duration-200 ${
-                            isActive ? 'text-primary' : 'text-muted-foreground'
-                          }`}
-                        >
-                          {slide.category}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* ============================================================ */}
-          {/* RIGHT COLUMN: Consulo Visual Card, Rotating Stamp, Float 2D  */}
-          {/* ============================================================ */}
-          <div className="lg:col-span-5 flex items-center justify-center relative">
-            {/* Consulo's Infinite 2D Rotating Circular Stamp Badge */}
-            <div
-              ref={rotatingBadgeRef}
-              className="absolute -top-7 -left-5 sm:-top-8 sm:-left-7 z-30 w-24 h-24 sm:w-28 sm:h-28 pointer-events-none drop-shadow-lg"
-              aria-hidden="true"
-            >
-              <svg
-                viewBox="0 0 120 120"
-                className="w-full h-full text-primary"
-              >
-                {/* Circular path for the text */}
-                <path
-                  id="siriStampCircle"
-                  d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"
-                  fill="none"
-                />
-                {/* White circular background disc with border */}
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="56"
-                  fill="#FFFFFF"
-                  stroke="#E2E8F0"
-                  strokeWidth="1.5"
-                />
-                {/* Rotating curved text around perimeter */}
-                <text className="text-[9.5px] font-extrabold uppercase tracking-[0.24em] fill-primary">
-                  <textPath href="#siriStampCircle">
-                    &bull; SIRI GROUP &bull; PEOPLE &bull; PURPOSE &bull; TRAVEL
-                  </textPath>
-                </text>
-                {/* Central Star Emblem */}
-                <g transform="translate(48, 48)">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="text-secondary"
-                  >
-                    <path
-                      d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </g>
-              </svg>
-            </div>
-
-            {/* Main Visual Image Card */}
-            <div
-              ref={imageCardRef}
-              className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/5] xl:aspect-[1/1] max-w-lg lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border border-border/85 bg-surface will-change-transform"
-            >
-              {/* Stacked Images for instantaneous cross-fade without layout shift */}
-              {HERO_SLIDES.map((slide, index) => {
-                const isActive = index === activeIndex;
-                return (
-                  <div
-                    key={slide.id}
-                    ref={(el) => (imageRefs.current[index] = el)}
-                    className="absolute inset-0 w-full h-full transition-opacity duration-300"
-                    style={{
-                      opacity: isActive ? 1 : 0,
-                      zIndex: isActive ? 10 : 1,
-                      pointerEvents: isActive ? 'auto' : 'none',
-                    }}
-                    aria-hidden={!isActive}
-                  >
-                    <img
-                      src={slide.image}
-                      alt={slide.alt}
-                      loading={index === 0 ? 'eager' : 'lazy'}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                );
-              })}
-
-              {/* Bottom Subtle Gradient for contrast */}
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-dark/75 via-dark/20 to-transparent pointer-events-none z-20"
-              />
-
-              {/* Top-Right: Slide Counter Pill Badge */}
-              <div className="absolute top-5 right-5 z-30 px-3.5 py-1.5 rounded-full bg-dark/65 backdrop-blur-md border border-white/20 text-white text-xs font-semibold tracking-wider flex items-center gap-1.5 shadow-subtle">
-                <span className="text-secondary-light font-bold">
-                  {currentSlide.id}
-                </span>
-                <span className="text-white/60">/</span>
-                <span className="text-white/80">03</span>
-              </div>
-
-              {/* Consulo-Style Floating 2D Metric Card (bottom-left) */}
-              <div
-                ref={floatingMetricRef}
-                className="absolute bottom-6 left-6 right-6 sm:right-auto z-30 bg-surface/95 backdrop-blur-md border border-white/40 p-3.5 sm:p-4 rounded-2xl shadow-dark-card flex items-center gap-3.5 max-w-xs will-change-transform"
-              >
-                <div className="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
-                  <span className="text-lg font-bold text-secondary">
-                    {activeIndex === 0 ? '🏆' : activeIndex === 1 ? '🌱' : '✈️'}
-                  </span>
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-lg font-extrabold text-primary leading-none">
-                      {currentSlide.metric.value}
-                    </span>
-                    <span className="text-xs font-semibold text-foreground truncate">
-                      {currentSlide.metric.label}
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-medium text-muted truncate block mt-0.5">
-                    {currentSlide.metric.tag}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ─────────────────────────────────────────────────────────────
-            2. Lower Hero: "Our Fun Facts" 2D Cards Section (Corpox Style)
-        ───────────────────────────────────────────────────────────── */}
-        <FunFacts />
+        {/* Orb 4: Luminous Blue-Cyan Top-Left */}
+        <div
+          ref={leftOrbRef}
+          className="absolute -top-10 -left-10 w-64 h-64 sm:w-[400px] sm:h-[400px] rounded-full bg-gradient-to-br from-[#0072CE] to-[#38BDF8] opacity-30 dark:opacity-20 blur-[65px] sm:blur-[95px] will-change-transform"
+        />
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          3. Bottom Brand Status Strip & Scroll Indicator
-      ───────────────────────────────────────────────────────────── */}
-      <div
-        ref={bottomBarRef}
-        className="container mx-auto px-4 sm:px-6 lg:px-8 mt-3 sm:mt-4 flex items-center justify-between text-caption text-muted border-t border-border/60 pt-3 will-change-transform"
-      >
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-secondary" />
-          <span className="hidden sm:inline font-medium">
-            {HERO_BRAND_TAGLINE}
+      {/* ─────────────────────────────────────────────────────────
+          3. Centered Content Container (Strict Zero Horizontal Overflow)
+      ───────────────────────────────────────────────────────── */}
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
+        {/* 3a. Pill Badge Tag */}
+        <div ref={tagRef} className="inline-flex items-center justify-center mb-3 sm:mb-4">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#72BF44]/40 bg-[#F2FBF0]/95 text-[#72BF44] text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs transition-transform hover:scale-105 cursor-default">
+            <span className="font-black text-[13px] leading-none">+</span>
+            <span>Business Solutions Partner</span>
+            <span className="font-black text-[13px] leading-none">+</span>
           </span>
-          <span className="sm:hidden font-medium">SIRI Group Solutions</span>
         </div>
 
-        <a
-          href="#services"
-          className="hover:text-primary font-medium transition-colors duration-200 flex items-center gap-1.5"
-          aria-label="Scroll down to explore all services"
+        {/* 3b. Main Heading with Distinct Lines */}
+        <h1
+          className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.18] sm:leading-[1.15] text-[#1E293B] dark:text-white tracking-tight max-w-4xl mx-auto"
         >
-          <span>Discover More</span>
-          <svg
-            className="w-3.5 h-3.5 animate-bounce"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2.5"
+          <span
+            ref={(el) => (headlineLinesRef.current[0] = el)}
+            className="inline-block"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-        </a>
+            Empowering Business Through{' '}
+          </span>{' '}
+          <span
+            ref={(el) => (headlineLinesRef.current[1] = el)}
+            className="inline-block text-[#72BF44]"
+          >
+            People, Purpose{' '}
+          </span>{' '}
+          <span
+            ref={(el) => (headlineLinesRef.current[2] = el)}
+            className="inline-block"
+          >
+            &amp;{' '}
+          </span>{' '}
+          <span
+            ref={(el) => (headlineLinesRef.current[3] = el)}
+            className="inline-block text-[#0072CE]"
+          >
+            Seamless Travel
+          </span>
+        </h1>
+
+        {/* 3c. Dual Action CTAs */}
+        <div
+          ref={ctaGroupRef}
+          className="w-full sm:w-auto flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-5 sm:mt-6 pt-1"
+        >
+          {/* Primary CTA: Explore Services */}
+          <a
+            href="#services"
+            onClick={handlePrimaryCtaClick}
+            className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-[#0072CE] hover:bg-[#005FA8] active:bg-[#005FA8] text-white font-bold text-sm sm:text-base shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-[#0072CE] focus:ring-offset-2"
+          >
+            <span>Explore Services</span>
+            <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200">
+              <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20" aria-hidden="true">
+                <path
+                  fillRule="evenodd"
+                  d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+          </a>
+
+          {/* Secondary CTA: Need Help? Consultation Desk */}
+          <a
+            href="tel:+919989325255"
+            className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center sm:justify-start gap-3 px-5 py-2.5 rounded-full border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-[#F0F7FD] dark:hover:bg-slate-800/80 transition-all duration-200 group text-left shadow-xs"
+            aria-label="Call SIRI Group Consultation Desk"
+          >
+            <span className="w-8 h-8 rounded-full bg-[#F0F7FD] dark:bg-slate-800 border border-blue-100 dark:border-slate-700 flex items-center justify-center text-[#0072CE] group-hover:scale-105 transition-transform shrink-0">
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.28-.28.37-.67.25-1.02A11.36 11.36 0 019 4.31c0-.55-.45-1-1-1H4.5c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z" />
+              </svg>
+            </span>
+            <div className="flex flex-col items-start leading-tight">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                Need Help?
+              </span>
+              <span className="text-xs sm:text-sm font-extrabold text-[#1E293B] dark:text-slate-100 group-hover:text-[#0072CE] transition-colors">
+                Consultation Desk
+              </span>
+            </div>
+          </a>
+        </div>
+
+        {/* ───────────────────────────────────────────────────────
+            4. Interactive Showcase Capsule with Fitted Curved Cutout & Background-Matched Ring
+        ─────────────────────────────────────────────────────── */}
+        <div
+          ref={capsuleContainerRef}
+          className="w-full max-w-4xl lg:max-w-5xl mx-auto mt-7 sm:mt-9 relative siri-hero-capsule-socket"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          {/* 4a. Capsule Card */}
+          <div
+            ref={capsuleRef}
+            className="relative rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xl shadow-slate-900/10 dark:shadow-black/50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-2 sm:p-3 transition-shadow duration-500 group"
+          >
+            {/* Main Showcase Image with Curved Corner Cutout */}
+            <div className="relative rounded-xl sm:rounded-2xl overflow-hidden siri-hero-image-curve">
+              <img
+                src={siriAboutMain}
+                alt="SIRI Group Corporate Operations and Excellence"
+                className="h-52 sm:h-76 lg:h-[25rem] object-cover w-full object-center transition-transform duration-700 ease-out group-hover:scale-102"
+                loading="eager"
+              />
+
+              {/* Gloss Vignette Overlay */}
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-white/10 pointer-events-none"
+                aria-hidden="true"
+              />
+            </div>
+
+            {/* 4b. Desktop Anchored Floating Glassmorphic Service Chips (lg+ only) */}
+            {/* Chip 1: Top-Left */}
+            <a
+              href="#services-hr"
+              ref={(el) => (desktopChipsRef.current[0] = el)}
+              className="hidden lg:flex absolute top-6 -left-5 z-20 items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-xl shadow-slate-900/10 text-xs font-bold text-[#1E293B] dark:text-slate-100 hover:border-[#0072CE] transition-all hover:scale-105"
+            >
+              <span className="text-base">👥</span>
+              <span>HR &amp; Manpower Solutions</span>
+            </a>
+
+            {/* Chip 2: Bottom-Left */}
+            <a
+              href="#services-csr"
+              ref={(el) => (desktopChipsRef.current[1] = el)}
+              className="hidden lg:flex absolute bottom-8 -left-4 z-20 items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-xl shadow-slate-900/10 text-xs font-bold text-[#1E293B] dark:text-slate-100 hover:border-[#72BF44] transition-all hover:scale-105"
+            >
+              <span className="text-base">🌱</span>
+              <span>CSR Project Management</span>
+            </a>
+
+            {/* Chip 3: Bottom-Right */}
+            <a
+              href="#services-travel"
+              ref={(el) => (desktopChipsRef.current[2] = el)}
+              className="hidden lg:flex absolute bottom-8 -right-4 z-20 items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-xl shadow-slate-900/10 text-xs font-bold text-[#1E293B] dark:text-slate-100 hover:border-[#0072CE] transition-all hover:scale-105"
+            >
+              <span className="text-base">✈️</span>
+              <span>Globe Corporate Travel</span>
+            </a>
+
+            {/* Chip 4: Center-Right */}
+            <a
+              href="#services-loans"
+              ref={(el) => (desktopChipsRef.current[3] = el)}
+              className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-6 z-20 items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 shadow-xl shadow-slate-900/10 text-xs font-bold text-[#1E293B] dark:text-slate-100 hover:border-[#72BF44] transition-all hover:scale-105"
+            >
+              <span className="text-base">💼</span>
+              <span>Siri Fin Hub B2B Loans</span>
+            </a>
+
+            {/* 4c. Top-Right Rotating Badge with Centered SIRI Logo, Nestled Directly into the Image Cutout Curve */}
+            <div
+              className="absolute z-30 select-none pointer-events-none"
+              style={{
+                top: 'calc(var(--cutout-y) + 8px)',
+                right: 'calc(var(--cutout-x) + 8px)',
+                transform: 'translate(50%, -50%)',
+              }}
+              aria-hidden="true"
+            >
+              {/* Ring styled with crisp pure white background & deep blue rotating text */}
+              <div className="relative w-20 h-20 sm:w-26 sm:h-26 lg:w-30 lg:h-30 rounded-full bg-white shadow-2xl shadow-blue-950/20 border-2 border-[#002D62]/20 flex items-center justify-center p-1 backdrop-blur-xl ring-2 ring-white/90">
+                {/* Rotating Circular SVG Text in Deep Blue (Spaced evenly with zero collision) */}
+                <svg
+                  ref={badgeSpinRef}
+                  viewBox="0 0 100 100"
+                  className="w-full h-full will-change-transform"
+                >
+                  <defs>
+                    <path
+                      id="siriHeroRingPath"
+                      d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+                    />
+                  </defs>
+                  <text className="text-[8px] font-black uppercase tracking-[0.14em] fill-[#002D62]">
+                    <textPath
+                      href="#siriHeroRingPath"
+                      xlinkHref="#siriHeroRingPath"
+                      textLength="225"
+                      lengthAdjust="spacing"
+                    >
+                      ✦ SIRI GROUPS ✦ 5+ VERTICALS ✦ ONE PARTNER
+                    </textPath>
+                  </text>
+                </svg>
+
+                {/* Center Static SIRI Group Logo Badge Plate (Pure White Background like Header Logo) */}
+                <div className="absolute inset-0 flex items-center justify-center p-2.5 sm:p-3 pointer-events-none">
+                  <div className="w-10 h-10 sm:w-13 sm:h-13 lg:w-15 lg:h-15 rounded-full bg-white shadow-md border border-slate-200/90 flex items-center justify-center p-1 sm:p-1.5 ring-1 ring-black/5">
+                    <img
+                      src={siriLogo}
+                      alt="SIRI Group Logo"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ───────────────────────────────────────────────────────
+            5. Mobile Floating Category Cards (Matching User Screenshot with GSAP Floating Animation)
+        ─────────────────────────────────────────────────────── */}
+        <div className="flex lg:hidden flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-5 sm:mt-6 px-1 max-w-lg">
+          {serviceChips.map((chip, idx) => (
+            <a
+              key={chip.id}
+              href={chip.href}
+              ref={(el) => (mobileChipsRef.current[idx] = el)}
+              className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-full text-xs font-bold bg-[#1E293B] text-white border border-slate-700/80 shadow-md flex items-center gap-2 hover:border-[#0072CE] transition-colors active:scale-95 will-change-transform"
+            >
+              <span className="text-sm">{chip.icon}</span>
+              <span>{chip.label}</span>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );

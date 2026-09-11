@@ -1,763 +1,690 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import gsap from 'gsap';
-import { NAV_LINKS } from '@/data/navigation';
+import { NAV_LINKS, CTA_BUTTON } from '@/data/navigation';
 import siriLogo from '@/assets/images/siri-logo.png';
 
 /**
- * SIRI Group Header Component — Final Responsive Refinement
+ * SIRI Group Header Component with GSAP ScrollTrigger & Floating Pill Morph
  *
- * Implements:
- * 1. Desktop Navigation Alignment: Balanced 3-column layout (Logo Left | Centered Nav Links | Contact Us Right)
- * 2. Mobile/Tablet Menu Button: "MENU ☰" on >= 480px, "☰" on < 480px, with NO border or container background
- * 3. Mobile Navigation Panel: Full-height off-canvas drawer via React Portal (immune to header transforms/clipping)
- * 4. Staggered Menu Item Entrance: Subtle opacity + y movement on drawer open
- * 5. Smooth Services Mobile Expansion: GSAP-animated height + opacity + subtle item movement (0.58s open / 0.46s close)
- * 6. Smooth Services Icon Animation: Rotating SVG morphing naturally between "+" and "−"
- * 7. Top-of-page transparent state morphing smoothly via GSAP to compact sticky white navigation
- * 8. Scroll locking with unmount cleanup & Escape key listener
+ * Visual Reference: Consulo Floating Header & Reference Video
+ * Content Source of Truth: sirigroup.pdf
+ *
+ * Specifications Implemented:
+ * - Brand Logo: siri-logo.png rendered in 100% original brand colors on desktop & mobile with clean frosted backing
+ * - Color Palette: Primary Blue #0072CE, Lime Green #72BF44, Neutral Dark #1E293B
+ * - Phase A: Mount entrance from y: -60, opacity: 0 -> y: 0, opacity: 1 (0.8s, power3.out)
+ * - Phase B: Scroll-triggered island morphing (Full-Width -> Floating Pill when scrollY > 40px)
+ * - Phase C: Smart directional hide / reveal (slow, gentle easing 0.65s power3.out / 0.55s power3.inOut)
+ * - Phase D: Services Mega-Dropdown with slow, floaty entrance (0.55s power3.out) & rotating chevron
+ * - Mobile Navigation: Brand-new Aurora Gradient Glass drawer matching Header with slow, smooth GSAP slide & accordion animations
+ * - CTA Button: Pill button labeled "Contact Us" with enclosed arrow circle
  */
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isPill, setIsPill] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDrawerMounted, setIsDrawerMounted] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  const headerRef = useRef(null);
-  const logoRef = useRef(null);
-  const navListRef = useRef(null);
-  const ctaRef = useRef(null);
-  const menuBtnRef = useRef(null);
+  const headerWrapperRef = useRef(null);
+  const headerPillRef = useRef(null);
   const dropdownRef = useRef(null);
-  const mobileDrawerRef = useRef(null);
-  const mobileBackdropRef = useRef(null);
-  const mobileSubmenuRef = useRef(null);
-  const mobileSubmenuInnerRef = useRef(null);
-  const mobileMenuTimelineRef = useRef(null);
-  const servicesAnimationRef = useRef(null);
+  const dropdownItemsRef = useRef([]);
+  const chevronRef = useRef(null);
+  const lastScrollY = useRef(0);
+  const isHiddenRef = useRef(false);
   const dropdownTimeoutRef = useRef(null);
 
-  // Client-side mount flag for React Portal
+  // Mobile drawer and accordion refs for slow, smooth GSAP animations
+  const mobileBackdropRef = useRef(null);
+  const mobileDrawerRef = useRef(null);
+  const mobileNavItemsRef = useRef([]);
+  const mobileAccordionRef = useRef(null);
+  const mobileAccordionChevronRef = useRef(null);
+  const mobileAccordionItemsRef = useRef([]);
+
+  // ─────────────────────────────────────────────────────────────
+  // Phase A: On Mount Entrance Animation
+  // ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    setMounted(true);
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        headerWrapperRef.current,
+        { y: -60, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', clearProps: 'opacity' }
+      );
+    });
+
+    return () => ctx.revert();
   }, []);
 
   // ─────────────────────────────────────────────────────────────
-  // 1. Scroll Detection & GSAP Sticky Morphing
+  // Phase B & C: Scroll-Triggered Morphing & Smart Directional Hide / Reveal
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const handleScroll = () => {
-      const scrolled = window.scrollY > 20;
-      setIsScrolled(scrolled);
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY.current;
+
+      // Threshold check for floating pill morph
+      if (currentScrollY > 40) {
+        setIsPill(true);
+      } else {
+        setIsPill(false);
+      }
+
+      // Smart Directional Hide / Reveal with slow, smooth easing
+      if (currentScrollY > 150) {
+        if (delta > 6 && !isHiddenRef.current && !servicesOpen && !mobileOpen) {
+          // Scrolling down -> hide smoothly
+          isHiddenRef.current = true;
+          gsap.to(headerWrapperRef.current, {
+            yPercent: -130,
+            duration: 0.55,
+            ease: 'power3.inOut',
+            overwrite: 'auto',
+          });
+        } else if (delta < -6 && isHiddenRef.current) {
+          // Scrolling up -> reveal smoothly
+          isHiddenRef.current = false;
+          gsap.to(headerWrapperRef.current, {
+            yPercent: 0,
+            duration: 0.65,
+            ease: 'power3.out',
+            overwrite: 'auto',
+          });
+        }
+      } else if (currentScrollY <= 20 && isHiddenRef.current) {
+        // Reached top -> reset smoothly
+        isHiddenRef.current = false;
+        gsap.to(headerWrapperRef.current, {
+          yPercent: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          overwrite: 'auto',
+        });
+      }
+
+      lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const header = headerRef.current;
-    if (!header) return;
-
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
-
-    if (prefersReducedMotion) {
-      if (isScrolled) {
-        header.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
-        header.style.borderBottomColor = 'rgba(226, 232, 240, 0.9)';
-        header.style.boxShadow = '0 10px 25px -4px rgba(10, 46, 92, 0.08)';
-        header.style.paddingTop = '10px';
-        header.style.paddingBottom = '10px';
-      } else {
-        header.style.backgroundColor = 'rgba(255, 255, 255, 0.92)';
-        header.style.borderBottomColor = 'rgba(226, 232, 240, 0.85)';
-        header.style.boxShadow = '0 4px 20px -2px rgba(10, 46, 92, 0.06)';
-        header.style.paddingTop = '14px';
-        header.style.paddingBottom = '14px';
-      }
-      return;
-    }
-
-    gsap.to(header, {
-      backgroundColor: isScrolled
-        ? 'rgba(255, 255, 255, 0.98)'
-        : 'rgba(255, 255, 255, 0.92)',
-      backdropFilter: 'blur(16px)',
-      borderBottomColor: isScrolled
-        ? 'rgba(226, 232, 240, 0.95)'
-        : 'rgba(226, 232, 240, 0.85)',
-      boxShadow: isScrolled
-        ? '0 10px 25px -4px rgba(10, 46, 92, 0.09)'
-        : '0 4px 20px -2px rgba(10, 46, 92, 0.06)',
-      paddingTop: isScrolled ? '10px' : '14px',
-      paddingBottom: isScrolled ? '10px' : '14px',
-      duration: 0.35,
-      ease: 'power2.out',
-    });
-
-    if (logoRef.current) {
-      gsap.to(logoRef.current, {
-        scale: isScrolled ? 0.94 : 1,
-        duration: 0.35,
-        ease: 'power2.out',
-      });
-    }
-  }, [isScrolled]);
+  }, [servicesOpen, mobileOpen]);
 
   // ─────────────────────────────────────────────────────────────
-  // 2. Initial Page-Load Entrance Animation
+  // Phase D: Services Dropdown Menu (Smooth Micro-Interaction)
   // ─────────────────────────────────────────────────────────────
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
-
-    if (prefersReducedMotion) return;
-
-    const ctx = gsap.context(() => {
-      const navItems = navListRef.current
-        ? navListRef.current.querySelectorAll('.desktop-nav-item')
-        : [];
-
-      const tl = gsap.timeline({
-        delay: 1.1, // Synchronized with PageLoader curtain reveal
-        defaults: { ease: 'power3.out' },
-      });
-
-      tl.fromTo(
-        headerRef.current,
-        { opacity: 0, y: -35 },
-        { opacity: 1, y: 0, duration: 1.0 }
-      );
-
-      if (logoRef.current) {
-        tl.fromTo(
-          logoRef.current,
-          { opacity: 0, x: -16 },
-          { opacity: 1, x: 0, duration: 0.8 },
-          '-=0.75'
-        );
-      }
-
-      if (navItems.length > 0) {
-        tl.fromTo(
-          navItems,
-          { opacity: 0, y: -10 },
-          { opacity: 1, y: 0, stagger: 0.08, duration: 0.7 },
-          '-=0.65'
-        );
-      }
-
-      if (ctaRef.current) {
-        tl.fromTo(
-          ctaRef.current,
-          { opacity: 0, scale: 0.9 },
-          { opacity: 1, scale: 1, duration: 0.65 },
-          '-=0.5'
-        );
-      }
-
-      if (menuBtnRef.current) {
-        tl.fromTo(
-          menuBtnRef.current,
-          { opacity: 0, scale: 0.9 },
-          { opacity: 1, scale: 1, duration: 0.65 },
-          '-=0.5'
-        );
-      }
-    }, headerRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  // ─────────────────────────────────────────────────────────────
-  // 3. Desktop Services Dropdown Handlers
-  // ─────────────────────────────────────────────────────────────
-  const handleDropdownEnter = useCallback(() => {
-    if (dropdownTimeoutRef.current) {
-      clearTimeout(dropdownTimeoutRef.current);
-    }
+  const openDropdown = useCallback(() => {
+    if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
     setServicesOpen(true);
-  }, []);
 
-  const handleDropdownLeave = useCallback(() => {
-    dropdownTimeoutRef.current = setTimeout(() => {
-      setServicesOpen(false);
-    }, 140);
-  }, []);
-
-  useEffect(() => {
-    if (!dropdownRef.current) return;
-    const el = dropdownRef.current;
-
-    if (servicesOpen) {
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 8, scale: 0.98, display: 'block' },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.22,
-          ease: 'power2.out',
-        }
-      );
-    } else {
-      gsap.to(el, {
-        opacity: 0,
-        y: 6,
-        scale: 0.98,
-        duration: 0.16,
-        ease: 'power2.in',
-        onComplete: () => {
-          if (el) el.style.display = 'none';
-        },
+    // Chevron rotation (slow, smooth)
+    if (chevronRef.current) {
+      gsap.to(chevronRef.current, {
+        rotate: 180,
+        duration: 0.5,
+        ease: 'power3.out',
       });
+    }
+  }, []);
+
+  const closeDropdown = useCallback(() => {
+    if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+    dropdownTimeoutRef.current = setTimeout(() => {
+      if (chevronRef.current) {
+        gsap.to(chevronRef.current, {
+          rotate: 0,
+          duration: 0.45,
+          ease: 'power3.inOut',
+        });
+      }
+
+      if (dropdownRef.current) {
+        gsap.to(dropdownRef.current, {
+          opacity: 0,
+          y: 12,
+          scale: 0.97,
+          duration: 0.4,
+          ease: 'power2.inOut',
+          onComplete: () => setServicesOpen(false),
+        });
+      } else {
+        setServicesOpen(false);
+      }
+    }, 220);
+  }, []);
+
+  // Dropdown entrance animation triggered whenever servicesOpen turns true
+  useEffect(() => {
+    if (servicesOpen && dropdownRef.current) {
+      gsap.fromTo(
+        dropdownRef.current,
+        { opacity: 0, y: 16, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' }
+      );
+
+      const validItems = dropdownItemsRef.current.filter(Boolean);
+      if (validItems.length > 0) {
+        gsap.fromTo(
+          validItems,
+          { opacity: 0, x: -12 },
+          { opacity: 1, x: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out', delay: 0.08 }
+        );
+      }
     }
   }, [servicesOpen]);
 
-  // ─────────────────────────────────────────────────────────────
-  // 4. Mobile Menu Drawer & Scroll Locking
-  // ─────────────────────────────────────────────────────────────
-  const openMobileMenu = () => {
-    setIsMobileOpen(true);
-  };
+  // Clean timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+    };
+  }, []);
 
-  const closeMobileMenu = useCallback(() => {
-    if (mobileMenuTimelineRef.current) {
-      mobileMenuTimelineRef.current.reverse();
+  // ─────────────────────────────────────────────────────────────
+  // Phase E: Smooth Mobile Sidebar (Drawer) Open & Close Controller
+  // ─────────────────────────────────────────────────────────────
+  const openMobileDrawer = useCallback(() => {
+    setIsDrawerMounted(true);
+    setMobileOpen(true);
+  }, []);
+
+  const closeMobileDrawer = useCallback(() => {
+    setMobileOpen(false);
+    if (mobileDrawerRef.current && mobileBackdropRef.current) {
+      // Smooth slow exit animation with GSAP
+      gsap.to(mobileDrawerRef.current, {
+        xPercent: 100,
+        duration: 0.55,
+        ease: 'power3.inOut',
+      });
+      gsap.to(mobileBackdropRef.current, {
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          setIsDrawerMounted(false);
+          setMobileServicesOpen(false);
+        },
+      });
     } else {
-      setIsMobileOpen(false);
+      setIsDrawerMounted(false);
+      setMobileServicesOpen(false);
     }
   }, []);
 
-  // Manage body scroll lock
+  // Animate mobile drawer entrance whenever mounted
   useEffect(() => {
-    if (isMobileOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
-      return () => {
-        document.body.style.overflow = '';
-        document.body.style.touchAction = '';
-        window.scrollTo(0, scrollY);
-      };
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
+    if (isDrawerMounted && mobileOpen) {
+      if (mobileBackdropRef.current && mobileDrawerRef.current) {
+        gsap.fromTo(
+          mobileBackdropRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.65, ease: 'power2.out' }
+        );
+        gsap.fromTo(
+          mobileDrawerRef.current,
+          { xPercent: 100 },
+          { xPercent: 0, duration: 0.7, ease: 'power3.out' }
+        );
+
+        const validItems = mobileNavItemsRef.current.filter(Boolean);
+        if (validItems.length > 0) {
+          gsap.fromTo(
+            validItems,
+            { opacity: 0, x: 28 },
+            { opacity: 1, x: 0, duration: 0.55, stagger: 0.08, ease: 'power3.out', delay: 0.15 }
+          );
+        }
+      }
     }
-  }, [isMobileOpen]);
-
-  // Mobile menu open/close GSAP timeline
-  useEffect(() => {
-    if (!isMobileOpen || !mobileDrawerRef.current) return;
-
-    const drawer = mobileDrawerRef.current;
-    const backdrop = mobileBackdropRef.current;
-    const items = drawer.querySelectorAll('.mobile-menu-item');
-    const footer = drawer.querySelector('.mobile-menu-footer');
-
-    const tl = gsap.timeline({
-      onReverseComplete: () => {
-        setIsMobileOpen(false);
-        setMobileServicesOpen(false);
-      },
-    });
-
-    mobileMenuTimelineRef.current = tl;
-
-    // 1. Backdrop fade in
-    tl.fromTo(
-      backdrop,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.28, ease: 'power2.out' }
-    )
-      // 2. Drawer panel slide in smoothly
-      .fromTo(
-        drawer,
-        { x: '100%' },
-        { x: '0%', duration: 0.42, ease: 'power3.out' },
-        '-=0.18'
-      )
-      // 3. Stagger menu items with subtle opacity + y movement
-      .fromTo(
-        items,
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, stagger: 0.05, duration: 0.32, ease: 'power2.out' },
-        '-=0.14'
-      );
-
-    if (footer) {
-      tl.fromTo(
-        footer,
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out' },
-        '-=0.15'
-      );
-    }
-  }, [isMobileOpen]);
+  }, [isDrawerMounted, mobileOpen]);
 
   // ─────────────────────────────────────────────────────────────
-  // 5. Smooth GSAP Mobile Services Expansion / Collapse
+  // Phase F: Smooth Mobile Services Accordion Controller
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    const submenu = mobileSubmenuRef.current;
-    const inner = mobileSubmenuInnerRef.current;
-    if (!submenu || !inner) return;
-
-    if (servicesAnimationRef.current) {
-      servicesAnimationRef.current.kill();
-    }
-
-    const submenuItems = inner.querySelectorAll('.submenu-item');
+    if (!mobileAccordionRef.current) return;
 
     if (mobileServicesOpen) {
-      // Opening: 0.58s smooth reveal (height + opacity + subtle item movement)
-      const targetHeight = inner.offsetHeight;
-      gsap.set(submenu, { overflow: 'hidden' });
-
-      const tl = gsap.timeline();
-      servicesAnimationRef.current = tl;
-
-      tl.fromTo(
-        submenu,
-        { height: submenu.offsetHeight, opacity: submenu.style.opacity || 0 },
+      // Rotate accordion chevron smoothly
+      if (mobileAccordionChevronRef.current) {
+        gsap.to(mobileAccordionChevronRef.current, {
+          rotate: 180,
+          duration: 0.5,
+          ease: 'power3.out',
+        });
+      }
+      // Expand accordion smoothly and slowly
+      gsap.fromTo(
+        mobileAccordionRef.current,
+        { height: 0, opacity: 0 },
         {
-          height: targetHeight,
+          height: 'auto',
           opacity: 1,
-          duration: 0.58,
-          ease: 'power2.out',
-          onComplete: () => {
-            if (submenu) submenu.style.height = 'auto';
-          },
+          duration: 0.55,
+          ease: 'power3.inOut',
         }
-      ).fromTo(
-        submenuItems,
-        { opacity: 0, y: -6 },
-        { opacity: 1, y: 0, stagger: 0.04, duration: 0.36, ease: 'power2.out' },
-        '-=0.42'
       );
+      // Stagger child service cards
+      const items = mobileAccordionItemsRef.current.filter(Boolean);
+      if (items.length > 0) {
+        gsap.fromTo(
+          items,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.45, stagger: 0.06, ease: 'power3.out', delay: 0.1 }
+        );
+      }
     } else {
-      // Closing: 0.46s smooth collapse
-      const currentHeight = submenu.offsetHeight;
-      gsap.set(submenu, { height: currentHeight, overflow: 'hidden' });
-
-      const tl = gsap.timeline();
-      servicesAnimationRef.current = tl;
-
-      tl.to(submenuItems, {
+      if (mobileAccordionChevronRef.current) {
+        gsap.to(mobileAccordionChevronRef.current, {
+          rotate: 0,
+          duration: 0.45,
+          ease: 'power3.inOut',
+        });
+      }
+      gsap.to(mobileAccordionRef.current, {
+        height: 0,
         opacity: 0,
-        y: -4,
-        duration: 0.22,
-        stagger: 0.02,
-        ease: 'power2.in',
-      }).to(
-        submenu,
-        {
-          height: 0,
-          opacity: 0,
-          duration: 0.46,
-          ease: 'power2.inOut',
-        },
-        '-=0.12'
-      );
+        duration: 0.45,
+        ease: 'power3.inOut',
+      });
     }
   }, [mobileServicesOpen]);
 
-  // Keyboard accessibility: ESC key closes menus
+  // Handle smooth navigation clicks
+  const handleNavClick = (e, href) => {
+    e.preventDefault();
+    setServicesOpen(false);
+    closeMobileDrawer();
+
+    if (href.startsWith('#')) {
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.history.pushState({}, '', '/' + href);
+      }
+    }
+  };
+
+  // Close mobile on Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        if (servicesOpen) setServicesOpen(false);
-        if (isMobileOpen) closeMobileMenu();
+        closeMobileDrawer();
+        setServicesOpen(false);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [servicesOpen, isMobileOpen, closeMobileMenu]);
+  }, [closeMobileDrawer]);
 
-  // Locate Services item for dropdown & accordion rendering
-  const servicesItem = NAV_LINKS.find((item) => item.hasDropdown);
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
 
   return (
     <>
-      <header
-        ref={headerRef}
-        role="banner"
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-border/85 bg-surface/92 backdrop-blur-md shadow-[0_4px_20px_-2px_rgba(10,46,92,0.06)] py-3.5"
-        style={{ willChange: 'padding, background-color, box-shadow' }}
+      {/* ─────────────────────────────────────────────────────────
+          Outer Fixed Shell for GSAP Directional Hide / Reveal
+      ───────────────────────────────────────────────────────── */}
+      <div
+        ref={headerWrapperRef}
+        className={`fixed left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-700 ease-out ${
+          isPill ? 'top-3 sm:top-4 px-3 sm:px-6' : 'top-0 px-0'
+        }`}
       >
-        {/* ─────────────────────────────────────────────────────────────
-            Header Layout:
-            On Desktop (xl+): Balanced 3-column grid
-            [ Logo (Left) ]  [ Navigation (Center) ]  [ Contact Us (Right) ]
-            On Mobile/Tablet: Flex between
-            [ Logo (Left) ] ────────────────────────── [ MENU ☰ (Right) ]
-        ───────────────────────────────────────────────────────────── */}
-        <div className="container flex xl:grid xl:grid-cols-[1fr_auto_1fr] items-center justify-between gap-4">
-          {/* Column 1: Brand Logo (Left-aligned) */}
-          <div className="flex items-center justify-start shrink-0">
-            <a
-              ref={logoRef}
-              href="#home"
-              aria-label="SIRI Groups — Home"
-              className="group flex items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary rounded-lg transition-transform duration-200"
-            >
-              <img
-                src={siriLogo}
-                alt="SIRI Groups Logo"
-                width="176"
-                height="66"
-                className="h-9 sm:h-10 md:h-[42px] w-auto object-contain transition-all duration-300 group-hover:opacity-95"
-                loading="eager"
-              />
-            </a>
-          </div>
-
-          {/* Column 2: Desktop Navigation Links (Visually Centered) */}
-          <nav
-            aria-label="Primary Navigation"
-            className="hidden xl:flex items-center justify-center"
+        {/* ───────────────────────────────────────────────────────
+            Inner Morphing Container (Edge-to-Edge <-> Floating Pill)
+        ─────────────────────────────────────────────────────── */}
+        <header
+          ref={headerPillRef}
+          className={`pointer-events-auto flex items-center justify-between transition-all duration-700 ease-out select-none ${
+            isPill
+              ? 'max-w-6xl w-full mx-auto rounded-full bg-gradient-to-r from-[#0072CE]/95 via-[#0284C7]/90 to-[#72BF44]/95 backdrop-blur-xl shadow-2xl shadow-blue-950/25 border border-white/30 py-2 sm:py-2.5 px-5 sm:px-8 ring-1 ring-white/20'
+              : 'w-full rounded-none bg-gradient-to-r from-[#0072CE]/95 via-[#0284C7]/90 to-[#72BF44]/95 backdrop-blur-xl shadow-lg border-b border-white/25 py-3 sm:py-3.5 px-5 sm:px-8 lg:px-12'
+          }`}
+          role="banner"
+        >
+          {/* ==================================================== */}
+          {/* 1. BRAND LOGO (Original Brand Colors Preserved)      */}
+          {/* ==================================================== */}
+          <a
+            href="#hero"
+            onClick={(e) => handleNavClick(e, '#hero')}
+            className="flex items-center gap-2.5 shrink-0 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-full bg-white/95 backdrop-blur-md px-3 sm:px-3.5 py-1 sm:py-1.5 shadow-sm hover:bg-white hover:shadow-md transition-all duration-300"
+            aria-label="SIRI Group Home"
           >
-            <ul
-              ref={navListRef}
-              role="menubar"
-              className="flex items-center gap-7 2xl:gap-8 m-0 p-0 list-none"
-            >
-              {NAV_LINKS.filter((item) => !item.isCta).map((item) => {
-                if (item.hasDropdown) {
-                  return (
-                    <li
-                      key={item.label}
-                      role="none"
-                      className="desktop-nav-item relative"
-                      onMouseEnter={handleDropdownEnter}
-                      onMouseLeave={handleDropdownLeave}
+            <img
+              src={siriLogo}
+              alt="SIRI Group Logo"
+              className="h-6 sm:h-7.5 w-auto object-contain transition-transform duration-300 group-hover:scale-103"
+            />
+          </a>
+
+          {/* ==================================================== */}
+          {/* 2. DESKTOP NAVIGATION LINKS (Center)                 */}
+          {/* ==================================================== */}
+          <nav
+            className="hidden md:flex items-center gap-1.5 lg:gap-2 relative"
+            role="navigation"
+            aria-label="Main Navigation"
+          >
+            {NAV_LINKS.map((link) => {
+              if (link.hasDropdown) {
+                return (
+                  <div
+                    key={link.label}
+                    className="relative"
+                    onMouseEnter={openDropdown}
+                    onMouseLeave={closeDropdown}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => (servicesOpen ? closeDropdown() : openDropdown())}
+                      aria-expanded={servicesOpen}
+                      aria-haspopup="true"
+                      className={`relative group/btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-bold tracking-wide transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
+                        servicesOpen
+                          ? 'text-white bg-white/25 shadow-md shadow-black/10 ring-1 ring-white/30'
+                          : 'text-white/90 hover:text-white hover:bg-white/20 hover:shadow-sm'
+                      }`}
                     >
-                      <button
-                        type="button"
-                        role="menuitem"
-                        aria-haspopup="true"
-                        aria-expanded={servicesOpen}
-                        onClick={() => setServicesOpen((prev) => !prev)}
-                        className="group flex items-center gap-1.5 py-2 text-[15px] font-semibold tracking-[-0.01em] text-foreground/85 hover:text-primary transition-colors duration-200 rounded-lg focus-visible:outline-2 focus-visible:outline-secondary relative cursor-pointer"
+                      <span className="relative z-10 transition-colors duration-200">{link.label}</span>
+                      <svg
+                        ref={chevronRef}
+                        className="w-3.5 h-3.5 fill-current text-white/80 transition-transform duration-300 will-change-transform group-hover/btn:translate-y-0.5"
+                        viewBox="0 0 20 20"
+                        aria-hidden="true"
                       >
-                        <span>{item.label}</span>
-
-                        {/* Subtle Chevron indicator */}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          className={`w-4 h-4 text-muted/80 transition-transform duration-300 group-hover:text-primary ${
-                            servicesOpen ? 'rotate-180 text-secondary' : ''
-                          }`}
-                          aria-hidden="true"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-
-                        {/* Subtle Green Accent Underline Hover Indicator */}
-                        <span
-                          className={`absolute bottom-0 left-0 right-0 h-[2px] bg-secondary rounded-full transform origin-left transition-transform duration-300 ease-out ${
-                            servicesOpen
-                              ? 'scale-x-100'
-                              : 'scale-x-0 group-hover:scale-x-100'
-                          }`}
-                          aria-hidden="true"
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
                         />
-                      </button>
+                      </svg>
+                      {/* Cool Animated Glow Underline */}
+                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-white/90 rounded-full group-hover/btn:w-3/5 transition-all duration-300 ease-out" />
+                    </button>
 
-                      {/* Desktop Services Dropdown */}
+                    {/* ─────────────────────────────────────────
+                        Phase D: Services Floating Mega-Dropdown
+                    ───────────────────────────────────────── */}
+                    {servicesOpen && (
                       <div
                         ref={dropdownRef}
-                        role="menu"
-                        aria-label="Services Submenu"
-                        style={{ display: 'none' }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 z-50 w-80 md:w-[350px]"
+                        className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 z-50 will-change-transform"
                       >
-                        <div className="bg-surface rounded-xl shadow-hover border border-border p-2 space-y-0.5">
-                          <div className="px-3 py-2 border-b border-border/50">
-                            <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
-                              Business Services
+                        <div className="w-[430px] rounded-2xl bg-gradient-to-b from-[#0072CE]/95 via-[#0284C7]/95 to-[#72BF44]/95 backdrop-blur-2xl p-3.5 shadow-2xl shadow-blue-950/35 border border-white/30 ring-1 ring-white/20 text-white">
+                          {/* Dropdown Header */}
+                          <div className="flex items-center justify-between px-2 py-1.5 mb-2 border-b border-white/20">
+                            <span className="text-[11px] font-black uppercase tracking-wider text-white drop-shadow-xs">
+                              ✦ Corporate Solutions
+                            </span>
+                            <span className="text-[10px] font-bold text-white/80">
+                              sirigroup.pdf
                             </span>
                           </div>
 
-                          {item.children.map((child) => (
-                            <a
-                              key={child.label}
-                              href={child.href}
-                              role="menuitem"
-                              onClick={() => setServicesOpen(false)}
-                              className="group/item flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-secondary-soft/70 transition-colors duration-150"
-                            >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <span className="w-1.5 h-1.5 rounded-full bg-secondary opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 shrink-0" />
-                                <span className="text-body-small font-medium text-foreground group-hover/item:text-primary transition-colors duration-200 truncate">
-                                  {child.label}
-                                </span>
-                              </div>
-                              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-secondary/10 text-secondary shrink-0">
-                                {child.badge}
-                              </span>
-                            </a>
-                          ))}
+                          {/* 5 Service Verticals from sirigroup.pdf */}
+                          <div className="space-y-1.5">
+                            {link.children?.map((service, idx) => (
+                              <a
+                                key={service.id}
+                                ref={(el) => (dropdownItemsRef.current[idx] = el)}
+                                href={service.href}
+                                onClick={(e) => handleNavClick(e, service.href)}
+                                className="group flex items-start gap-3 p-2.5 rounded-xl transition-all duration-200 bg-white/95 hover:bg-white text-slate-900 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                              >
+                                {/* Service Icon Pill */}
+                                <div
+                                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-xs"
+                                  style={{
+                                    backgroundColor: `${service.color}15`,
+                                    color: service.color,
+                                  }}
+                                >
+                                  {service.id === 'hr' && (
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                    </svg>
+                                  )}
+                                  {service.id === 'manpower' && (
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                      <path d="M12 2l-5.5 9h11z M12 22l5.5-9h-11z" />
+                                    </svg>
+                                  )}
+                                  {service.id === 'csr' && (
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                    </svg>
+                                  )}
+                                  {service.id === 'travel' && (
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                      <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                                    </svg>
+                                  )}
+                                  {service.id === 'loans' && (
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                      <path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z" />
+                                    </svg>
+                                  )}
+                                </div>
+
+                                {/* Text Details */}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="text-xs font-bold text-slate-900 group-hover:text-[#0072CE] transition-colors">
+                                      {service.title}
+                                    </span>
+                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-[#0072CE]">
+                                      {service.tag}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-500 mt-0.5 leading-tight line-clamp-1">
+                                    {service.description}
+                                  </p>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </li>
-                  );
-                }
-
-                return (
-                  <li
-                    key={item.label}
-                    role="none"
-                    className="desktop-nav-item"
-                  >
-                    <a
-                      href={item.href}
-                      role="menuitem"
-                      className="group relative py-2 text-[15px] font-semibold tracking-[-0.01em] text-foreground/85 hover:text-primary transition-colors duration-200 rounded-lg focus-visible:outline-2 focus-visible:outline-secondary block"
-                    >
-                      <span>{item.label}</span>
-                      {/* Subtle Green Accent Underline Hover Indicator */}
-                      <span
-                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-secondary rounded-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"
-                        aria-hidden="true"
-                      />
-                    </a>
-                  </li>
+                    )}
+                  </div>
                 );
-              })}
-            </ul>
+              }
+
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="relative group/navlink px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-bold text-white/90 hover:text-white hover:bg-white/20 tracking-wide transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-none hover:shadow-xs"
+                >
+                  <span className="relative z-10 transition-transform duration-200 inline-block group-hover/navlink:scale-105">
+                    {link.label}
+                  </span>
+                  {/* Cool Animated Glow Underline */}
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-white rounded-full group-hover/navlink:w-3/5 transition-all duration-300 ease-out" />
+                </a>
+              );
+            })}
           </nav>
 
-          {/* Column 3: Desktop CTA or Mobile/Tablet "MENU ☰" Control */}
-          <div className="flex items-center justify-end shrink-0">
-            {/* Desktop Contact Us CTA (Visible on xl+) */}
-            <div className="hidden xl:flex items-center">
-              <a
-                ref={ctaRef}
-                href="#contact"
-                className="group inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-primary hover:bg-primary-light text-surface text-[14px] font-semibold tracking-wide shadow-subtle hover:shadow-card hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary cursor-pointer"
-              >
-                <span>Contact Us</span>
-                <span className="w-4 h-4 rounded-full bg-surface/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform duration-200">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="w-3 h-3 text-surface"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </span>
-              </a>
-            </div>
+          {/* ==================================================== */}
+          {/* 3. RIGHT SIDE: CTA Button & Mobile Menu Toggle       */}
+          {/* ==================================================== */}
+          <div className="flex items-center gap-3">
+            {/* Desktop Pill CTA Button with Liquid Shimmer & Dynamic Arrow Glide */}
+            <a
+              href={CTA_BUTTON.href}
+              onClick={(e) => handleNavClick(e, CTA_BUTTON.href)}
+              className="hidden sm:inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white hover:bg-slate-50 active:bg-slate-100 text-[#0072CE] font-extrabold text-xs sm:text-sm shadow-lg hover:shadow-2xl hover:shadow-white/30 hover:-translate-y-1 active:translate-y-0 active:scale-97 transition-all duration-300 group/cta relative overflow-hidden ring-2 ring-transparent hover:ring-white/40"
+              aria-label="Contact SIRI Group"
+            >
+              {/* Shimmer Light Sweep Effect */}
+              <span className="absolute inset-0 -translate-x-full group-hover/cta:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none rounded-full" />
 
-            {/* Tablet & Mobile "MENU ☰" Control (Visible below xl)
-                NO container border, NO pill border, NO background, clean typography & icon */}
-            <div className="flex xl:hidden items-center">
-              <button
-                ref={menuBtnRef}
-                type="button"
-                onClick={openMobileMenu}
-                aria-label="Open navigation menu"
-                aria-expanded={isMobileOpen}
-                className="flex items-center gap-2.5 py-2 px-1 text-foreground hover:text-primary transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-secondary cursor-pointer border-0 bg-transparent shadow-none"
-              >
-                <span className="inline-block text-[13px] sm:text-[14px] font-bold tracking-wider text-foreground hover:text-primary uppercase select-none">
-                  Menu
-                </span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.2}
-                  stroke="currentColor"
-                  className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-200"
-                  aria-hidden="true"
-                >
+              <span className="relative z-10 transition-transform duration-300 group-hover/cta:-translate-x-0.5">
+                {CTA_BUTTON.label}
+              </span>
+              <span className="relative z-10 w-5.5 h-5.5 rounded-full bg-[#0072CE]/10 text-[#0072CE] flex items-center justify-center transition-all duration-300 group-hover/cta:bg-[#0072CE] group-hover/cta:text-white group-hover/cta:scale-110 group-hover/cta:rotate-45 shadow-xs">
+                <svg className="w-3 h-3 fill-current transition-colors" viewBox="0 0 20 20" aria-hidden="true">
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
+                    fillRule="evenodd"
+                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                    clipRule="evenodd"
                   />
                 </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+              </span>
+            </a>
 
-      {/* ─────────────────────────────────────────────────────────────
-          Off-Canvas Mobile Navigation Drawer via React Portal
-          Mounted directly into document.body to prevent containing-block clipping
-      ───────────────────────────────────────────────────────────── */}
-      {mounted &&
-        isMobileOpen &&
-        createPortal(
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => (mobileOpen ? closeMobileDrawer() : openMobileDrawer())}
+              aria-expanded={mobileOpen}
+              aria-label={mobileOpen ? 'Close Menu' : 'Open Menu'}
+              className="md:hidden flex items-center justify-center w-9.5 h-9.5 rounded-full bg-white/20 text-white hover:bg-white/30 transition-all duration-300 focus:outline-none shadow-xs"
+            >
+              {mobileOpen ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </header>
+      </div>
+
+      {/* ======================================================== */}
+      {/* 4. BRAND NEW MOBILE OFF-CANVAS DRAWER NAVIGATION         */}
+      {/* Matches the Header's Aurora Gradient Glass Aesthetic     */}
+      {/* With slow, cinematic GSAP slide, fade & accordion        */}
+      {/* ======================================================== */}
+      {isDrawerMounted && (
+        <div className="fixed inset-0 z-50 md:hidden flex justify-end overflow-hidden">
+          {/* Smooth Slow Backdrop */}
           <div
+            ref={mobileBackdropRef}
+            className="fixed inset-0 bg-slate-950/65 backdrop-blur-sm opacity-0"
+            onClick={closeMobileDrawer}
+            aria-hidden="true"
+          />
+
+          {/* Luxury Aurora Gradient Drawer Panel */}
+          <div
+            ref={mobileDrawerRef}
+            className="relative w-full max-w-xs sm:max-w-sm h-full bg-gradient-to-b from-[#0072CE] via-[#0284C7] to-[#72BF44] text-white shadow-2xl p-6 flex flex-col justify-between overflow-y-auto z-10 border-l border-white/25 will-change-transform"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile Navigation"
-            className="fixed inset-0 z-[999] xl:hidden flex justify-end"
           >
-            {/* Backdrop */}
-            <div
-              ref={mobileBackdropRef}
-              onClick={closeMobileMenu}
-              className="fixed inset-0 bg-dark/50 backdrop-blur-sm cursor-pointer transition-opacity"
-              aria-hidden="true"
-            />
+            {/* Ambient subtle light orbs inside drawer */}
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-60 h-60 rounded-full bg-black/15 blur-3xl pointer-events-none" />
 
-            {/* Off-Canvas Navigation Panel */}
-            <div
-              ref={mobileDrawerRef}
-              className="relative w-full sm:w-[380px] md:w-[420px] max-w-full bg-surface shadow-2xl z-10 flex flex-col h-dvh min-h-screen overflow-y-auto"
-              style={{ willChange: 'transform' }}
-            >
-              {/* Drawer Top Bar */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-border/70 shrink-0 bg-surface">
-                <a
-                  href="#home"
-                  onClick={closeMobileMenu}
-                  aria-label="SIRI Groups — Home"
-                  className="flex items-center gap-2"
-                >
-                  <img
-                    src={siriLogo}
-                    alt="SIRI Groups Logo"
-                    width="140"
-                    height="52"
-                    className="h-8 w-auto object-contain"
-                  />
-                </a>
-
-                {/* Close Button: "MENU ✕" on >= 480px, "✕" on < 480px. Zero border/background */}
+            <div className="relative z-10">
+              {/* Header inside drawer */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/20">
+                <div className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-2xl shadow-sm inline-flex items-center">
+                  <img src={siriLogo} alt="SIRI Group" className="h-7 w-auto object-contain" />
+                </div>
                 <button
                   type="button"
-                  onClick={closeMobileMenu}
-                  aria-label="Close navigation menu"
-                  className="flex items-center gap-2 py-2 px-1 text-foreground hover:text-primary transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-secondary cursor-pointer border-0 bg-transparent shadow-none"
+                  onClick={closeMobileDrawer}
+                  className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300 shadow-xs"
+                  aria-label="Close menu"
                 >
-                  <span className="inline-block text-[13px] sm:text-[14px] font-bold tracking-wider text-foreground hover:text-primary uppercase select-none">
-                    Menu
-                  </span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2.2}
-                    stroke="currentColor"
-                    className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-200"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              {/* Numbered Navigation List (01 Home, 02 About Us, ...) */}
-              <nav
-                aria-label="Mobile Navigation Menu"
-                className="flex-1 px-6 py-6 space-y-1.5 overflow-y-auto"
-              >
-                {NAV_LINKS.filter((item) => !item.isCta).map((item, index) => {
-                  const numberPrefix = String(index + 1).padStart(2, '0');
-
-                  if (item.hasDropdown) {
+              {/* Navigation Items */}
+              <div className="py-4 space-y-2">
+                {NAV_LINKS.map((link, linkIdx) => {
+                  if (link.hasDropdown) {
                     return (
-                      <div key={item.label} className="mobile-menu-item">
+                      <div
+                        key={link.label}
+                        ref={(el) => (mobileNavItemsRef.current[linkIdx] = el)}
+                        className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden transition-colors"
+                      >
                         <button
                           type="button"
                           onClick={() => setMobileServicesOpen((prev) => !prev)}
-                          aria-expanded={mobileServicesOpen}
-                          className="w-full flex items-center justify-between py-3.5 px-3 rounded-xl text-left hover:bg-surface-subtle transition-colors duration-200 group cursor-pointer"
+                          className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-colors"
                         >
-                          <div className="flex items-center gap-4">
-                            <span className="text-[13px] font-bold text-secondary tracking-widest">
-                              {numberPrefix}
+                          <span className="flex items-center gap-2">
+                            <span>{link.label}</span>
+                            <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-white/20 text-white">
+                              5 Verticals
                             </span>
-                            <span className="text-[17px] font-semibold text-foreground group-hover:text-primary transition-colors duration-200">
-                              {item.label}
-                            </span>
-                          </div>
-
-                          {/* Smooth Vector Rotating Icon (+ to −) */}
-                          <div className="w-7 h-7 flex items-center justify-center">
-                            <svg
-                              viewBox="0 0 20 20"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2.2"
-                              strokeLinecap="round"
-                              className={`w-4 h-4 text-primary transition-transform duration-500 ease-out ${
-                                mobileServicesOpen ? 'rotate-180' : 'rotate-0'
-                              }`}
-                              aria-hidden="true"
-                            >
-                              <line x1="3" y1="10" x2="17" y2="10" />
-                              <line
-                                x1="10"
-                                y1="3"
-                                x2="10"
-                                y2="17"
-                                className={`transition-all duration-500 ease-out origin-center ${
-                                  mobileServicesOpen
-                                    ? 'opacity-0 scale-y-0'
-                                    : 'opacity-100 scale-y-100'
-                                }`}
-                              />
-                            </svg>
-                          </div>
+                          </span>
+                          <svg
+                            ref={mobileAccordionChevronRef}
+                            className="w-4 h-4 text-white/80 transition-transform duration-300 will-change-transform"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                          </svg>
                         </button>
 
-                        {/* GSAP-Animated Collapsible Submenu for 5 SIRI Services */}
+                        {/* Mobile Services Accordion (Animated with GSAP) */}
                         <div
-                          ref={mobileSubmenuRef}
+                          ref={mobileAccordionRef}
                           style={{ height: 0, opacity: 0, overflow: 'hidden' }}
-                          className="pl-9 pr-2 border-l-2 border-secondary/30 ml-4 my-1"
+                          className="px-3 pb-3 space-y-2"
                         >
-                          <div
-                            ref={mobileSubmenuInnerRef}
-                            className="py-2 space-y-1"
-                          >
-                            {servicesItem?.children &&
-                              servicesItem.children.map((child) => (
-                                <a
-                                  key={child.label}
-                                  href={child.href}
-                                  onClick={closeMobileMenu}
-                                  className="submenu-item flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-secondary-soft/70 transition-colors duration-150 group/sub"
-                                >
-                                  <span className="text-body-small font-medium text-foreground/90 group-hover/sub:text-primary">
-                                    {child.label}
+                          <div className="pt-2 border-t border-white/15 space-y-2">
+                            {link.children?.map((sub, sIdx) => (
+                              <a
+                                key={sub.id}
+                                ref={(el) => (mobileAccordionItemsRef.current[sIdx] = el)}
+                                href={sub.href}
+                                onClick={(e) => handleNavClick(e, sub.href)}
+                                className="block p-3 rounded-xl bg-white/95 hover:bg-white text-slate-900 shadow-sm hover:shadow-md transition-all duration-200 group"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0072CE] transition-colors">
+                                    {sub.title}
                                   </span>
-                                  <span className="text-[9px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded bg-secondary/10 text-secondary">
-                                    {child.badge}
+                                  <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-[#0072CE]">
+                                    {sub.tag}
                                   </span>
-                                </a>
-                              ))}
+                                </div>
+                                <div className="text-[10px] text-slate-500 mt-1 line-clamp-1 leading-snug">
+                                  {sub.description}
+                                </div>
+                              </a>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -765,74 +692,52 @@ export default function Header() {
                   }
 
                   return (
-                    <div key={item.label} className="mobile-menu-item">
+                    <div
+                      key={link.label}
+                      ref={(el) => (mobileNavItemsRef.current[linkIdx] = el)}
+                    >
                       <a
-                        href={item.href}
-                        onClick={closeMobileMenu}
-                        className="flex items-center gap-4 py-3.5 px-3 rounded-xl hover:bg-surface-subtle transition-colors duration-200 group"
+                        href={link.href}
+                        onClick={(e) => handleNavClick(e, link.href)}
+                        className="flex items-center justify-between px-4 py-3.5 text-sm font-bold text-white/95 hover:text-white rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-200 shadow-xs"
                       >
-                        <span className="text-[13px] font-bold text-secondary tracking-widest">
-                          {numberPrefix}
-                        </span>
-                        <span className="text-[17px] font-semibold text-foreground group-hover:text-primary transition-colors duration-200">
-                          {item.label}
-                        </span>
+                        <span>{link.label}</span>
+                        <svg className="w-3.5 h-3.5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
                       </a>
                     </div>
                   );
                 })}
+              </div>
+            </div>
 
-                {/* 06 Contact Us inside numbered list */}
-                <div className="mobile-menu-item">
-                  <a
-                    href="#contact"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-4 py-3.5 px-3 rounded-xl hover:bg-surface-subtle transition-colors duration-200 group"
-                  >
-                    <span className="text-[13px] font-bold text-secondary tracking-widest">
-                      06
-                    </span>
-                    <span className="text-[17px] font-semibold text-foreground group-hover:text-primary transition-colors duration-200">
-                      Contact Us
-                    </span>
-                  </a>
-                </div>
-              </nav>
-
-              {/* Drawer Footer with Corporate CTA & Tagline */}
-              <div className="mobile-menu-footer p-6 border-t border-border/70 mt-auto bg-surface shrink-0 space-y-4">
-                <a
-                  href="#contact"
-                  onClick={closeMobileMenu}
-                  className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-full bg-primary hover:bg-primary-light text-surface text-[15px] font-semibold tracking-wide shadow-card transition-all duration-200"
-                >
-                  <span>Contact Us</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="w-4 h-4 text-surface"
-                    aria-hidden="true"
-                  >
+            {/* Mobile Drawer Bottom CTA */}
+            <div className="relative z-10 pt-4 border-t border-white/20 space-y-3">
+              <a
+                href={CTA_BUTTON.href}
+                onClick={(e) => handleNavClick(e, CTA_BUTTON.href)}
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-full bg-white hover:bg-slate-100 active:bg-slate-200 text-[#0072CE] font-extrabold text-sm tracking-wide shadow-xl hover:shadow-2xl transition-all duration-300"
+              >
+                <span>{CTA_BUTTON.label}</span>
+                <span className="w-5 h-5 rounded-full bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE]">
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20" aria-hidden="true">
                     <path
                       fillRule="evenodd"
-                      d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                      d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
                       clipRule="evenodd"
                     />
                   </svg>
-                </a>
+                </span>
+              </a>
 
-                <div className="text-center">
-                  <p className="text-[12px] text-muted tracking-wide">
-                    Empowering Business Through People, Purpose &amp; Seamless
-                    Travel
-                  </p>
-                </div>
+              <div className="text-center text-[11px] text-white/80 font-medium tracking-wide">
+                SIRI Group • One Partner. Multiple Solutions.
               </div>
             </div>
-          </div>,
-          document.body
-        )}
+          </div>
+        </div>
+      )}
     </>
   );
 }
