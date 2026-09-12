@@ -559,7 +559,7 @@ export default function WhyPartnerUs({ loaderComplete = false }) {
                     </h4>
 
                     {/* Reason Narrative from sirigroup.pdf */}
-                    <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-1.5 font-normal">
                       {reason.description}
                     </p>
                   </div>

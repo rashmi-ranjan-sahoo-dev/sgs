@@ -178,13 +178,13 @@ export default function SiriCorporateTravel({ onOpenContact }) {
                 <h3 className="text-base sm:text-lg font-bold text-[#1E293B] mt-1 mb-2 group-hover:text-[#0072CE] transition-colors">
                   Flight Bookings & Airport Transfers
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed mb-4 font-normal">
                   Corporate fare advantages with zero-hassle cancellations, seat preference, and
                   chauffeured airport transfers.
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 <span>Preferred Airline Desks</span>
                 <span className="text-[#0072CE] font-bold">IATA Certified →</span>
               </div>
@@ -209,28 +209,28 @@ export default function SiriCorporateTravel({ onOpenContact }) {
                 Centralized Enterprise Mobility Management
               </h3>
 
-              <p className="text-xs sm:text-sm font-medium text-slate-900 leading-relaxed mb-5">
+              <p className="text-sm sm:text-base font-semibold text-slate-950 leading-relaxed mb-5">
                 One dedicated partner managing duty of care, traveler emergency support, and
                 departmental spend governance.
               </p>
 
               {/* 3 Simple Bullet Points */}
               <div className="space-y-2.5">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-950">
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-950">
                   <span className="w-5 h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[10px] flex-shrink-0">
                     ✓
                   </span>
                   <span>18–25% Average Travel Cost Reduction</span>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-950">
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-950">
                   <span className="w-5 h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[10px] flex-shrink-0">
                     ✓
                   </span>
                   <span>&lt; 15 Minute Rapid Ticket Issuance</span>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-950">
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-950">
                   <span className="w-5 h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[10px] flex-shrink-0">
                     ✓
                   </span>
@@ -286,7 +286,7 @@ export default function SiriCorporateTravel({ onOpenContact }) {
                 <h3 className="text-base sm:text-lg font-bold text-[#1E293B] mt-1 mb-2 group-hover:text-[#0072CE] transition-colors">
                   Executive Stays, Visas & Insurance
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed mb-4 font-normal">
                   Handpicked 5-star corporate hotels with negotiated tariffs, express business visa
                   handling, and comprehensive trip protection.
                 </p>

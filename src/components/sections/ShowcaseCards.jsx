@@ -557,7 +557,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-[#72BF44] bg-[#72BF44]/15 border border-[#72BF44]/30 backdrop-blur-sm">
                     ✦ Core Ecosystem
                   </span>
-                  <p className="text-sm text-slate-100 leading-relaxed font-medium drop-shadow-sm">
+                  <p className="text-base sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                     {showcaseCards[0].description}
                   </p>
                 </div>
@@ -646,7 +646,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-[#38BDF8] bg-[#0072CE]/15 border border-[#0072CE]/30 backdrop-blur-sm">
                   ✦ Global Mobility
                 </span>
-                <p className="text-sm text-slate-100 leading-relaxed font-medium drop-shadow-sm">
+                <p className="text-base sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                   {showcaseCards[1].description}
                 </p>
               </div>
@@ -704,7 +704,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-[#00A8E8] bg-[#00A8E8]/15 border border-[#00A8E8]/30 backdrop-blur-sm">
                   ✦ Capital Solutions
                 </span>
-                <p className="text-sm text-slate-100 leading-relaxed font-medium drop-shadow-sm">
+                <p className="text-base sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                   {showcaseCards[2].description}
                 </p>
               </div>
@@ -762,7 +762,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             </div>
 
             <div className="relative z-10 my-auto py-2">
-              <p className="text-sm text-slate-100 leading-relaxed font-medium drop-shadow-sm">
+              <p className="text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                 {card.description}
               </p>
             </div>
@@ -843,7 +843,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                   ref={desktopCard1InitialRef}
                   className="absolute inset-x-7 xl:inset-x-8 inset-y-3 flex flex-col justify-between"
                 >
-                  <p className="text-sm xl:text-base text-slate-100 leading-relaxed font-medium mt-1 drop-shadow-sm">
+                  <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium mt-1 drop-shadow-sm">
                     {showcaseCards[0].description}
                   </p>
 
@@ -941,7 +941,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
 
               {/* Clean Description (No Extra Void) */}
               <div className="relative z-10 my-auto py-2">
-                <p className="text-sm xl:text-base text-slate-100 leading-relaxed font-medium drop-shadow-sm">
+                <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                   {showcaseCards[1].description}
                 </p>
               </div>
@@ -1009,7 +1009,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
 
               {/* Clean Description (No Extra Void) */}
               <div className="relative z-10 my-auto py-2">
-                <p className="text-sm xl:text-base text-slate-100 leading-relaxed font-medium drop-shadow-sm">
+                <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                   {showcaseCards[2].description}
                 </p>
               </div>

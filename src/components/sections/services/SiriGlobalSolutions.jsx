@@ -233,20 +233,20 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none"
                 style={{ transform: 'translateZ(25px)' }}
               >
-                <div className="relative w-14 h-14 sm:w-22 sm:h-22 rounded-full bg-[#1E293B] dark:bg-slate-950 border border-[#72BF44] shadow-xl flex items-center justify-center animate-spin-slow">
+                <div className="relative w-22 h-22 sm:w-26 sm:h-26 rounded-full bg-[#1E293B] dark:bg-slate-950 border-2 border-[#72BF44] shadow-2xl flex items-center justify-center animate-spin-slow">
                   <svg className="w-full h-full p-1" viewBox="0 0 100 100" overflow="visible">
                     <path
                       id="circlePathGlobal"
                       d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
                       fill="none"
                     />
-                    <text className="text-[8px] font-mono uppercase tracking-[0.16em] fill-[#72BF44] font-bold">
+                    <text className="text-[10.5px] sm:text-[10px] font-extrabold uppercase tracking-[0.16em] fill-[#72BF44]">
                       <textPath href="#circlePathGlobal" startOffset="0%">
                         • SIRI GROUP • WORKFORCE • CSR •
                       </textPath>
                     </text>
                   </svg>
-                  <div className="absolute w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#72BF44] text-slate-950 flex items-center justify-center font-bold text-[10px] sm:text-xs shadow-md">
+                  <div className="absolute w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#72BF44] text-slate-950 flex items-center justify-center font-black text-xs sm:text-sm shadow-md">
                     ↗
                   </div>
                 </div>
@@ -259,7 +259,7 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
             ref={contentColRef}
             className="lg:col-span-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 rounded-xl sm:rounded-3xl p-4 sm:p-6 shadow-xl space-y-3.5"
           >
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+            <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
               SIRI Global Solutions delivers unified talent acquisition, flexible industrial
               staffing, and compliant Corporate Social Responsibility programs designed to build
               resilient corporate teams and lasting social impact.
@@ -269,7 +269,7 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
             <div className="space-y-2.5 pt-0.5">
               {capabilities.map((cap, idx) => (
                 <div key={cap.label} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-[#1E293B]">
+                  <div className="flex items-center justify-between text-sm sm:text-base font-bold text-[#1E293B] dark:text-white">
                     <span className="truncate pr-2">{cap.label}</span>
                     <span className="font-mono text-[#0072CE] shrink-0">
                       {cap.percentage}%
@@ -323,7 +323,7 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
               <div className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0072CE] tracking-tight">
                 {st.number}
               </div>
-              <div className="text-[11px] sm:text-xs font-bold text-[#334155] mt-0.5 leading-snug">
+              <div className="text-xs sm:text-sm font-bold text-[#334155] mt-0.5 leading-snug">
                 {st.label}
               </div>
             </div>

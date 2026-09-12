@@ -453,7 +453,7 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
               aria-hidden="true"
             >
               {/* Ring styled with crisp pure white background & deep blue rotating text */}
-              <div className="relative w-20 h-20 sm:w-26 sm:h-26 lg:w-30 lg:h-30 rounded-full bg-white shadow-2xl shadow-blue-950/20 border-2 border-[#002D62]/20 flex items-center justify-center p-1 backdrop-blur-xl ring-2 ring-white/90">
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full bg-white shadow-2xl shadow-blue-950/20 border-2 border-[#002D62]/20 flex items-center justify-center p-1 backdrop-blur-xl ring-2 ring-white/90">
                 {/* Rotating Circular SVG Text in Deep Blue (Spaced evenly with zero collision) */}
                 <svg
                   ref={badgeSpinRef}
@@ -466,7 +466,7 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
                       d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
                     />
                   </defs>
-                  <text className="text-[8px] font-black uppercase tracking-[0.14em] fill-[#002D62]">
+                  <text className="text-[10px] sm:text-[9.5px] lg:text-[9px] font-black uppercase tracking-[0.12em] fill-[#002D62]">
                     <textPath
                       href="#siriHeroRingPath"
                       xlinkHref="#siriHeroRingPath"
@@ -480,7 +480,7 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
 
                 {/* Center Static SIRI Group Logo Badge Plate (Pure White Background like Header Logo) */}
                 <div className="absolute inset-0 flex items-center justify-center p-2.5 sm:p-3 pointer-events-none">
-                  <div className="w-10 h-10 sm:w-13 sm:h-13 lg:w-15 lg:h-15 rounded-full bg-white shadow-md border border-slate-200/90 flex items-center justify-center p-1 sm:p-1.5 ring-1 ring-black/5">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white shadow-md border border-slate-200/90 flex items-center justify-center p-1 sm:p-1.5 ring-1 ring-black/5">
                     <img
                       src={siriLogo}
                       alt="SIRI Group Logo"
@@ -502,7 +502,7 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
               key={chip.id}
               href={chip.href}
               ref={(el) => (mobileChipsRef.current[idx] = el)}
-              className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-full text-xs font-bold bg-[#1E293B] text-white border border-slate-700/80 shadow-md flex items-center gap-2 hover:border-[#0072CE] transition-colors active:scale-95 will-change-transform"
+              className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-[#1E293B] text-white border border-slate-700/80 shadow-md flex items-center gap-2 hover:border-[#0072CE] transition-colors active:scale-95 will-change-transform"
             >
               <span className="text-sm">{chip.icon}</span>
               <span>{chip.label}</span>

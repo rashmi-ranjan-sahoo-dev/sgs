@@ -164,7 +164,7 @@ export default function SiriFinHub({ onOpenContact }) {
             ref={leftColRef}
             className="lg:col-span-6 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xl space-y-5"
           >
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+            <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
               Empowering businesses with structured B2B commercial loans to accelerate scale. We provide
               end-to-end liaison with premier public banks, private lenders, and NBFCs for fast-track credit
               sanctions.
@@ -175,7 +175,7 @@ export default function SiriFinHub({ onOpenContact }) {
               {loanTags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2.5 py-1 rounded-full bg-[#F0F7FD] border border-slate-200/90 text-[11px] sm:text-xs font-semibold text-[#0072CE] hover:border-[#0072CE] transition-colors"
+                  className="px-2.5 py-1 rounded-full bg-[#F0F7FD] border border-slate-200/90 text-xs sm:text-sm font-bold text-[#0072CE] hover:border-[#0072CE] transition-colors"
                 >
                   ✓ {tag}
                 </span>
@@ -186,7 +186,7 @@ export default function SiriFinHub({ onOpenContact }) {
             <div className="space-y-3.5 pt-1">
               {financeMetrics.map((met, idx) => (
                 <div key={met.label} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-[#1E293B]">
+                  <div className="flex items-center justify-between text-sm sm:text-base font-bold text-[#1E293B]">
                     <span>{met.label}</span>
                     <span className="font-mono text-[#0072CE]">
                       {met.percentage}%
@@ -250,18 +250,18 @@ export default function SiriFinHub({ onOpenContact }) {
                 style={{ transform: 'translateZ(20px)' }}
               >
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase font-medium">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Ticket Size
                   </div>
-                  <div className="text-xs sm:text-sm font-mono font-bold text-[#0072CE]">
+                  <div className="text-sm sm:text-base font-mono font-bold text-[#0072CE]">
                     ₹25 Lakh - ₹100 Cr+
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase font-medium">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Processing
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-[#1E293B]">
+                  <div className="text-sm sm:text-base font-bold text-[#1E293B]">
                     Fast Appraisal SLA
                   </div>
                 </div>
@@ -272,20 +272,20 @@ export default function SiriFinHub({ onOpenContact }) {
                 className="absolute top-3.5 right-3.5 z-20 pointer-events-none"
                 style={{ transform: 'translateZ(30px)' }}
               >
-                <div className="relative w-18 h-18 sm:w-22 sm:h-22 rounded-full bg-[#1E293B] border-2 border-[#0072CE] shadow-xl flex items-center justify-center animate-spin-slow">
+                <div className="relative w-22 h-22 sm:w-26 sm:h-26 rounded-full bg-[#1E293B] border-2 border-[#0072CE] shadow-2xl flex items-center justify-center animate-spin-slow">
                   <svg className="w-full h-full p-1" viewBox="0 0 100 100" overflow="visible">
                     <path
                       id="circlePathLoans"
                       d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
                       fill="none"
                     />
-                    <text className="text-[8.5px] font-mono uppercase tracking-[0.18em] fill-[#0072CE] font-bold">
+                    <text className="text-[10px] sm:text-[9.5px] font-extrabold uppercase tracking-[0.16em] fill-[#38BDF8]">
                       <textPath href="#circlePathLoans" startOffset="0%">
                         • SIRI FIN HUB • B2B CREDIT • LOANS •
                       </textPath>
                     </text>
                   </svg>
-                  <div className="absolute w-8 h-8 rounded-full bg-[#0072CE] text-white flex items-center justify-center font-bold text-xs shadow">
+                  <div className="absolute w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0072CE] text-white flex items-center justify-center font-extrabold text-sm shadow">
                     ₹
                   </div>
                 </div>
