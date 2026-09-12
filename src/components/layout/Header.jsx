@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import gsap from 'gsap';
 import { NAV_LINKS, CTA_BUTTON } from '@/data/navigation';
 import siriLogo from '@/assets/images/siri-logo.png';
@@ -23,8 +24,12 @@ export default function Header() {
   const [isPill, setIsPill] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isDrawerMounted, setIsDrawerMounted] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const headerWrapperRef = useRef(null);
   const headerPillRef = useRef(null);
@@ -194,60 +199,33 @@ export default function Header() {
   // Phase E: Smooth Mobile Sidebar (Drawer) Open & Close Controller
   // ─────────────────────────────────────────────────────────────
   const openMobileDrawer = useCallback(() => {
-    setIsDrawerMounted(true);
     setMobileOpen(true);
   }, []);
 
   const closeMobileDrawer = useCallback(() => {
     setMobileOpen(false);
-    if (mobileDrawerRef.current && mobileBackdropRef.current) {
-      // Smooth slow exit animation with GSAP
-      gsap.to(mobileDrawerRef.current, {
-        xPercent: 100,
-        duration: 0.55,
-        ease: 'power3.inOut',
-      });
-      gsap.to(mobileBackdropRef.current, {
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          setIsDrawerMounted(false);
-          setMobileServicesOpen(false);
-        },
-      });
-    } else {
-      setIsDrawerMounted(false);
-      setMobileServicesOpen(false);
-    }
+    setMobileServicesOpen(false);
   }, []);
 
-  // Animate mobile drawer entrance whenever mounted
+  // Stagger items animation and lock body scroll whenever mobile drawer opens
   useEffect(() => {
-    if (isDrawerMounted && mobileOpen) {
-      if (mobileBackdropRef.current && mobileDrawerRef.current) {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+      const validItems = mobileNavItemsRef.current.filter(Boolean);
+      if (validItems.length > 0) {
         gsap.fromTo(
-          mobileBackdropRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.65, ease: 'power2.out' }
+          validItems,
+          { opacity: 0, x: 20 },
+          { opacity: 1, x: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out', delay: 0.1 }
         );
-        gsap.fromTo(
-          mobileDrawerRef.current,
-          { xPercent: 100 },
-          { xPercent: 0, duration: 0.7, ease: 'power3.out' }
-        );
-
-        const validItems = mobileNavItemsRef.current.filter(Boolean);
-        if (validItems.length > 0) {
-          gsap.fromTo(
-            validItems,
-            { opacity: 0, x: 28 },
-            { opacity: 1, x: 0, duration: 0.55, stagger: 0.08, ease: 'power3.out', delay: 0.15 }
-          );
-        }
       }
+    } else {
+      document.body.style.overflow = '';
     }
-  }, [isDrawerMounted, mobileOpen]);
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
 
   // ─────────────────────────────────────────────────────────────
   // Phase F: Smooth Mobile Services Accordion Controller
@@ -301,7 +279,7 @@ export default function Header() {
     }
   }, [mobileServicesOpen]);
 
-  // Handle smooth navigation clicks
+  // Handle smooth navigation clicks with header offset
   const handleNavClick = (e, href) => {
     e.preventDefault();
     setServicesOpen(false);
@@ -310,7 +288,13 @@ export default function Header() {
     if (href.startsWith('#')) {
       const target = document.querySelector(href);
       if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
+        const headerOffset = 80;
+        const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({
+          top: Math.max(0, elementPosition - headerOffset),
+          behavior: 'smooth',
+        });
+        window.history.pushState({}, '', href);
       } else {
         window.history.pushState({}, '', '/' + href);
       }
@@ -329,17 +313,7 @@ export default function Header() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [closeMobileDrawer]);
 
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileOpen]);
+
 
   return (
     <>
@@ -348,7 +322,7 @@ export default function Header() {
       ───────────────────────────────────────────────────────── */}
       <div
         ref={headerWrapperRef}
-        className={`fixed left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-700 ease-out ${
+        className={`fixed left-0 right-0 z-50 flex justify-center pointer-events-none ${
           isPill ? 'top-3 sm:top-4 px-3 sm:px-6' : 'top-0 px-0'
         }`}
       >
@@ -357,7 +331,7 @@ export default function Header() {
         ─────────────────────────────────────────────────────── */}
         <header
           ref={headerPillRef}
-          className={`pointer-events-auto flex items-center justify-between transition-all duration-700 ease-out select-none ${
+          className={`pointer-events-auto flex items-center justify-between transition-[max-width,border-radius,padding,box-shadow] duration-500 ease-out select-none ${
             isPill
               ? 'max-w-6xl w-full mx-auto rounded-full bg-gradient-to-r from-[#0072CE]/95 via-[#0284C7]/90 to-[#72BF44]/95 backdrop-blur-xl shadow-2xl shadow-blue-950/25 border border-white/30 py-2 sm:py-2.5 px-5 sm:px-8 ring-1 ring-white/20'
               : 'w-full rounded-none bg-gradient-to-r from-[#0072CE]/95 via-[#0284C7]/90 to-[#72BF44]/95 backdrop-blur-xl shadow-lg border-b border-white/25 py-3 sm:py-3.5 px-5 sm:px-8 lg:px-12'
@@ -564,7 +538,7 @@ export default function Header() {
               onClick={() => (mobileOpen ? closeMobileDrawer() : openMobileDrawer())}
               aria-expanded={mobileOpen}
               aria-label={mobileOpen ? 'Close Menu' : 'Open Menu'}
-              className="md:hidden flex items-center justify-center w-9.5 h-9.5 rounded-full bg-white/20 text-white hover:bg-white/30 transition-all duration-300 focus:outline-none shadow-xs"
+              className="md:hidden flex items-center justify-center w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-white/20 text-white hover:bg-white/30 active:scale-95 transition-all duration-200 focus:outline-none shadow-xs cursor-pointer touch-manipulation z-30"
             >
               {mobileOpen ? (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -581,134 +555,140 @@ export default function Header() {
       </div>
 
       {/* ======================================================== */}
-      {/* 4. BRAND NEW MOBILE OFF-CANVAS DRAWER NAVIGATION         */}
+      {/* 4. MOBILE OFF-CANVAS DRAWER NAVIGATION                   */}
       {/* Matches the Header's Aurora Gradient Glass Aesthetic     */}
-      {/* With slow, cinematic GSAP slide, fade & accordion        */}
+      {/* Smooth CSS slide & fade + GSAP staggered items           */}
+      {/* Rendered via Portal directly to body                     */}
       {/* ======================================================== */}
-      {isDrawerMounted && (
-        <div className="fixed inset-0 z-50 md:hidden flex justify-end overflow-hidden">
-          {/* Smooth Slow Backdrop */}
+      {mounted &&
+        typeof document !== 'undefined' &&
+        document.body &&
+        createPortal(
           <div
-            ref={mobileBackdropRef}
-            className="fixed inset-0 bg-slate-950/65 backdrop-blur-sm opacity-0"
-            onClick={closeMobileDrawer}
-            aria-hidden="true"
-          />
-
-          {/* Luxury Aurora Gradient Drawer Panel */}
-          <div
-            ref={mobileDrawerRef}
-            className="relative w-full max-w-xs sm:max-w-sm h-full bg-gradient-to-b from-[#0072CE] via-[#0284C7] to-[#72BF44] text-white shadow-2xl p-6 flex flex-col justify-between overflow-y-auto z-10 border-l border-white/25 will-change-transform"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile Navigation"
+            className={`fixed inset-0 z-[9999] md:hidden flex justify-end overflow-hidden transition-[visibility] duration-300 ${
+              mobileOpen ? 'visible pointer-events-auto' : 'invisible pointer-events-none'
+            }`}
           >
-            {/* Ambient subtle light orbs inside drawer */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-60 h-60 rounded-full bg-black/15 blur-3xl pointer-events-none" />
+            {/* Smooth Backdrop */}
+            <div
+              ref={mobileBackdropRef}
+              className={`fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300 ${
+                mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              }`}
+              onClick={closeMobileDrawer}
+              aria-hidden="true"
+            />
 
-            <div className="relative z-10">
-              {/* Header inside drawer */}
-              <div className="flex items-center justify-between pb-4 border-b border-white/20">
-                <div className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-2xl shadow-sm inline-flex items-center">
-                  <img src={siriLogo} alt="SIRI Group" className="h-7 w-auto object-contain" />
+            {/* Luxury Aurora Gradient Drawer Panel */}
+            <div
+              ref={mobileDrawerRef}
+              className={`relative w-full max-w-xs sm:max-w-sm h-full bg-gradient-to-b from-[#0072CE] via-[#0284C7] to-[#72BF44] text-white shadow-2xl p-6 flex flex-col justify-between overflow-y-auto z-10 border-l border-white/25 transition-transform duration-300 ease-out will-change-transform ${
+                mobileOpen ? 'translate-x-0' : 'translate-x-full'
+              }`}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Mobile Navigation"
+            >
+              {/* Ambient subtle light orbs inside drawer */}
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-60 h-60 rounded-full bg-black/15 blur-3xl pointer-events-none" />
+
+              <div className="relative z-10">
+                {/* Header inside drawer */}
+                <div className="flex items-center justify-between pb-4 border-b border-white/20">
+                  <div className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-2xl shadow-sm inline-flex items-center">
+                    <img src={siriLogo} alt="SIRI Group" className="h-7 w-auto object-contain" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeMobileDrawer}
+                    className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-200 shadow-xs cursor-pointer touch-manipulation"
+                    aria-label="Close menu"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={closeMobileDrawer}
-                  className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300 shadow-xs"
-                  aria-label="Close menu"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
 
-              {/* Navigation Items */}
-              <div className="py-4 space-y-2">
-                {NAV_LINKS.map((link, linkIdx) => {
-                  if (link.hasDropdown) {
-                    return (
-                      <div
-                        key={link.label}
-                        ref={(el) => (mobileNavItemsRef.current[linkIdx] = el)}
-                        className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden transition-colors"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setMobileServicesOpen((prev) => !prev)}
-                          className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-colors"
-                        >
-                          <span className="flex items-center gap-2">
-                            <span>{link.label}</span>
-                            <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-white/20 text-white">
-                              5 Verticals
-                            </span>
-                          </span>
-                          <svg
-                            ref={mobileAccordionChevronRef}
-                            className="w-4 h-4 text-white/80 transition-transform duration-300 will-change-transform"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-
-                        {/* Mobile Services Accordion (Animated with GSAP) */}
+                {/* Navigation Items */}
+                <div className="py-4 space-y-2">
+                  {NAV_LINKS.map((link, linkIdx) => {
+                    if (link.hasDropdown) {
+                      return (
                         <div
-                          ref={mobileAccordionRef}
-                          style={{ height: 0, opacity: 0, overflow: 'hidden' }}
-                          className="px-3 pb-3 space-y-2"
+                          key={link.label}
+                          ref={(el) => (mobileNavItemsRef.current[linkIdx] = el)}
+                          className="rounded-2xl bg-white/10 border border-white/15 overflow-hidden transition-colors"
                         >
-                          <div className="pt-2 border-t border-white/15 space-y-2">
-                            {link.children?.map((sub, sIdx) => (
-                              <a
-                                key={sub.id}
-                                ref={(el) => (mobileAccordionItemsRef.current[sIdx] = el)}
-                                href={sub.href}
-                                onClick={(e) => handleNavClick(e, sub.href)}
-                                className="block p-3 rounded-xl bg-white/95 hover:bg-white text-slate-900 shadow-sm hover:shadow-md transition-all duration-200 group"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0072CE] transition-colors">
-                                    {sub.title}
-                                  </span>
-                                  <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-[#0072CE]">
-                                    {sub.tag}
-                                  </span>
-                                </div>
-                                <div className="text-[10px] text-slate-500 mt-1 line-clamp-1 leading-snug">
-                                  {sub.description}
-                                </div>
-                              </a>
-                            ))}
+                          <button
+                            type="button"
+                            onClick={() => setMobileServicesOpen((prev) => !prev)}
+                            className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-colors"
+                          >
+                            <span className="flex items-center gap-2">
+                              <span>{link.label}</span>
+                              <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-white/20 text-white">
+                                5 Verticals
+                              </span>
+                            </span>
+                            <svg
+                              ref={mobileAccordionChevronRef}
+                              className="w-4 h-4 text-white/80 transition-transform duration-300 will-change-transform"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+
+                          {/* Mobile Services Accordion (Animated with GSAP) */}
+                          <div
+                            ref={mobileAccordionRef}
+                            style={{ height: 0, opacity: 0, overflow: 'hidden' }}
+                            className="px-3 pb-3 space-y-2"
+                          >
+                            <div className="pt-2 border-t border-white/15 space-y-2">
+                              {link.children?.map((sub, sIdx) => (
+                                <a
+                                  key={sub.id}
+                                  ref={(el) => (mobileAccordionItemsRef.current[sIdx] = el)}
+                                  href={sub.href}
+                                  onClick={(e) => handleNavClick(e, sub.href)}
+                                  className="block p-3 rounded-xl bg-white/95 hover:bg-white text-slate-900 shadow-sm hover:shadow-md transition-all duration-200 group"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold text-slate-900 group-hover:text-[#0072CE] transition-colors">
+                                      {sub.title}
+                                    </span>
+                                    <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-[#0072CE]">
+                                      {sub.tag}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-500 mt-0.5 leading-tight line-clamp-1">
+                                    {sub.description}
+                                  </p>
+                                </a>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  }
+                      );
+                    }
 
-                  return (
-                    <div
-                      key={link.label}
-                      ref={(el) => (mobileNavItemsRef.current[linkIdx] = el)}
-                    >
+                    return (
                       <a
+                        key={link.label}
+                        ref={(el) => (mobileNavItemsRef.current[linkIdx] = el)}
                         href={link.href}
                         onClick={(e) => handleNavClick(e, link.href)}
-                        className="flex items-center justify-between px-4 py-3.5 text-sm font-bold text-white/95 hover:text-white rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-200 shadow-xs"
+                        className="block px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-sm font-bold text-white transition-all duration-200 shadow-xs"
                       >
-                        <span>{link.label}</span>
-                        <svg className="w-3.5 h-3.5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
+                        {link.label}
                       </a>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
 
@@ -736,7 +716,8 @@ export default function Header() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

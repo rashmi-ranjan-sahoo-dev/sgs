@@ -103,7 +103,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       accentColor: '#72BF44',
       accentGlow: 'from-[#72BF44]/30 to-transparent',
       ctaLabel: 'Explore Solutions',
-      ctaHref: '#services',
+      ctaHref: '#services-global',
     },
     {
       id: 'corporate-travel',
@@ -236,7 +236,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       );
       tl.to(
         card1Ref.current,
-        { scale: 0.96, filter: 'brightness(0.82)', duration: 0.5, ease: 'power2.out' },
+        { scale: 0.97, duration: 0.5, ease: 'power2.out' },
         '<0.1'
       );
 
@@ -251,7 +251,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       );
       tl.to(
         card2Ref.current,
-        { scale: 0.96, filter: 'brightness(0.82)', duration: 0.5, ease: 'power2.out' },
+        { scale: 0.97, duration: 0.5, ease: 'power2.out' },
         '<0.1'
       );
     });
@@ -309,20 +309,20 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
 
       // Initial positions:
       // Card 1 starts centered (offset by distance to Column 2)
-      // Cards 2 & 3 start hidden to the right
+      // Cards 2 & 3 start hidden within container bounds (preventing horizontal scrollbar)
       gsap.set(desktopCard1WrapperRef.current, {
         x: () => getCardCenterOffset(),
       });
       gsap.set(desktopCard2WrapperRef.current, {
         opacity: 0,
-        x: 80,
-        scale: 0.95,
+        x: 24,
+        scale: 0.97,
         pointerEvents: 'none',
       });
       gsap.set(desktopCard3WrapperRef.current, {
         opacity: 0,
-        x: 80,
-        scale: 0.95,
+        x: 24,
+        scale: 0.97,
         pointerEvents: 'none',
       });
 
@@ -465,20 +465,43 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
     }
   };
 
+  const smoothScrollTo = (targetSelector) => {
+    if (typeof window === 'undefined' || !targetSelector) return;
+    const target = document.querySelector(targetSelector);
+    if (target) {
+      const headerOffset = 80;
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + (window.scrollY ?? window.pageYOffset ?? 0) - headerOffset;
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth',
+      });
+      return true;
+    }
+    const fallback = document.querySelector('#services');
+    if (fallback) {
+      const headerOffset = 80;
+      const elementPosition = fallback.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + (window.scrollY ?? window.pageYOffset ?? 0) - headerOffset;
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth',
+      });
+      return true;
+    }
+    return false;
+  };
+
   const handleCtaClick = (e, card) => {
-    e.preventDefault();
-    if (onOpenServicesModal && card.id === 'global-solutions') {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (onOpenServicesModal && card?.id === 'global-solutions') {
       onOpenServicesModal();
     } else {
-      const target = document.querySelector(card.ctaHref);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        const servicesSection = document.querySelector('#services');
-        if (servicesSection) {
-          servicesSection.scrollIntoView({ behavior: 'smooth' });
-        }
-      }
+      const href = typeof card === 'string' ? card : card?.ctaHref;
+      smoothScrollTo(href);
     }
   };
 
@@ -486,71 +509,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
     <section
       ref={sectionRef}
       id="showcase"
-      className="relative w-full overflow-hidden pt-4 pb-16 sm:pt-6 sm:pb-20 lg:pt-8 lg:pb-24 select-none hero-animated-gradient-bg"
+      className="relative w-full overflow-hidden pt-4 pb-16 sm:pt-6 sm:pb-20 lg:pt-8 lg:pb-24 select-none bg-transparent"
     >
-      {/* ─────────────────────────────────────────────────────────
-          Styles: Shifting Gradient Background Matching Hero Section
-      ───────────────────────────────────────────────────────── */}
-      <style>{`
-        @keyframes showcaseGradientFloat {
-          0% {
-            background-position: 0% 0%;
-          }
-          25% {
-            background-position: 100% 30%;
-          }
-          50% {
-            background-position: 80% 100%;
-          }
-          75% {
-            background-position: 0% 70%;
-          }
-          100% {
-            background-position: 0% 0%;
-          }
-        }
-
-        .hero-animated-gradient-bg {
-          background-image: linear-gradient(
-            135deg,
-            rgba(0, 114, 206, 0.24) 0%,
-            rgba(224, 242, 254, 0.88) 28%,
-            rgba(240, 253, 244, 0.88) 62%,
-            rgba(114, 191, 68, 0.26) 100%
-          );
-          background-size: 200% 200%;
-          animation: showcaseGradientFloat 16s ease-in-out infinite alternate;
-        }
-      `}</style>
-
-      {/* ─────────────────────────────────────────────────────────
-          1. Subtle Raycast-Style Canvas Dot-Grid Background (Matching Hero)
-      ───────────────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-15"
-        style={{
-          backgroundImage: 'radial-gradient(#0072CE 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ─────────────────────────────────────────────────────────
-          2. Atmospheric Infinitely Floating Primary Color Mesh Orbs (Matching Hero)
-      ───────────────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 pointer-events-none overflow-hidden select-none"
-        aria-hidden="true"
-      >
-        <div className="absolute top-10 left-1/4 w-96 h-96 rounded-full bg-gradient-to-br from-[#0072CE] to-[#0284C7] opacity-40 dark:opacity-25 blur-[100px]" />
-        <div className="absolute bottom-10 right-1/4 w-96 h-96 rounded-full bg-gradient-to-tr from-[#72BF44] to-[#84CC16] opacity-35 dark:opacity-20 blur-[100px]" />
-        <div className="absolute top-1/2 left-1/3 w-80 h-80 rounded-full bg-gradient-to-br from-[#72BF44] via-[#00A3E0] to-[#0072CE] opacity-25 blur-[90px]" />
-      </div>
 
       {/* ─────────────────────────────────────────────────────────
           A. MOBILE VIEW (< 768px): Stacking Deck with Visible Header Tabs
       ───────────────────────────────────────────────────────── */}
-      <div className="block md:hidden relative px-3 max-w-md mx-auto">
+      <div className="block md:hidden relative px-4 sm:px-6 w-full max-w-lg mx-auto">
         <div ref={mobileDeckRef} className="relative h-[620px] w-full">
           {/* ──────── CARD 1: SIRI Global Solutions (top: 0px) ──────── */}
           <div
@@ -562,9 +527,9 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <img
               src={siriAboutMain}
               alt="SIRI Global Solutions"
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-85 pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-95 pointer-events-none"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
 
             {/* Folder Tab Header */}
             <div className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0">
@@ -626,8 +591,9 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                   <a
                     key={badge.id}
                     href={badge.href}
+                    onClick={(e) => handleCtaClick(e, badge.href)}
                     ref={(el) => (mobileOptionsItemsRef.current[idx] = el)}
-                    className="w-full bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/90 hover:border-[#72BF44] text-white shadow-xl px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between active:scale-95 transition-all group backdrop-blur-md"
+                    className="w-full bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/90 hover:border-[#72BF44] text-white shadow-xl px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between active:scale-95 transition-all group backdrop-blur-md cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="text-base shrink-0">{badge.icon}</span>
@@ -652,12 +618,15 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <img
               src={corporateTravelImg}
               alt="SIRI Corporate Travel"
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-85 pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-95 pointer-events-none"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
 
             {/* Top Folder Tab Header */}
-            <div className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0">
+            <div
+              onClick={(e) => handleCtaClick(e, showcaseCards[1])}
+              className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0 cursor-pointer"
+            >
               <div className="flex items-center gap-2.5">
                 <span className="w-7 h-7 rounded-full bg-[#0072CE]/25 border border-[#0072CE]/60 text-[#38BDF8] text-xs font-black flex items-center justify-center shrink-0">
                   {showcaseCards[1].number}
@@ -707,12 +676,15 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <img
               src={corporateLoansImg}
               alt="SIRI Fin Hub"
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-85 pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-95 pointer-events-none"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
 
             {/* Top Folder Tab Header */}
-            <div className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0">
+            <div
+              onClick={(e) => handleCtaClick(e, showcaseCards[2])}
+              className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0 cursor-pointer"
+            >
               <div className="flex items-center gap-2.5">
                 <span className="w-7 h-7 rounded-full bg-[#00A8E8]/25 border border-[#00A8E8]/60 text-[#00A8E8] text-xs font-black flex items-center justify-center shrink-0">
                   {showcaseCards[2].number}
@@ -761,7 +733,8 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
         {showcaseCards.map((card, idx) => (
           <div
             key={card.id}
-            className="snap-center shrink-0 w-[400px] h-[460px] rounded-3xl border border-white/20 shadow-2xl overflow-hidden relative p-7 flex flex-col justify-between text-white bg-slate-900/95 group"
+            onClick={(e) => handleCtaClick(e, card)}
+            className="snap-center shrink-0 w-[400px] h-[460px] rounded-3xl border border-white/20 shadow-2xl overflow-hidden relative p-7 flex flex-col justify-between text-white bg-slate-900/95 group cursor-pointer"
           >
             <img
               src={card.bgImage}
@@ -815,17 +788,17 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       {/* ─────────────────────────────────────────────────────────
           C. DESKTOP VIEW (>= 1024px): 2D Cards with Mouse Perspective Tilt (Matching Hero)
       ───────────────────────────────────────────────────────── */}
-      <div className="hidden lg:block relative w-full px-6 xl:px-12 overflow-hidden">
+      <div className="hidden lg:block relative w-full px-4 sm:px-6 lg:px-8 xl:px-10 overflow-hidden">
         <div
           ref={desktopContainerRef}
-          className="relative w-full max-w-7xl mx-auto flex items-center justify-center gap-6 xl:gap-8 will-change-transform"
+          className="relative w-full max-w-7xl mx-auto flex items-center justify-center gap-4 xl:gap-6 will-change-transform"
         >
           {/* ──────── DESKTOP CARD 1: SIRI Global Solutions (Centered -> Left Dock) ──────── */}
           <div
             ref={desktopCard1WrapperRef}
             onMouseMove={(e) => handleCardMouseMove(e, desktopCard1InnerRef)}
             onMouseLeave={() => handleCardMouseLeave(desktopCard1InnerRef)}
-            className="w-[360px] lg:w-[380px] xl:w-[410px] h-[480px] xl:h-[500px] relative will-change-transform shrink-0 [perspective:1200px]"
+            className="w-full max-w-[370px] xl:max-w-[400px] h-[480px] xl:h-[500px] relative will-change-transform shrink [perspective:1200px]"
           >
             {/* Inner Card Handling Perspective Tilt & Hover Effects (Matching Hero Section Capsule) */}
             <div
@@ -836,15 +809,15 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               <img
                 src={siriAboutMain}
                 alt="SIRI Global Solutions"
-                className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
+                className="absolute inset-0 w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
               />
               {/* Gloss Vignette Overlay (Matching Hero Section Capsule) */}
               <div
-                className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-white/10 pointer-events-none"
+                className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-white/10 pointer-events-none"
                 aria-hidden="true"
               />
               {/* Bottom-Weighted High Contrast Scrim */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
               {/* Accent Color Atmosphere Glow Intensified on Hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#72BF44]/20 to-transparent opacity-35 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none" />
 
@@ -904,8 +877,9 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                     <a
                       key={badge.id}
                       href={badge.href}
+                      onClick={(e) => handleCtaClick(e, badge.href)}
                       ref={(el) => (desktopOptionsItemsRef.current[idx] = el)}
-                      className="w-full bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/90 hover:border-[#72BF44] text-white shadow-xl px-4 py-2 rounded-2xl text-xs xl:text-sm font-bold flex items-center justify-between transition-all duration-300 hover:scale-[1.02] active:scale-95 group backdrop-blur-md"
+                      className="w-full bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/90 hover:border-[#72BF44] text-white shadow-xl px-4 py-2 rounded-2xl text-xs xl:text-sm font-bold flex items-center justify-between transition-all duration-300 hover:scale-[1.02] active:scale-95 group backdrop-blur-md cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5">
                         <span className="text-base shrink-0">{badge.icon}</span>
@@ -926,26 +900,27 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             ref={desktopCard2WrapperRef}
             onMouseMove={(e) => handleCardMouseMove(e, desktopCard2InnerRef)}
             onMouseLeave={() => handleCardMouseLeave(desktopCard2InnerRef)}
-            className="w-[360px] lg:w-[380px] xl:w-[410px] h-[480px] xl:h-[500px] relative will-change-transform shrink-0 [perspective:1200px]"
+            className="w-full max-w-[370px] xl:max-w-[400px] h-[480px] xl:h-[500px] relative will-change-transform shrink [perspective:1200px]"
           >
             {/* Inner Card Handling Perspective Tilt & Hover Effects (Matching Hero Section Capsule) */}
             <div
               ref={desktopCard2InnerRef}
-              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#0072CE]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#0072CE]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-default"
+              onClick={(e) => handleCtaClick(e, showcaseCards[1])}
+              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#0072CE]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#0072CE]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-all duration-500 group will-change-transform cursor-pointer"
             >
               {/* Vivid Background Image with Smooth Scale Zoom on Hover */}
               <img
                 src={corporateTravelImg}
                 alt="SIRI Corporate Travel"
-                className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
+                className="absolute inset-0 w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
               />
               {/* Gloss Vignette Overlay (Matching Hero Section Capsule) */}
               <div
-                className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-white/10 pointer-events-none"
+                className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-white/10 pointer-events-none"
                 aria-hidden="true"
               />
               {/* Bottom-Weighted High Contrast Scrim */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
               {/* Accent Color Atmosphere Glow Intensified on Hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#0072CE]/20 to-transparent opacity-35 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none" />
 
@@ -993,26 +968,27 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             ref={desktopCard3WrapperRef}
             onMouseMove={(e) => handleCardMouseMove(e, desktopCard3InnerRef)}
             onMouseLeave={() => handleCardMouseLeave(desktopCard3InnerRef)}
-            className="w-[360px] lg:w-[380px] xl:w-[410px] h-[480px] xl:h-[500px] relative will-change-transform shrink-0 [perspective:1200px]"
+            className="w-full max-w-[370px] xl:max-w-[400px] h-[480px] xl:h-[500px] relative will-change-transform shrink [perspective:1200px]"
           >
             {/* Inner Card Handling Perspective Tilt & Hover Effects (Matching Hero Section Capsule) */}
             <div
               ref={desktopCard3InnerRef}
-              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#00A8E8]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#00A8E8]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-default"
+              onClick={(e) => handleCtaClick(e, showcaseCards[2])}
+              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#00A8E8]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#00A8E8]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-all duration-500 group will-change-transform cursor-pointer"
             >
               {/* Vivid Background Image with Smooth Scale Zoom on Hover */}
               <img
                 src={corporateLoansImg}
                 alt="SIRI Fin Hub"
-                className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
+                className="absolute inset-0 w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
               />
               {/* Gloss Vignette Overlay (Matching Hero Section Capsule) */}
               <div
-                className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-white/10 pointer-events-none"
+                className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-white/10 pointer-events-none"
                 aria-hidden="true"
               />
               {/* Bottom-Weighted High Contrast Scrim */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
               {/* Accent Color Atmosphere Glow Intensified on Hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#00A8E8]/20 to-transparent opacity-35 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none" />
 

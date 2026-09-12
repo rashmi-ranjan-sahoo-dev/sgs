@@ -26,11 +26,7 @@ export default function Hero({ onOpenServicesModal }) {
   const desktopChipsRef = useRef([]);
   const mobileChipsRef = useRef([]);
 
-  // Atmospheric floating mesh orb refs
-  const topOrbRef = useRef(null);
-  const bottomOrbRef = useRef(null);
-  const centerOrbRef = useRef(null);
-  const leftOrbRef = useRef(null);
+
 
   const serviceChips = [
     { id: 'hr', icon: '👥', label: 'HR & Manpower Solutions', href: '#services-hr' },
@@ -45,60 +41,7 @@ export default function Hero({ onOpenServicesModal }) {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const ctx = gsap.context(() => {
-      // ─────────────────────────────────────────────────────────────
-      // 1. Continuous Floating Primary Gradient Mesh Orbs (Infinite 2D Loops)
-      // ─────────────────────────────────────────────────────────────
-      if (!prefersReducedMotion) {
-        // Orb 1: Core SIRI Blue Top-Right (top-to-bottom & left-to-right float)
-        if (topOrbRef.current) {
-          gsap.to(topOrbRef.current, {
-            x: 55,
-            y: -45,
-            scale: 1.15,
-            duration: 10,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-          });
-        }
-        // Orb 2: Core SIRI Lime Green Bottom-Left (smooth multi-axis float)
-        if (bottomOrbRef.current) {
-          gsap.to(bottomOrbRef.current, {
-            x: -45,
-            y: 50,
-            scale: 1.18,
-            duration: 12,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-          });
-        }
-        // Orb 3: Brand Combo Gradient Center-Right
-        if (centerOrbRef.current) {
-          gsap.to(centerOrbRef.current, {
-            x: 40,
-            y: 35,
-            rotate: 140,
-            scale: 1.12,
-            duration: 14,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-          });
-        }
-        // Orb 4: Luminous Blue Top-Left
-        if (leftOrbRef.current) {
-          gsap.to(leftOrbRef.current, {
-            x: -35,
-            y: -35,
-            scale: 1.1,
-            duration: 9.5,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-          });
-        }
-      }
+
 
       // ─────────────────────────────────────────────────────────────
       // 2. Rotating Circular Ring Infinite Spin (20s linear loop)
@@ -298,42 +241,10 @@ export default function Hero({ onOpenServicesModal }) {
     <section
       id="hero"
       ref={heroRef}
-      className="relative min-h-screen flex flex-col items-center justify-start pt-20 pb-8 sm:pt-24 sm:pb-10 lg:pt-28 lg:pb-12 overflow-x-clip select-none transition-colors duration-500 hero-animated-gradient-bg"
+      className="relative min-h-screen flex flex-col items-center justify-start pt-20 pb-8 sm:pt-24 sm:pb-10 lg:pt-28 lg:pb-12 overflow-x-clip select-none transition-colors duration-500 bg-transparent"
     >
-      {/* ─────────────────────────────────────────────────────────
-          Styles: Shifting Gradient Background & Fitted Image Mask Cutout
-      ───────────────────────────────────────────────────────── */}
+      {/* Styles: Fitted Image Mask Cutout */}
       <style>{`
-        @keyframes heroGradientFloat {
-          0% {
-            background-position: 0% 0%;
-          }
-          25% {
-            background-position: 100% 30%;
-          }
-          50% {
-            background-position: 80% 100%;
-          }
-          75% {
-            background-position: 0% 70%;
-          }
-          100% {
-            background-position: 0% 0%;
-          }
-        }
-
-        .hero-animated-gradient-bg {
-          background-image: linear-gradient(
-            135deg,
-            rgba(0, 114, 206, 0.24) 0%,
-            rgba(224, 242, 254, 0.88) 28%,
-            rgba(240, 253, 244, 0.88) 62%,
-            rgba(114, 191, 68, 0.26) 100%
-          );
-          background-size: 200% 200%;
-          animation: heroGradientFloat 16s ease-in-out infinite alternate;
-        }
-
         .siri-hero-capsule-socket {
           --cutout-r: 48px;
           --cutout-x: 44px;
@@ -361,47 +272,6 @@ export default function Hero({ onOpenServicesModal }) {
       `}</style>
 
       {/* ─────────────────────────────────────────────────────────
-          1. Subtle Raycast-Style Canvas Dot-Grid Background Overlay
-      ───────────────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-15"
-        style={{
-          backgroundImage: 'radial-gradient(#0072CE 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ─────────────────────────────────────────────────────────
-          2. Atmospheric Infinitely Floating Primary Color Mesh Orbs (Rich & Visible)
-      ───────────────────────────────────────────────────────── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden="true">
-        {/* Orb 1: Core SIRI Blue (#0072CE) Top-Right (Floating Smoothly) */}
-        <div
-          ref={topOrbRef}
-          className="absolute -top-12 -right-12 sm:top-0 sm:right-0 w-84 h-84 sm:w-[560px] sm:h-[560px] lg:w-[740px] lg:h-[740px] rounded-full bg-gradient-to-br from-[#0072CE] to-[#0284C7] opacity-45 dark:opacity-30 blur-[75px] sm:blur-[115px] will-change-transform"
-        />
-
-        {/* Orb 2: Core SIRI Lime Green (#72BF44) Bottom-Left (Floating Smoothly) */}
-        <div
-          ref={bottomOrbRef}
-          className="absolute top-1/2 -left-16 sm:top-1/3 sm:left-2 w-76 h-76 sm:w-[520px] sm:h-[520px] lg:w-[680px] lg:h-[680px] rounded-full bg-gradient-to-tr from-[#72BF44] to-[#84CC16] opacity-40 dark:opacity-25 blur-[70px] sm:blur-[110px] will-change-transform"
-        />
-
-        {/* Orb 3: Brand Combo Gradient (#72BF44 to #0072CE) Mid-Right */}
-        <div
-          ref={centerOrbRef}
-          className="absolute top-1/4 right-1/8 w-68 h-68 sm:w-[440px] sm:h-[440px] rounded-full bg-gradient-to-br from-[#72BF44] via-[#00A3E0] to-[#0072CE] opacity-35 dark:opacity-22 blur-[65px] sm:blur-[100px] will-change-transform"
-        />
-
-        {/* Orb 4: Luminous Blue-Cyan Top-Left */}
-        <div
-          ref={leftOrbRef}
-          className="absolute -top-10 -left-10 w-64 h-64 sm:w-[400px] sm:h-[400px] rounded-full bg-gradient-to-br from-[#0072CE] to-[#38BDF8] opacity-30 dark:opacity-20 blur-[65px] sm:blur-[95px] will-change-transform"
-        />
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────
           3. Centered Content Container (Strict Zero Horizontal Overflow)
       ───────────────────────────────────────────────────────── */}
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
@@ -416,7 +286,7 @@ export default function Hero({ onOpenServicesModal }) {
 
         {/* 3b. Main Heading with Distinct Lines */}
         <h1
-          className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.18] sm:leading-[1.15] text-[#1E293B] dark:text-white tracking-tight max-w-4xl mx-auto"
+          className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.18] sm:leading-[1.15] text-[#1E293B] tracking-tight max-w-4xl mx-auto"
         >
           <span
             ref={(el) => (headlineLinesRef.current[0] = el)}

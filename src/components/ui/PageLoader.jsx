@@ -32,9 +32,20 @@ export default function PageLoader({ onComplete }) {
       return;
     }
 
+    // Safety fallback: guaranteed to dismiss loader even if GSAP timeline is stalled
+    const fallbackTimer = setTimeout(() => {
+      setIsDone(true);
+      if (typeof window !== 'undefined') {
+        window.__pageLoaderDone = true;
+        window.dispatchEvent(new CustomEvent('pageLoaderDone'));
+      }
+      if (onComplete) onComplete();
+    }, 2500);
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         onComplete: () => {
+          clearTimeout(fallbackTimer);
           setIsDone(true);
           if (typeof window !== 'undefined') {
             window.__pageLoaderDone = true;
@@ -93,7 +104,10 @@ export default function PageLoader({ onComplete }) {
         );
     }, loaderRef);
 
-    return () => ctx.revert();
+    return () => {
+      clearTimeout(fallbackTimer);
+      ctx.revert();
+    };
   }, [onComplete]);
 
   if (isDone) return null;
