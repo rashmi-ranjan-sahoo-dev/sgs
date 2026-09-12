@@ -15,7 +15,23 @@ const SERVICE_OPTIONS = [
 
 export default function ContactModal({ isOpen, onClose, initialService = '' }) {
   const [mounted, setMounted] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+  const [isRendered, setIsRendered] = useState(false);
+
+  // Use refs for animation states to prevent dependency re-trigger loops in React
+  const isClosingRef = useRef(false);
+  const activeTimelineRef = useRef(null);
+  const scrollPosRef = useRef(0);
+  const originalStylesRef = useRef({
+    bodyOverflow: '',
+    docOverflow: '',
+    bodyPaddingRight: '',
+  });
+
+  const backdropRef = useRef(null);
+  const cardRef = useRef(null);
+  const touchStartY = useRef(0);
+  const touchDeltaY = useRef(0);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -26,11 +42,6 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const backdropRef = useRef(null);
-  const cardRef = useRef(null);
-  const touchStartY = useRef(0);
-  const touchDeltaY = useRef(0);
 
   useEffect(() => {
     setMounted(true);
@@ -49,35 +60,59 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
     }
   }, [initialService]);
 
-  // Smooth Exit Animation (Upper to Lower on phone, fade & drop on desktop)
-  const handleClose = useCallback(() => {
-    if (isClosing) return;
-    setIsClosing(true);
+  // Smooth Exit Animation (slides completely down on phone, fades & drops on desktop)
+  const animateClose = useCallback(() => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
 
-    // Dismiss mobile virtual keyboard immediately
+    // Dismiss mobile virtual keyboard immediately to prevent viewport jumping
     if (document.activeElement && typeof document.activeElement.blur === 'function') {
       document.activeElement.blur();
+    }
+
+    if (activeTimelineRef.current) {
+      activeTimelineRef.current.kill();
     }
 
     const isMobile = window.innerWidth < 640;
     const tl = gsap.timeline({
       onComplete: () => {
-        setIsClosing(false);
+        // Restore locked scroll styles cleanly
+        const { bodyOverflow, docOverflow, bodyPaddingRight } = originalStylesRef.current;
+        document.documentElement.style.overflow = docOverflow;
+        document.body.style.overflow = bodyOverflow;
+        document.body.style.paddingRight = bodyPaddingRight;
+        document.body.removeAttribute('data-modal-open');
+
+        // Restore exact scroll position without smooth scroll interference
+        const prevBehavior = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollTo(0, scrollPosRef.current);
+        document.documentElement.style.scrollBehavior = prevBehavior;
+
+        // Reset internal flags and unmount
+        activeTimelineRef.current = null;
+        isClosingRef.current = false;
+        setIsRendered(false);
+
+        // Notify parent
         onClose();
       },
     });
 
+    activeTimelineRef.current = tl;
+
     if (backdropRef.current) {
       tl.to(
         backdropRef.current,
-        { opacity: 0, duration: 0.25, ease: 'power2.in' },
+        { opacity: 0, duration: 0.28, ease: 'power2.in' },
         0
       );
     }
 
     if (cardRef.current) {
       if (isMobile) {
-        // Slide down to bottom smoothly
+        // Slide smoothly and completely down to the bottom
         tl.to(
           cardRef.current,
           { yPercent: 100, y: 0, duration: 0.32, ease: 'power3.in' },
@@ -91,61 +126,111 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
         );
       }
     }
-  }, [isClosing, onClose]);
+  }, [onClose]);
 
-  // Entrance animations ("Lower to Upper" on mobile) + Body scroll lock
+  // Synchronize isOpen prop with internal isRendered state
   useEffect(() => {
-    if (!isOpen) {
-      document.body.style.overflow = '';
-      return;
+    if (isOpen) {
+      if (isRendered) {
+        isClosingRef.current = false;
+        return;
+      }
+      isClosingRef.current = false;
+      setIsRendered(true);
+    } else {
+      if (isRendered && !isClosingRef.current) {
+        animateClose();
+      }
+    }
+  }, [isOpen, isRendered, animateClose]);
+
+  // Entrance animation and scroll lock when isRendered becomes true
+  useEffect(() => {
+    if (!isRendered) return;
+
+    // 1. Record exact scroll position BEFORE locking to restore exactly upon close
+    const currentScrollY =
+      window.scrollY ?? window.pageYOffset ?? document.documentElement.scrollTop ?? 0;
+    scrollPosRef.current = currentScrollY;
+
+    // 2. Capture original styles before locking
+    originalStylesRef.current = {
+      bodyOverflow: document.body.style.overflow || '',
+      docOverflow: document.documentElement.style.overflow || '',
+      bodyPaddingRight: document.body.style.paddingRight || '',
+    };
+
+    // Calculate scrollbar width on desktop to prevent horizontal layout jump
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    document.body.setAttribute('data-modal-open', 'true');
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
 
-    document.body.style.overflow = 'hidden';
-    setIsClosing(false);
-
+    // 3. Play smooth entrance animation
     const isMobile = window.innerWidth < 640;
 
-    const ctx = gsap.context(() => {
-      if (backdropRef.current) {
-        gsap.fromTo(
-          backdropRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.35, ease: 'power2.out' }
+    if (activeTimelineRef.current) {
+      activeTimelineRef.current.kill();
+    }
+
+    const tl = gsap.timeline();
+    activeTimelineRef.current = tl;
+
+    if (backdropRef.current) {
+      gsap.set(backdropRef.current, { opacity: 0 });
+      tl.to(
+        backdropRef.current,
+        { opacity: 1, duration: 0.35, ease: 'power2.out' },
+        0
+      );
+    }
+
+    if (cardRef.current) {
+      if (isMobile) {
+        // Native bottom sheet: slide up smoothly from bottom edge (Lower to Upper)
+        gsap.set(cardRef.current, { yPercent: 100, y: 0, opacity: 1 });
+        tl.to(
+          cardRef.current,
+          { yPercent: 0, y: 0, opacity: 1, duration: 0.42, ease: 'power3.out' },
+          0
+        );
+      } else {
+        // Desktop dialog: smooth elevation slide up
+        gsap.set(cardRef.current, { opacity: 0, scale: 0.95, y: 35, yPercent: 0 });
+        tl.to(
+          cardRef.current,
+          { opacity: 1, scale: 1, y: 0, yPercent: 0, duration: 0.38, ease: 'power3.out' },
+          0
         );
       }
-      if (cardRef.current) {
-        if (isMobile) {
-          // Slide up smoothly from bottom edge (Lower to Upper)
-          gsap.fromTo(
-            cardRef.current,
-            { yPercent: 100, y: 0, opacity: 1 },
-            { yPercent: 0, y: 0, opacity: 1, duration: 0.42, ease: 'power3.out' }
-          );
-        } else {
-          // Desktop entrance: smooth elevation slide up
-          gsap.fromTo(
-            cardRef.current,
-            { opacity: 0, scale: 0.95, y: 35, yPercent: 0 },
-            { opacity: 1, scale: 1, y: 0, yPercent: 0, duration: 0.38, ease: 'power3.out' }
-          );
-        }
-      }
-    });
+    }
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        handleClose();
+        animateClose();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
-      ctx.revert();
+      // Failsafe cleanup if component unmounts unexpectedly
+      const { bodyOverflow, docOverflow, bodyPaddingRight } = originalStylesRef.current;
+      document.documentElement.style.overflow = docOverflow;
+      document.body.style.overflow = bodyOverflow;
+      document.body.style.paddingRight = bodyPaddingRight;
+      document.body.removeAttribute('data-modal-open');
+
+      const prevBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, scrollPosRef.current);
+      document.documentElement.style.scrollBehavior = prevBehavior;
     };
-  }, [isOpen, handleClose]);
+  }, [isRendered, animateClose]);
 
   // Mobile touch drag-down to dismiss handlers
   const handleTouchStart = (e) => {
@@ -164,7 +249,7 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
 
   const handleTouchEnd = () => {
     if (touchDeltaY.current > 75) {
-      handleClose();
+      animateClose();
     } else if (cardRef.current) {
       gsap.to(cardRef.current, { y: 0, duration: 0.2, ease: 'power2.out' });
     }
@@ -232,7 +317,7 @@ _Sent from sirigroup.com_`;
 
     setTimeout(() => {
       setIsSubmitting(false);
-      handleClose();
+      animateClose();
       // Reset form
       setFormData({
         name: '',
@@ -244,7 +329,7 @@ _Sent from sirigroup.com_`;
     }, 400);
   };
 
-  if (!mounted || !isOpen || typeof document === 'undefined' || !document.body) {
+  if (!mounted || !isRendered || typeof document === 'undefined' || !document.body) {
     return null;
   }
 
@@ -255,19 +340,20 @@ _Sent from sirigroup.com_`;
       aria-modal="true"
       aria-labelledby="contact-modal-title"
     >
-      {/* Frosted Glass Backdrop */}
+      {/* Single Frosted Glass Backdrop */}
       <div
         ref={backdropRef}
-        onClick={handleClose}
-        className="fixed inset-0 bg-slate-950/75 backdrop-blur-md cursor-pointer transition-opacity"
+        onClick={animateClose}
+        style={{ willChange: 'opacity', opacity: 0 }}
+        className="fixed inset-0 bg-slate-950/75 backdrop-blur-md cursor-pointer touch-none"
         aria-hidden="true"
       />
 
       {/* Bottom Sheet / Floating Modal Card */}
       <div
         ref={cardRef}
-        style={{ willChange: 'transform, opacity' }}
-        className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-t-[2.25rem] sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200/90 dark:border-slate-800 flex flex-col max-h-[92dvh] sm:max-h-[90vh] z-10 overflow-hidden"
+        style={{ willChange: 'transform, opacity', opacity: 0 }}
+        className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-t-[2.25rem] sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200/90 dark:border-slate-800 flex flex-col max-h-[92dvh] sm:max-h-[90vh] z-10 overflow-hidden overscroll-contain"
       >
         {/* Mobile Pull Handle & Header Touch Area */}
         <div
@@ -278,7 +364,7 @@ _Sent from sirigroup.com_`;
         >
           {/* Mobile Pull Handle Bar */}
           <div
-            onClick={handleClose}
+            onClick={animateClose}
             className="pt-3 pb-1.5 flex justify-center sm:hidden shrink-0 bg-slate-50/50 dark:bg-slate-900/50 cursor-pointer"
             title="Swipe or tap to close"
           >
@@ -309,7 +395,7 @@ _Sent from sirigroup.com_`;
 
             <button
               type="button"
-              onClick={handleClose}
+              onClick={animateClose}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
               aria-label="Close modal"
             >

@@ -220,10 +220,14 @@ export default function Header({ onOpenContact }) {
         );
       }
     } else {
-      document.body.style.overflow = '';
+      if (!document.body.getAttribute('data-modal-open')) {
+        document.body.style.overflow = '';
+      }
     }
     return () => {
-      document.body.style.overflow = '';
+      if (!document.body.getAttribute('data-modal-open')) {
+        document.body.style.overflow = '';
+      }
     };
   }, [mobileOpen]);
 
@@ -286,6 +290,9 @@ export default function Header({ onOpenContact }) {
     closeMobileDrawer();
 
     if (href === '#contact') {
+      if (mobileBackdropRef.current) {
+        gsap.set(mobileBackdropRef.current, { opacity: 0 });
+      }
       if (onOpenContact) {
         onOpenContact('General Enterprise Consultation');
       } else {
@@ -425,9 +432,6 @@ export default function Header({ onOpenContact }) {
                           <div className="flex items-center justify-between px-2 py-1.5 mb-2 border-b border-white/20">
                             <span className="text-[11px] font-black uppercase tracking-wider text-white drop-shadow-xs">
                               ✦ Corporate Solutions
-                            </span>
-                            <span className="text-[10px] font-bold text-white/80">
-                              sirigroup.pdf
                             </span>
                           </div>
 
@@ -679,9 +683,6 @@ export default function Header({ onOpenContact }) {
                                       {sub.tag}
                                     </span>
                                   </div>
-                                  <p className="text-[11px] text-slate-500 mt-0.5 leading-tight line-clamp-1">
-                                    {sub.description}
-                                  </p>
                                 </a>
                               ))}
                             </div>
