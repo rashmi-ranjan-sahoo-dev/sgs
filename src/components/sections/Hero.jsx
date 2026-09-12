@@ -24,16 +24,6 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
   const capsuleRef = useRef(null);
   const badgeSpinRef = useRef(null);
   const desktopChipsRef = useRef([]);
-  const mobileChipsRef = useRef([]);
-
-
-
-  const serviceChips = [
-    { id: 'hr', icon: '👥', label: 'HR & Manpower Solutions', href: '#services-hr' },
-    { id: 'csr', icon: '🌱', label: 'CSR Project Management', href: '#services-csr' },
-    { id: 'travel', icon: '✈️', label: 'Globe Corporate Travel', href: '#services-travel' },
-    { id: 'loans', icon: '💼', label: 'Siri Fin Hub B2B Loans', href: '#services-loans' },
-  ];
 
   useEffect(() => {
     const prefersReducedMotion =
@@ -75,25 +65,7 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
         }
       }
 
-      // ─────────────────────────────────────────────────────────────
-      // 4. Mobile Category Cards Floating Oscillation (Smooth 2D Loop)
-      // ─────────────────────────────────────────────────────────────
-      if (!prefersReducedMotion) {
-        const validMobileChips = mobileChipsRef.current.filter(Boolean);
-        if (validMobileChips.length > 0) {
-          validMobileChips.forEach((chip, index) => {
-            gsap.to(chip, {
-              y: index % 2 === 0 ? -5 : 5,
-              x: index % 2 === 0 ? 3 : -3,
-              duration: 3.0 + index * 0.35,
-              repeat: -1,
-              yoyo: true,
-              ease: 'sine.inOut',
-              delay: index * 0.15,
-            });
-          });
-        }
-      }
+
 
       // ─────────────────────────────────────────────────────────────
       // 5. Entrance Sequence (PageLoader-Aware)
@@ -145,11 +117,8 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
           );
         }
 
-        // 5e. Floating Chips & Badges: scale: 0.8 -> 1.0, opacity: 0 -> 1, stagger: 0.15s, duration: 0.8s
-        const allChips = [
-          ...desktopChipsRef.current.filter(Boolean),
-          ...mobileChipsRef.current.filter(Boolean),
-        ];
+        // 5e. Desktop Floating Chips: scale: 0.8 -> 1.0, opacity: 0 -> 1, stagger: 0.15s, duration: 0.8s
+        const allChips = desktopChipsRef.current.filter(Boolean);
         if (allChips.length > 0) {
           tl.fromTo(
             allChips,
@@ -493,22 +462,7 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
           </div>
         </div>
 
-        {/* ───────────────────────────────────────────────────────
-            5. Mobile Floating Category Cards (Matching User Screenshot with GSAP Floating Animation)
-        ─────────────────────────────────────────────────────── */}
-        <div className="flex lg:hidden flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-5 sm:mt-6 px-1 max-w-lg">
-          {serviceChips.map((chip, idx) => (
-            <a
-              key={chip.id}
-              href={chip.href}
-              ref={(el) => (mobileChipsRef.current[idx] = el)}
-              className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-[#1E293B] text-white border border-slate-700/80 shadow-md flex items-center gap-2 hover:border-[#0072CE] transition-colors active:scale-95 will-change-transform"
-            >
-              <span className="text-sm">{chip.icon}</span>
-              <span>{chip.label}</span>
-            </a>
-          ))}
-        </div>
+
       </div>
     </section>
   );
