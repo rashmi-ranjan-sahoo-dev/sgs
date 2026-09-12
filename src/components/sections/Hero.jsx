@@ -210,7 +210,7 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
     <section
       id="hero"
       ref={heroRef}
-      className="relative min-h-screen flex flex-col items-center justify-start pt-20 pb-8 sm:pt-24 sm:pb-10 lg:pt-28 lg:pb-12 overflow-x-clip select-none transition-colors duration-500 bg-transparent"
+      className="relative min-h-0 lg:min-h-screen flex flex-col items-center justify-start pt-20 pb-2 sm:pt-24 sm:pb-6 lg:pt-28 lg:pb-12 overflow-x-clip select-none transition-colors duration-500 bg-transparent"
     >
       {/* Styles: Fitted Image Mask Cutout */}
       <style>{`
@@ -461,9 +461,8 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
             </div>
           </div>
         </div>
-
-
       </div>
     </section>
   );
 }
+
