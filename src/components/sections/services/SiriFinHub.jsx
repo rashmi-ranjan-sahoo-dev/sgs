@@ -210,8 +210,8 @@ export default function SiriFinHub({ onOpenContact }) {
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={onOpenContact}
-                className="min-h-[42px] px-6 py-2.5 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 hover:scale-[1.02]"
+                onClick={() => onOpenContact && onOpenContact('B2B Commercial Financing & Loans')}
+                className="min-h-[42px] px-6 py-2.5 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 hover:scale-[1.02] cursor-pointer"
               >
                 <span>Apply for Financing</span>
                 <span className="text-base">→</span>
@@ -219,8 +219,8 @@ export default function SiriFinHub({ onOpenContact }) {
 
               <button
                 type="button"
-                onClick={onOpenContact}
-                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#0072CE] transition-colors"
+                onClick={() => onOpenContact && onOpenContact('B2B Commercial Financing & Loans')}
+                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#0072CE] transition-colors cursor-pointer"
               >
                 Speak to Loan Specialist →
               </button>

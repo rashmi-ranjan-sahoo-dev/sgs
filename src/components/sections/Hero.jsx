@@ -15,7 +15,7 @@ import siriLogo from '@/assets/images/siri-logo.png';
  * - Mobile category cards styled like reference screenshot with continuous smooth floating 2D animations
  * - Header left untouched
  */
-export default function Hero({ onOpenServicesModal }) {
+export default function Hero({ onOpenServicesModal, onOpenContact }) {
   const heroRef = useRef(null);
   const tagRef = useRef(null);
   const headlineLinesRef = useRef([]);
@@ -338,10 +338,22 @@ export default function Hero({ onOpenServicesModal }) {
           </a>
 
           {/* Secondary CTA: Need Help? Consultation Desk */}
-          <a
-            href="tel:+919989325255"
-            className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center sm:justify-start gap-3 px-5 py-2.5 rounded-full border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-[#F0F7FD] dark:hover:bg-slate-800/80 transition-all duration-200 group text-left shadow-xs"
-            aria-label="Call SIRI Group Consultation Desk"
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onOpenContact) {
+                onOpenContact('General Enterprise Consultation');
+              } else {
+                window.dispatchEvent(
+                  new CustomEvent('openContactModal', {
+                    detail: { service: 'General Enterprise Consultation' },
+                  })
+                );
+              }
+            }}
+            className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center sm:justify-start gap-3 px-5 py-2.5 rounded-full border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-[#F0F7FD] dark:hover:bg-slate-800/80 transition-all duration-200 group text-left shadow-xs cursor-pointer"
+            aria-label="Open SIRI Group Consultation Desk"
           >
             <span className="w-8 h-8 rounded-full bg-[#F0F7FD] dark:bg-slate-800 border border-blue-100 dark:border-slate-700 flex items-center justify-center text-[#0072CE] group-hover:scale-105 transition-transform shrink-0">
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -356,7 +368,7 @@ export default function Hero({ onOpenServicesModal }) {
                 Consultation Desk
               </span>
             </div>
-          </a>
+          </button>
         </div>
 
         {/* ───────────────────────────────────────────────────────

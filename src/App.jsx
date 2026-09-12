@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import Hero from '@/components/sections/Hero';
 import ShowcaseCards from '@/components/sections/ShowcaseCards';
@@ -9,8 +9,12 @@ import ServicesStack from '@/components/sections/services/ServicesStack';
 // import Testimonials from '@/components/sections/Testimonials';
 import GlobalBackground from '@/components/layout/GlobalBackground';
 import PageLoader from '@/components/ui/PageLoader';
+import ContactModal from '@/components/ui/ContactModal';
 
 export default function App() {
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactInitialService, setContactInitialService] = useState('');
+
   const scrollToTarget = (selector) => {
     const el = document.querySelector(selector);
     if (el) {
@@ -32,8 +36,9 @@ export default function App() {
     }
   };
 
-  const handleOpenContact = () => {
-    scrollToTarget('#contact');
+  const handleOpenContact = (serviceName = '') => {
+    setContactInitialService(typeof serviceName === 'string' ? serviceName : '');
+    setIsContactModalOpen(true);
   };
 
   // Robust Hash & Anchor Navigation Controller with Header Offset
@@ -55,13 +60,20 @@ export default function App() {
       }
     };
 
+    const handleOpenContactModalEvent = (e) => {
+      const service = e.detail?.service || '';
+      handleOpenContact(service);
+    };
+
     handleHashNavigation();
     window.addEventListener('pageLoaderDone', handleHashNavigation);
     window.addEventListener('hashchange', handleHashNavigation);
+    window.addEventListener('openContactModal', handleOpenContactModalEvent);
 
     return () => {
       window.removeEventListener('pageLoaderDone', handleHashNavigation);
       window.removeEventListener('hashchange', handleHashNavigation);
+      window.removeEventListener('openContactModal', handleOpenContactModalEvent);
     };
   }, []);
 
@@ -70,16 +82,26 @@ export default function App() {
       {/* Exact Persistent Fixed Hero Background Canvas across the entire website */}
       <GlobalBackground />
 
+      {/* WhatsApp Connected Contact Popup Modal */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        initialService={contactInitialService}
+      />
+
       {/* Page Opening Loader */}
       <PageLoader />
 
       {/* Global Header Navigation */}
-      <Header />
+      <Header onOpenContact={handleOpenContact} />
 
       {/* Main Content Area */}
       <main id="main-content">
         {/* Mobile-First Hero Section */}
-        <Hero onOpenServicesModal={handleOpenServices} />
+        <Hero
+          onOpenServicesModal={handleOpenServices}
+          onOpenContact={handleOpenContact}
+        />
 
         {/* Enterprise Interactive Dual-Mode Showcase Cards Component */}
         <ShowcaseCards onOpenServicesModal={handleOpenServices} />

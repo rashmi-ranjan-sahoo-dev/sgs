@@ -293,8 +293,8 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
             <div className="pt-1 flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
-                onClick={onOpenContact}
-                className="min-h-[40px] px-5 py-2 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 hover:scale-[1.02]"
+                onClick={() => onOpenContact && onOpenContact('Workforce & Staffing Solutions')}
+                className="min-h-[40px] px-5 py-2 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 hover:scale-[1.02] cursor-pointer"
               >
                 <span>Explore Solutions</span>
                 <span className="text-sm">→</span>

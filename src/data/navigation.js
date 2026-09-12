@@ -21,7 +21,7 @@ export const NAV_LINKS = [
         id: 'hr',
         title: 'HR Solutions',
         href: '#services-hr',
-        description: 'Talent acquisition, staffing, payroll & executive hiring',
+      
         tag: 'Recruitment',
         color: '#0072CE',
       },

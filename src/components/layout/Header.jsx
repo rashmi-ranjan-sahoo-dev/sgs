@@ -20,7 +20,7 @@ import siriLogo from '@/assets/images/siri-logo.png';
  * - Mobile Navigation: Brand-new Aurora Gradient Glass drawer matching Header with slow, smooth GSAP slide & accordion animations
  * - CTA Button: Pill button labeled "Contact Us" with enclosed arrow circle
  */
-export default function Header() {
+export default function Header({ onOpenContact }) {
   const [isPill, setIsPill] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -284,6 +284,19 @@ export default function Header() {
     e.preventDefault();
     setServicesOpen(false);
     closeMobileDrawer();
+
+    if (href === '#contact') {
+      if (onOpenContact) {
+        onOpenContact('General Enterprise Consultation');
+      } else {
+        window.dispatchEvent(
+          new CustomEvent('openContactModal', {
+            detail: { service: 'General Enterprise Consultation' },
+          })
+        );
+      }
+      return;
+    }
 
     if (href.startsWith('#')) {
       const target = document.querySelector(href);

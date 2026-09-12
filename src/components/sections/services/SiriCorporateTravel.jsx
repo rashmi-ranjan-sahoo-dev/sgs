@@ -137,8 +137,8 @@ export default function SiriCorporateTravel({ onOpenContact }) {
 
           <button
             type="button"
-            onClick={onOpenContact}
-            className="self-start md:self-auto min-h-[42px] px-6 py-2.5 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 hover:scale-[1.02]"
+            onClick={() => onOpenContact && onOpenContact('Corporate Travel & Mobility')}
+            className="self-start md:self-auto min-h-[42px] px-6 py-2.5 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 hover:scale-[1.02] cursor-pointer"
           >
             <span>Manage Travel Desks</span>
             <span className="text-base">→</span>
@@ -246,8 +246,8 @@ export default function SiriCorporateTravel({ onOpenContact }) {
               </span>
               <button
                 type="button"
-                onClick={onOpenContact}
-                className="w-9 h-9 rounded-full bg-slate-950 text-white flex items-center justify-center text-sm font-bold shadow hover:scale-110 transition-transform"
+                onClick={() => onOpenContact && onOpenContact('Corporate Travel & Mobility')}
+                className="w-9 h-9 rounded-full bg-slate-950 text-white flex items-center justify-center text-sm font-bold shadow hover:scale-110 transition-transform cursor-pointer"
                 aria-label="Setup Corporate Travel Desk"
               >
                 →
