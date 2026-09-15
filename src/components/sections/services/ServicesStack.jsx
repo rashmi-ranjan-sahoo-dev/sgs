@@ -123,7 +123,7 @@ export default function ServicesStack({ onOpenContact }) {
       ───────────────────────────────────────────────────────── */}
       <div
         ref={card1Ref}
-        className="relative md:sticky top-0 z-10 w-full min-h-auto md:min-h-[100dvh] origin-top bg-transparent transition-all duration-300 flex flex-col justify-center overflow-x-hidden py-8 sm:py-12 lg:py-16"
+        className="relative md:sticky top-0 z-10 w-full min-h-auto md:min-h-[100dvh] origin-top bg-transparent transition-all duration-300 flex flex-col justify-center overflow-x-hidden pt-2 sm:pt-3 lg:pt-4 pb-6 sm:pb-8 lg:pb-12"
       >
         <SiriGlobalSolutions onOpenContact={onOpenContact} />
       </div>

@@ -145,11 +145,7 @@ export default function SiriFinHub({ onOpenContact }) {
         {/* Top Centered Section Badge */}
         <div className="text-center mb-4 sm:mb-6">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#0072CE]/40 bg-[#F0F7FD]/95 text-[#0072CE] text-[11px] sm:text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs">
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0072CE]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0072CE]/60" />
-            </span>
-            <span>03 • SIRI Fin Hub</span>
+            <span>SIRI Fin Hub</span>
           </div>
 
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#1E293B] tracking-tight mt-1.5 max-w-2xl mx-auto leading-tight">
@@ -216,14 +212,7 @@ export default function SiriFinHub({ onOpenContact }) {
                 <span>Apply for Financing</span>
                 <span className="text-base">→</span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => onOpenContact && onOpenContact('B2B Commercial Financing & Loans')}
-                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#0072CE] transition-colors cursor-pointer"
-              >
-                Speak to Loan Specialist →
-              </button>
+                          
             </div>
           </div>
 

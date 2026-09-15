@@ -32,6 +32,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
   const mobileCard1InitialRef = useRef(null);
   const mobileCard1OptionsRef = useRef(null);
   const mobileOptionsItemsRef = useRef([]);
+  const mobileTimelineRef = useRef(null);
 
   // Desktop Refs (Option B Sequential Card Docking)
   const desktopContainerRef = useRef(null);
@@ -93,9 +94,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
   const showcaseCards = [
     {
       id: 'global-solutions',
-      number: '01',
-      label: 'Card 01',
-      badge: 'Workforce & CSR',
+
       title: 'SIRI Global Solutions',
       description:
         'Delivering end-to-end talent acquisition, specialized industrial manpower, and structured Corporate Social Responsibility programs that drive measurable enterprise and social impact.',
@@ -107,9 +106,6 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
     },
     {
       id: 'corporate-travel',
-      number: '02',
-      label: 'Card 02',
-      badge: 'Corporate Mobility',
       title: 'SIRI Corporate Travel',
       description:
         'Smart corporate travel desks managing corporate flight reservations, premium hotel accommodations, express visa processing, and comprehensive 24/7 travel risk support.',
@@ -121,9 +117,6 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
     },
     {
       id: 'fin-hub',
-      number: '03',
-      label: 'Card 03',
-      badge: 'B2B Financing',
       title: 'SIRI Fin Hub',
       description:
         'Empowering enterprise scaling through structured commercial funding, flexible working capital lines, MSME loans, project financing, and collateral-backed credit.',
@@ -149,21 +142,6 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       if (!mobileDeckRef.current || !card1Ref.current || !card2Ref.current || !card3Ref.current)
         return;
 
-      // Continuous gentle 2D float on the 5 service options
-      if (!prefersReducedMotion) {
-        const validMobileOptions = mobileOptionsItemsRef.current.filter(Boolean);
-        validMobileOptions.forEach((item, index) => {
-          gsap.to(item, {
-            y: index % 2 === 0 ? -4 : 4,
-            x: index % 2 === 0 ? 2 : -2,
-            duration: 2.8 + index * 0.35,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-            delay: index * 0.12,
-          });
-        });
-      }
 
       if (prefersReducedMotion) return;
 
@@ -171,20 +149,33 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: mobileDeckRef.current,
-          start: 'top 75px',
-          end: '+=300%',
+          start: 'top 65px',
+          end: '+=140%',
           pin: true,
           scrub: 0.8,
           anticipatePin: 1,
         },
       });
 
-      // Stage 1: Card 1 initial description + CTA fades out on scroll
+      mobileTimelineRef.current = tl;
+
+      // Cards transform from top center so scaling retains folder-tab alignment
+      gsap.set([card1Ref.current, card2Ref.current, card3Ref.current], {
+        transformOrigin: 'top center',
+      });
+
+      // Initial State (State 1 — Card 1 active):
+      // All 3 cards are ALWAYS visible in the physical stacked/nested deck
+      gsap.set(card1Ref.current, { y: 88, scale: 1, opacity: 1, zIndex: 30 });
+      gsap.set(card2Ref.current, { y: 44, scale: 0.95, opacity: 0.88, zIndex: 20 });
+      gsap.set(card3Ref.current, { y: 0, scale: 0.90, opacity: 0.78, zIndex: 10 });
+
+      // Stage 1: Card 1 initial description + CTA fades out on scroll, revealing 5 service options
       if (mobileCard1InitialRef.current) {
         tl.to(mobileCard1InitialRef.current, {
           opacity: 0,
-          y: -20,
-          duration: 0.5,
+          y: -15,
+          duration: 0.35,
           ease: 'power2.inOut',
           onComplete: () => {
             if (mobileCard1InitialRef.current) {
@@ -203,57 +194,83 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       if (mobileCard1OptionsRef.current) {
         tl.fromTo(
           mobileCard1OptionsRef.current,
-          { opacity: 0, y: 25, pointerEvents: 'none' },
+          { opacity: 0, y: 15, pointerEvents: 'none' },
           {
             opacity: 1,
             y: 0,
-            duration: 0.6,
+            duration: 0.45,
             ease: 'power2.out',
             pointerEvents: 'auto',
           },
-          '<0.2'
+          '<0.1'
         );
 
         const validMobileOptions = mobileOptionsItemsRef.current.filter(Boolean);
         if (validMobileOptions.length > 0) {
           tl.fromTo(
             validMobileOptions,
-            { opacity: 0, scale: 0.9, y: 15 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.4, stagger: 0.08, ease: 'power2.out' },
+            { opacity: 0, scale: 0.92, y: 10 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out' },
             '<'
           );
         }
       }
 
-      // Small pacing pause so user can clearly view the 5 options
-      tl.to({}, { duration: 0.35 });
+      tl.addLabel('card1');
 
-      // Stage 2: Card 2 slides up and locks at top: 64px (Card 1 tab header remains visible)
-      tl.fromTo(
+      // Pacing pause to view Card 1's options
+      tl.to({}, { duration: 0.2 });
+
+      // Stage 2: Deck shifts to State 2 (Card 2 becomes active)
+      // Card 2 moves from middle (y: 44) to front/active (y: 88, scale: 1, opacity: 1)
+      // Card 1 moves from front (y: 88) to middle (y: 44, scale: 0.95, opacity: 0.88)
+      // Card 3 stays at top (y: 0, scale: 0.90, opacity: 0.78)
+      tl.to(
         card2Ref.current,
-        { yPercent: 110, opacity: 0.95 },
-        { yPercent: 0, opacity: 1, duration: 0.9, ease: 'power2.inOut' }
+        { y: 88, scale: 1, opacity: 1, duration: 0.7, ease: 'power2.inOut' }
       );
       tl.to(
         card1Ref.current,
-        { scale: 0.97, duration: 0.5, ease: 'power2.out' },
-        '<0.1'
+        { y: 44, scale: 0.95, opacity: 0.88, duration: 0.7, ease: 'power2.inOut' },
+        '<'
       );
+      tl.set(card2Ref.current, { zIndex: 30 }, '<0.2');
+      tl.set(card1Ref.current, { zIndex: 20 }, '<');
+      tl.set(card3Ref.current, { zIndex: 10 }, '<');
 
-      // Small pacing pause
-      tl.to({}, { duration: 0.3 });
+      tl.addLabel('card2');
 
-      // Stage 3: Card 3 slides up and locks at top: 128px (Cards 1 & 2 tab headers remain visible)
-      tl.fromTo(
+      // Pacing pause to view Card 2
+      tl.to({}, { duration: 0.2 });
+
+      // Stage 3: Deck shifts to State 3 (Card 3 becomes active)
+      // Card 3 moves from top (y: 0) to front/active (y: 88, scale: 1, opacity: 1)
+      // Card 2 moves from front (y: 88) to middle (y: 44, scale: 0.95, opacity: 0.88)
+      // Card 1 moves from middle (y: 44) to top (y: 0, scale: 0.90, opacity: 0.78)
+      tl.to(
         card3Ref.current,
-        { yPercent: 110, opacity: 0.95 },
-        { yPercent: 0, opacity: 1, duration: 0.9, ease: 'power2.inOut' }
+        { y: 88, scale: 1, opacity: 1, duration: 0.7, ease: 'power2.inOut' }
       );
       tl.to(
         card2Ref.current,
-        { scale: 0.97, duration: 0.5, ease: 'power2.out' },
-        '<0.1'
+        { y: 44, scale: 0.95, opacity: 0.88, duration: 0.7, ease: 'power2.inOut' },
+        '<'
       );
+      tl.to(
+        card1Ref.current,
+        { y: 0, scale: 0.90, opacity: 0.78, duration: 0.7, ease: 'power2.inOut' },
+        '<'
+      );
+      tl.set(card3Ref.current, { zIndex: 30 }, '<0.2');
+      tl.set(card2Ref.current, { zIndex: 20 }, '<');
+      tl.set(card1Ref.current, { zIndex: 10 }, '<');
+
+      tl.addLabel('card3');
+      tl.to({}, { duration: 0.15 });
+
+      return () => {
+        mobileTimelineRef.current = null;
+      };
     });
 
     // ─────────────────────────────────────────────────────────────
@@ -269,20 +286,6 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       )
         return;
 
-      // Continuous subtle 2D float on desktop options
-      if (!prefersReducedMotion) {
-        const validDesktopOptions = desktopOptionsItemsRef.current.filter(Boolean);
-        validDesktopOptions.forEach((item, index) => {
-          gsap.to(item, {
-            y: index % 2 === 0 ? -3 : 3,
-            duration: 3.5 + index * 0.4,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-            delay: index * 0.15,
-          });
-        });
-      }
 
       if (prefersReducedMotion) return;
 
@@ -314,16 +317,14 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
         x: () => getCardCenterOffset(),
       });
       gsap.set(desktopCard2WrapperRef.current, {
-        opacity: 0,
+        autoAlpha: 0,
         x: 24,
         scale: 0.97,
-        pointerEvents: 'none',
       });
       gsap.set(desktopCard3WrapperRef.current, {
-        opacity: 0,
+        autoAlpha: 0,
         x: 24,
         scale: 0.97,
-        pointerEvents: 'none',
       });
 
       // ── Step 1: Card 1 morphs in center (Initial Description + CTA fades out) ──
@@ -386,21 +387,11 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       desktopTl.to(
         desktopCard2WrapperRef.current,
         {
-          opacity: 1,
+          autoAlpha: 1,
           x: 0,
           scale: 1,
           duration: 0.8,
           ease: 'power2.out',
-          onStart: () => {
-            if (desktopCard2WrapperRef.current) {
-              desktopCard2WrapperRef.current.style.pointerEvents = 'auto';
-            }
-          },
-          onReverseComplete: () => {
-            if (desktopCard2WrapperRef.current) {
-              desktopCard2WrapperRef.current.style.pointerEvents = 'none';
-            }
-          },
         },
         '<0.15'
       );
@@ -410,21 +401,11 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
 
       // ── Step 3: Card 3 slides in from right and docks in Right Column ──
       desktopTl.to(desktopCard3WrapperRef.current, {
-        opacity: 1,
+        autoAlpha: 1,
         x: 0,
         scale: 1,
         duration: 0.8,
         ease: 'power2.out',
-        onStart: () => {
-          if (desktopCard3WrapperRef.current) {
-            desktopCard3WrapperRef.current.style.pointerEvents = 'auto';
-          }
-        },
-        onReverseComplete: () => {
-          if (desktopCard3WrapperRef.current) {
-            desktopCard3WrapperRef.current.style.pointerEvents = 'none';
-          }
-        },
       });
 
       // Final pause: All 3 cards displayed side-by-side
@@ -505,23 +486,49 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
     }
   };
 
+  const navigateToMobileCard = (cardIndex) => {
+    const tl = mobileTimelineRef.current;
+    const st = tl?.scrollTrigger;
+    if (!tl || !st) return;
+
+    const labelNames = ['card1', 'card2', 'card3'];
+    const label = labelNames[cardIndex];
+    // Card 0 targets the start of the pinned section (Card 1 initial full state)
+    const labelTime = cardIndex === 0 ? 0 : (tl.labels?.[label] ?? 0);
+    const totalDuration = tl.totalDuration() || 1;
+    const progress = Math.min(1, Math.max(0, labelTime / totalDuration));
+
+    const targetScroll = Math.round(st.start + progress * (st.end - st.start));
+
+    window.scrollTo({
+      top: targetScroll,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <section
       ref={sectionRef}
       id="showcase"
-      className="relative w-full overflow-hidden pt-4 pb-16 sm:pt-6 sm:pb-20 lg:pt-8 lg:pb-24 select-none bg-transparent"
+      className="relative w-full overflow-hidden pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-6 select-none bg-transparent"
     >
 
       {/* ─────────────────────────────────────────────────────────
           A. MOBILE VIEW (< 768px): Stacking Deck with Visible Header Tabs
       ───────────────────────────────────────────────────────── */}
       <div className="block md:hidden relative px-4 sm:px-6 w-full max-w-lg mx-auto">
-        <div ref={mobileDeckRef} className="relative h-[620px] w-full">
-          {/* ──────── CARD 1: SIRI Global Solutions (top: 0px) ──────── */}
+        <div ref={mobileDeckRef} className="relative w-full h-[clamp(500px,76vh,580px)]">
+          {/* ──────── CARD 1: SIRI Global Solutions (Active Front Card in State 1) ──────── */}
           <div
             ref={card1Ref}
-            style={{ top: '0px' }}
-            className="absolute left-0 right-0 h-[470px] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95 z-10"
+            style={{
+              top: '0px',
+              transform: 'translate3d(0, 88px, 0) scale(1)',
+              transformOrigin: 'top center',
+              zIndex: 30,
+              opacity: 1,
+            }}
+            className="absolute left-0 right-0 h-[clamp(370px,56vh,430px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
           >
             {/* Vivid Background Image with Bottom-Weighted Scrim */}
             <img
@@ -532,41 +539,40 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
 
             {/* Folder Tab Header */}
-            <div className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0">
+            <button
+              type="button"
+              onClick={() => navigateToMobileCard(0)}
+              aria-label={`Show ${showcaseCards[0].title}`}
+              className="w-full text-left relative z-10 h-[46px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
+            >
               <div className="flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-full bg-[#72BF44]/25 border border-[#72BF44]/60 text-[#72BF44] text-xs font-black flex items-center justify-center shrink-0">
-                  {showcaseCards[0].number}
-                </span>
-                <h3 className="text-base font-black text-white tracking-tight truncate drop-shadow-sm">
+                <h3 className="text-base sm:text-lg font-black text-white tracking-tight truncate drop-shadow-sm">
                   {showcaseCards[0].title}
                 </h3>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#72BF44]/20 text-[#72BF44] border border-[#72BF44]/40 uppercase tracking-wider shrink-0 backdrop-blur-sm">
-                {showcaseCards[0].badge}
-              </span>
-            </div>
+            </button>
 
             {/* Card 1 Body with 2-State Morph */}
-            <div className="relative z-10 flex-1 p-5 flex flex-col justify-between overflow-hidden">
+            <div className="relative z-10 flex-1 p-4 sm:p-5 flex flex-col justify-between overflow-hidden">
               {/* State 1: Initial View (Description + Redirect Button) */}
               <div
                 ref={mobileCard1InitialRef}
-                className="absolute inset-x-5 inset-y-5 flex flex-col justify-between"
+                className="absolute inset-x-4 sm:inset-x-5 inset-y-4 sm:inset-y-5 flex flex-col justify-end"
               >
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-[#72BF44] bg-[#72BF44]/15 border border-[#72BF44]/30 backdrop-blur-sm">
                     ✦ Core Ecosystem
                   </span>
-                  <p className="text-base sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
+                  <p className="text-sm sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm line-clamp-3 sm:line-clamp-none">
                     {showcaseCards[0].description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-white/20">
+                <div className="pt-2.5 sm:pt-3 border-t border-white/20">
                   <button
                     type="button"
                     onClick={(e) => handleCtaClick(e, showcaseCards[0])}
-                    className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#72BF44] to-[#10B981] hover:brightness-110 text-slate-950 font-black text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+                    className="w-full py-2.5 sm:py-3 px-5 rounded-full bg-gradient-to-r from-[#72BF44] to-[#10B981] hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
                   >
                     <span>{showcaseCards[0].ctaLabel}</span>
                     <span className="w-5 h-5 rounded-full bg-black/15 flex items-center justify-center text-current">
@@ -579,13 +585,9 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               {/* State 2: 5 Floating Service Options (Takes Full Body on Scroll) */}
               <div
                 ref={mobileCard1OptionsRef}
-                className="absolute inset-x-5 inset-y-4 flex flex-col justify-center gap-2 opacity-0 pointer-events-none"
+                className="absolute inset-x-4 sm:inset-x-5 inset-y-3 sm:inset-y-4 flex flex-col justify-center gap-1.5 sm:gap-2 opacity-0 pointer-events-none"
               >
                 <div className="text-[11px] font-bold uppercase tracking-wider text-[#72BF44] flex items-center justify-between mb-0.5">
-                  <span className="flex items-center gap-1.5">
-                    <span>✦</span> 5 Core Verticals
-                  </span>
-                  <span className="text-[10px] text-slate-300 font-medium">Select to view</span>
                 </div>
                 {serviceBadges.map((badge, idx) => (
                   <a
@@ -593,26 +595,29 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                     href={badge.href}
                     onClick={(e) => handleCtaClick(e, badge.href)}
                     ref={(el) => (mobileOptionsItemsRef.current[idx] = el)}
-                    className="w-full bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/90 hover:border-[#72BF44] text-white shadow-xl px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between active:scale-95 transition-all group backdrop-blur-md cursor-pointer"
+                    className="w-full bg-transparent hover:bg-white/10 text-white px-3 sm:px-3.5 py-1.5 sm:py-2.5 rounded-2xl text-xs sm:text-base font-extrabold flex items-center justify-between active:scale-95 transition-all group cursor-pointer drop-shadow-md"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-base shrink-0">{badge.icon}</span>
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      <span className="text-base sm:text-lg shrink-0">{badge.icon}</span>
                       <span className="truncate">{badge.label}</span>
                     </div>
-                    <span className="text-slate-400 group-hover:text-[#72BF44] text-xs transition-colors shrink-0">
-                      ↗
-                    </span>
                   </a>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* ──────── CARD 2: SIRI Corporate Travel (top: 64px) ──────── */}
+          {/* ──────── CARD 2: SIRI Corporate Travel (Middle Stacked Card in State 1) ──────── */}
           <div
             ref={card2Ref}
-            style={{ top: '64px' }}
-            className="absolute left-0 right-0 h-[470px] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95 z-20"
+            style={{
+              top: '0px',
+              transform: 'translate3d(0, 44px, 0) scale(0.95)',
+              transformOrigin: 'top center',
+              zIndex: 20,
+              opacity: 0.88,
+            }}
+            className="absolute left-0 right-0 h-[clamp(370px,56vh,430px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
           >
             {/* Vivid Background Image */}
             <img
@@ -623,39 +628,35 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
 
             {/* Top Folder Tab Header */}
-            <div
-              onClick={(e) => handleCtaClick(e, showcaseCards[1])}
-              className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0 cursor-pointer"
+            <button
+              type="button"
+              onClick={() => navigateToMobileCard(1)}
+              aria-label={`Show ${showcaseCards[1].title}`}
+              className="w-full text-left relative z-10 h-[46px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
             >
               <div className="flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-full bg-[#0072CE]/25 border border-[#0072CE]/60 text-[#38BDF8] text-xs font-black flex items-center justify-center shrink-0">
-                  {showcaseCards[1].number}
-                </span>
-                <h3 className="text-base font-black text-white tracking-tight truncate drop-shadow-sm">
+                <h3 className="text-base sm:text-lg font-black text-white tracking-tight truncate drop-shadow-sm">
                   {showcaseCards[1].title}
                 </h3>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#0072CE]/20 text-[#38BDF8] border border-[#0072CE]/40 uppercase tracking-wider shrink-0 backdrop-blur-sm">
-                {showcaseCards[1].badge}
-              </span>
-            </div>
+            </button>
 
             {/* Simple Card Body (Title, Description, CTA) */}
-            <div className="relative z-10 p-5 flex-1 flex flex-col justify-between">
-              <div className="space-y-2">
+            <div className="relative z-10 p-4 sm:p-5 flex-1 flex flex-col justify-end">
+              <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-[#38BDF8] bg-[#0072CE]/15 border border-[#0072CE]/30 backdrop-blur-sm">
                   ✦ Global Mobility
                 </span>
-                <p className="text-base sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
+                <p className="text-sm sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm line-clamp-3 sm:line-clamp-none">
                   {showcaseCards[1].description}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-white/20">
+              <div className="pt-2.5 sm:pt-3 border-t border-white/20">
                 <button
                   type="button"
                   onClick={(e) => handleCtaClick(e, showcaseCards[1])}
-                  className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#0072CE] to-[#0284C7] hover:brightness-110 text-white font-black text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+                  className="w-full py-2.5 sm:py-3 px-5 rounded-full bg-gradient-to-r from-[#0072CE] to-[#0284C7] hover:brightness-110 text-white font-black text-xs sm:text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
                 >
                   <span>{showcaseCards[1].ctaLabel}</span>
                   <span className="w-5 h-5 rounded-full bg-black/15 flex items-center justify-center text-current">
@@ -666,11 +667,17 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             </div>
           </div>
 
-          {/* ──────── CARD 3: SIRI Fin Hub (top: 128px) ──────── */}
+          {/* ──────── CARD 3: SIRI Fin Hub (Top Stacked Card in State 1) ──────── */}
           <div
             ref={card3Ref}
-            style={{ top: '128px' }}
-            className="absolute left-0 right-0 h-[470px] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95 z-30"
+            style={{
+              top: '0px',
+              transform: 'translate3d(0, 0px, 0) scale(0.90)',
+              transformOrigin: 'top center',
+              zIndex: 10,
+              opacity: 0.78,
+            }}
+            className="absolute left-0 right-0 h-[clamp(370px,56vh,430px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
           >
             {/* Vivid Background Image */}
             <img
@@ -681,39 +688,35 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent pointer-events-none" />
 
             {/* Top Folder Tab Header */}
-            <div
-              onClick={(e) => handleCtaClick(e, showcaseCards[2])}
-              className="relative z-10 h-[60px] px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/90 backdrop-blur-md shrink-0 cursor-pointer"
+            <button
+              type="button"
+              onClick={() => navigateToMobileCard(2)}
+              aria-label={`Show ${showcaseCards[2].title}`}
+              className="w-full text-left relative z-10 h-[46px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
             >
               <div className="flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-full bg-[#00A8E8]/25 border border-[#00A8E8]/60 text-[#00A8E8] text-xs font-black flex items-center justify-center shrink-0">
-                  {showcaseCards[2].number}
-                </span>
-                <h3 className="text-base font-black text-white tracking-tight truncate drop-shadow-sm">
+                <h3 className="text-base sm:text-lg font-black text-white tracking-tight truncate drop-shadow-sm">
                   {showcaseCards[2].title}
                 </h3>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#00A8E8]/20 text-[#00A8E8] border border-[#00A8E8]/40 uppercase tracking-wider shrink-0 backdrop-blur-sm">
-                {showcaseCards[2].badge}
-              </span>
-            </div>
+            </button>
 
             {/* Simple Card Body (Title, Description, CTA) */}
-            <div className="relative z-10 p-5 flex-1 flex flex-col justify-between">
-              <div className="space-y-2">
+            <div className="relative z-10 p-4 sm:p-5 flex-1 flex flex-col justify-end">
+              <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider text-[#00A8E8] bg-[#00A8E8]/15 border border-[#00A8E8]/30 backdrop-blur-sm">
                   ✦ Capital Solutions
                 </span>
-                <p className="text-base sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
+                <p className="text-sm sm:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm line-clamp-3 sm:line-clamp-none">
                   {showcaseCards[2].description}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-white/20">
+              <div className="pt-2.5 sm:pt-3 border-t border-white/20">
                 <button
                   type="button"
                   onClick={(e) => handleCtaClick(e, showcaseCards[2])}
-                  className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#00A8E8] to-[#0284C7] hover:brightness-110 text-white font-black text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+                  className="w-full py-2.5 sm:py-3 px-5 rounded-full bg-gradient-to-r from-[#00A8E8] to-[#0284C7] hover:brightness-110 text-white font-black text-xs sm:text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
                 >
                   <span>{showcaseCards[2].ctaLabel}</span>
                   <span className="w-5 h-5 rounded-full bg-black/15 flex items-center justify-center text-current">
@@ -730,7 +733,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
           B. TABLET VIEW (768px - 1023px): Touch-Scroll Cards Deck
       ───────────────────────────────────────────────────────── */}
       <div className="hidden md:flex lg:hidden overflow-x-auto gap-6 px-6 pb-6 snap-x snap-mandatory">
-        {showcaseCards.map((card, idx) => (
+        {showcaseCards.map((card) => (
           <div
             key={card.id}
             onClick={(e) => handleCtaClick(e, card)}
@@ -744,24 +747,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
 
             <div className="relative z-10">
-              <span
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border mb-3 backdrop-blur-md"
-                style={{
-                  backgroundColor: `${card.accentColor}25`,
-                  borderColor: `${card.accentColor}50`,
-                  color: card.accentColor,
-                }}
-              >
-                <span>✦ 0{idx + 1}</span>
-                <span>•</span>
-                <span>{card.badge}</span>
-              </span>
+            
               <h3 className="text-3xl font-black text-white tracking-tight drop-shadow-sm">
                 {card.title}
               </h3>
             </div>
 
-            <div className="relative z-10 my-auto py-2">
+            <div className="relative z-10 mt-auto mb-4">
               <p className="text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                 {card.description}
               </p>
@@ -824,12 +816,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               {/* Header Area */}
               <div className="relative z-10 p-7 xl:p-8 pb-0 shrink-0">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border border-[#72BF44]/60 bg-[#72BF44]/20 text-[#72BF44] backdrop-blur-md shadow-xs">
-                    <span>✦ 01</span>
-                    <span>•</span>
-                    <span>{showcaseCards[0].badge}</span>
-                  </span>
-                  <span className="text-xs font-bold text-slate-300">Card 01</span>
+                 
                 </div>
                 <h3 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   {showcaseCards[0].title}
@@ -841,11 +828,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                 {/* Layer A: Initial Description + CTA */}
                 <div
                   ref={desktopCard1InitialRef}
-                  className="absolute inset-x-7 xl:inset-x-8 inset-y-3 flex flex-col justify-between"
+                  className="absolute inset-x-7 xl:inset-x-8 inset-y-3 flex flex-col justify-end"
                 >
-                  <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium mt-1 drop-shadow-sm">
-                    {showcaseCards[0].description}
-                  </p>
+                  <div className="mb-4">
+                    <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
+                      {showcaseCards[0].description}
+                    </p>
+                  </div>
 
                   <div className="pt-4 border-t border-white/20 flex items-center justify-between gap-3">
                     <button
@@ -879,13 +868,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                       href={badge.href}
                       onClick={(e) => handleCtaClick(e, badge.href)}
                       ref={(el) => (desktopOptionsItemsRef.current[idx] = el)}
-                      className="w-full bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/90 hover:border-[#72BF44] text-white shadow-xl px-4 py-2 rounded-2xl text-xs xl:text-sm font-bold flex items-center justify-between transition-all duration-300 hover:scale-[1.02] active:scale-95 group backdrop-blur-md cursor-pointer"
+                      className="w-full bg-transparent hover:bg-white/10 text-white px-4 py-2.5 rounded-2xl text-base xl:text-lg font-extrabold flex items-center justify-between transition-all duration-300 hover:scale-[1.02] active:scale-95 group cursor-pointer drop-shadow-md"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-base shrink-0">{badge.icon}</span>
-                        <span className="font-bold text-white/95 truncate">{badge.label}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg xl:text-xl shrink-0">{badge.icon}</span>
+                        <span className="font-extrabold text-white truncate drop-shadow-sm">{badge.label}</span>
                       </div>
-                      <span className="text-slate-400 group-hover:text-[#72BF44] text-xs transition-colors shrink-0">
+                      <span className="text-slate-300 group-hover:text-[#72BF44] text-base xl:text-lg transition-colors shrink-0">
                         ↗
                       </span>
                     </a>
@@ -906,7 +895,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <div
               ref={desktopCard2InnerRef}
               onClick={(e) => handleCtaClick(e, showcaseCards[1])}
-              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#0072CE]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#0072CE]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-all duration-500 group will-change-transform cursor-pointer"
+              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#0072CE]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#0072CE]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-pointer"
             >
               {/* Vivid Background Image with Smooth Scale Zoom on Hover */}
               <img
@@ -927,20 +916,14 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               {/* Header */}
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border border-[#0072CE]/60 bg-[#0072CE]/20 text-[#38BDF8] backdrop-blur-md shadow-xs">
-                    <span>✦ 02</span>
-                    <span>•</span>
-                    <span>{showcaseCards[1].badge}</span>
-                  </span>
-                  <span className="text-xs font-bold text-slate-300">Card 02</span>
                 </div>
                 <h3 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   {showcaseCards[1].title}
                 </h3>
               </div>
 
-              {/* Clean Description (No Extra Void) */}
-              <div className="relative z-10 my-auto py-2">
+              {/* Clean Description (Positioned in Lower Card Body) */}
+              <div className="relative z-10 mt-auto mb-4">
                 <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                   {showcaseCards[1].description}
                 </p>
@@ -974,7 +957,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             <div
               ref={desktopCard3InnerRef}
               onClick={(e) => handleCtaClick(e, showcaseCards[2])}
-              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#00A8E8]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#00A8E8]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-all duration-500 group will-change-transform cursor-pointer"
+              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#00A8E8]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#00A8E8]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-pointer"
             >
               {/* Vivid Background Image with Smooth Scale Zoom on Hover */}
               <img
@@ -995,20 +978,14 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               {/* Header */}
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border border-[#00A8E8]/60 bg-[#00A8E8]/20 text-[#00A8E8] backdrop-blur-md shadow-xs">
-                    <span>✦ 03</span>
-                    <span>•</span>
-                    <span>{showcaseCards[2].badge}</span>
-                  </span>
-                  <span className="text-xs font-bold text-slate-300">Card 03</span>
                 </div>
                 <h3 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   {showcaseCards[2].title}
                 </h3>
               </div>
 
-              {/* Clean Description (No Extra Void) */}
-              <div className="relative z-10 my-auto py-2">
+              {/* Clean Description (Positioned in Lower Card Body) */}
+              <div className="relative z-10 mt-auto mb-4">
                 <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
                   {showcaseCards[2].description}
                 </p>

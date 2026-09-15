@@ -162,22 +162,20 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
     <section
       id="services-global"
       ref={sectionRef}
-      className="relative w-full flex flex-col justify-center py-6 sm:py-8 lg:py-10 select-none bg-transparent overflow-hidden scroll-mt-24"
+      className="relative w-full flex flex-col justify-center pt-1 sm:pt-2 lg:pt-3 pb-6 sm:pb-8 lg:pb-10 select-none bg-transparent overflow-hidden scroll-mt-24"
     >
       {/* Target Anchor Hooks for Navbar Hash Links */}
       <div id="services-hr" className="scroll-mt-24" />
       <div id="services-manpower" className="scroll-mt-24" />
       <div id="services-csr" className="scroll-mt-24" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-1 sm:mt-2 lg:mt-3 mb-auto">
         {/* Top Centered Section Badge */}
         <div className="text-center mb-4 sm:mb-6">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#72BF44]/40 bg-[#F2FBF0]/95 text-[#72BF44] text-[11px] sm:text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs">
             <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#72BF44]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#72BF44]/60" />
             </span>
-            <span>01 • SIRI Global Solutions</span>
+            <span> SIRI Global Solutions</span>
           </div>
 
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#1E293B] tracking-tight mt-1.5 max-w-2xl mx-auto leading-tight">
@@ -296,16 +294,10 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
                 onClick={() => onOpenContact && onOpenContact('Workforce & Staffing Solutions')}
                 className="min-h-[40px] px-5 py-2 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 hover:scale-[1.02] cursor-pointer"
               >
-                <span>Explore Solutions</span>
+                <span>Start a Conversation</span>
                 <span className="text-sm">→</span>
               </button>
 
-              <a
-                href="#services-travel"
-                className="text-xs font-semibold text-slate-600 hover:text-[#0072CE] transition-colors"
-              >
-                View Travel Desk →
-              </a>
             </div>
           </div>
         </div>

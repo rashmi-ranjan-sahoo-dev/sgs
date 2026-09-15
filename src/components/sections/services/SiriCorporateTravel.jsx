@@ -124,10 +124,8 @@ export default function SiriCorporateTravel({ onOpenContact }) {
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#0072CE]/40 bg-[#F0F7FD]/95 text-[#0072CE] text-[11px] sm:text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs mb-1.5">
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0072CE]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0072CE]/60" />
               </span>
-              <span>02 • SIRI Corporate Travel</span>
+              <span> SIRI Corporate Travel</span>
             </div>
 
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#1E293B] tracking-tight leading-tight max-w-xl">
@@ -135,14 +133,6 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             </h2>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onOpenContact && onOpenContact('Corporate Travel & Mobility')}
-            className="self-start md:self-auto min-h-[42px] px-6 py-2.5 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 hover:scale-[1.02] cursor-pointer"
-          >
-            <span>Manage Travel Desks</span>
-            <span className="text-base">→</span>
-          </button>
         </div>
 
         {/* 3-Cards Layout with 3D Tilt and Unique Images */}
@@ -172,9 +162,6 @@ export default function SiriCorporateTravel({ onOpenContact }) {
 
             <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[#0072CE] font-bold">
-                  FLT-01 • Air Mobility
-                </span>
                 <h3 className="text-base sm:text-lg font-bold text-[#1E293B] mt-1 mb-2 group-hover:text-[#0072CE] transition-colors">
                   Flight Bookings & Airport Transfers
                 </h3>
@@ -186,7 +173,6 @@ export default function SiriCorporateTravel({ onOpenContact }) {
 
               <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 <span>Preferred Airline Desks</span>
-                <span className="text-[#0072CE] font-bold">IATA Certified →</span>
               </div>
             </div>
           </div>
@@ -242,7 +228,7 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             {/* Bottom Arrow Action */}
             <div className="pt-5 mt-5 border-t border-slate-950/15 flex items-center justify-between">
               <span className="text-xs font-extrabold text-slate-950 uppercase tracking-wider">
-                Setup Corporate Account
+                Send an Enquiry
               </span>
               <button
                 type="button"
@@ -280,9 +266,6 @@ export default function SiriCorporateTravel({ onOpenContact }) {
 
             <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between">
               <div>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#0072CE] font-bold">
-                  HTL-02 • Stays & Visas
-                </span>
                 <h3 className="text-base sm:text-lg font-bold text-[#1E293B] mt-1 mb-2 group-hover:text-[#0072CE] transition-colors">
                   Executive Stays, Visas & Insurance
                 </h3>
@@ -294,7 +277,6 @@ export default function SiriCorporateTravel({ onOpenContact }) {
 
               <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>Fast-Track Consular Liaison</span>
-                <span className="text-[#0072CE] font-bold">Worldwide Care →</span>
               </div>
             </div>
           </div>
