@@ -123,7 +123,7 @@ export default function ServicesStack({ onOpenContact }) {
       ───────────────────────────────────────────────────────── */}
       <div
         ref={card1Ref}
-        className="relative md:sticky top-0 z-10 w-full min-h-auto md:min-h-[100dvh] origin-top bg-transparent transition-all duration-300 flex flex-col justify-center overflow-x-hidden pt-2 sm:pt-3 lg:pt-4 pb-6 sm:pb-8 lg:pb-12"
+        className="relative md:sticky top-0 z-10 w-full min-h-auto md:min-h-[100dvh] origin-top bg-transparent transition-all duration-300 flex flex-col justify-center overflow-x-hidden pt-1 sm:pt-2 pb-2 sm:pb-4"
       >
         <SiriGlobalSolutions onOpenContact={onOpenContact} />
       </div>
@@ -134,7 +134,7 @@ export default function ServicesStack({ onOpenContact }) {
       ───────────────────────────────────────────────────────── */}
       <div
         ref={card2Ref}
-        className="relative md:sticky top-0 z-20 w-full min-h-auto md:min-h-[100dvh] origin-top bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-[0_-20px_50px_rgba(0,0,0,0.06)] transition-all duration-300 flex flex-col justify-center overflow-x-hidden py-8 sm:py-12 lg:py-16"
+        className="relative md:sticky top-0 z-20 w-full min-h-auto md:min-h-[100dvh] origin-top bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-[0_-20px_50px_rgba(0,0,0,0.06)] transition-all duration-300 flex flex-col justify-center overflow-x-hidden py-3 sm:py-4 lg:py-6"
       >
         <SiriCorporateTravel onOpenContact={onOpenContact} />
       </div>
@@ -145,7 +145,7 @@ export default function ServicesStack({ onOpenContact }) {
       ───────────────────────────────────────────────────────── */}
       <div
         ref={card3Ref}
-        className="relative md:sticky top-0 z-30 w-full min-h-auto md:min-h-[100dvh] origin-top bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-[0_-25px_50px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-center overflow-x-hidden py-8 sm:py-12 lg:py-16"
+        className="relative md:sticky top-0 z-30 w-full min-h-auto md:min-h-[100dvh] origin-top bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-[0_-25px_50px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-center overflow-x-hidden py-3 sm:py-4 lg:py-6"
       >
         <SiriFinHub onOpenContact={onOpenContact} />
       </div>

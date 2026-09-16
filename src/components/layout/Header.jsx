@@ -641,13 +641,11 @@ export default function Header({ onOpenContact }) {
                           <button
                             type="button"
                             onClick={() => setMobileServicesOpen((prev) => !prev)}
-                            className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-colors"
+                            className="w-full flex items-center justify-between px-4 py-1 text-sm font-bold text-white hover:bg-white/10 transition-colors"
                           >
                             <span className="flex items-center gap-2">
                               <span>{link.label}</span>
-                              <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-white/20 text-white">
-                                5 Verticals
-                              </span>
+                             
                             </span>
                             <svg
                               ref={mobileAccordionChevronRef}

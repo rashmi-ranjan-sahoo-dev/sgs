@@ -142,22 +142,11 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       if (!mobileDeckRef.current || !card1Ref.current || !card2Ref.current || !card3Ref.current)
         return;
 
-
       if (prefersReducedMotion) return;
 
-      // Master ScrollTrigger timeline for mobile deck
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: mobileDeckRef.current,
-          start: 'top 65px',
-          end: '+=140%',
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
-        },
-      });
-
-      mobileTimelineRef.current = tl;
+      const deckEl = mobileDeckRef.current;
+      const getDeckHeight = () => deckEl?.clientHeight || 520;
+      const HEADER_H = 48;
 
       // Cards transform from top center so scaling retains folder-tab alignment
       gsap.set([card1Ref.current, card2Ref.current, card3Ref.current], {
@@ -165,29 +154,63 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       });
 
       // Initial State (State 1 — Card 1 active):
-      // All 3 cards are ALWAYS visible in the physical stacked/nested deck
-      gsap.set(card1Ref.current, { y: 88, scale: 1, opacity: 1, zIndex: 30 });
-      gsap.set(card2Ref.current, { y: 44, scale: 0.95, opacity: 0.88, zIndex: 20 });
-      gsap.set(card3Ref.current, { y: 0, scale: 0.90, opacity: 0.78, zIndex: 10 });
+      // Card 1 is active/full at top (y: 0, zIndex: 30)
+      // Card 2 and Card 3 are initially INVISIBLE in lower area
+      gsap.set(card1Ref.current, { y: 0, scale: 1, opacity: 1, zIndex: 30 });
+      gsap.set(card2Ref.current, {
+        y: () => getDeckHeight(),
+        scale: 0.98,
+        opacity: 0,
+        pointerEvents: 'none',
+        zIndex: 20,
+      });
+      gsap.set(card3Ref.current, {
+        y: () => getDeckHeight(),
+        scale: 0.96,
+        opacity: 0,
+        pointerEvents: 'none',
+        zIndex: 10,
+      });
 
-      // Stage 1: Card 1 initial description + CTA fades out on scroll, revealing 5 service options
+      // Master ScrollTrigger timeline for mobile deck
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: mobileDeckRef.current,
+          start: 'top 65px',
+          end: '+=150%',
+          pin: true,
+          scrub: 0.8,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      mobileTimelineRef.current = tl;
+
+      tl.addLabel('card1-initial', 0);
+
+      // Stage 1: Card 1 initial description + CTA fades out on scroll
       if (mobileCard1InitialRef.current) {
-        tl.to(mobileCard1InitialRef.current, {
-          opacity: 0,
-          y: -15,
-          duration: 0.35,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            if (mobileCard1InitialRef.current) {
-              mobileCard1InitialRef.current.style.pointerEvents = 'none';
-            }
+        tl.to(
+          mobileCard1InitialRef.current,
+          {
+            opacity: 0,
+            y: -15,
+            duration: 0.35,
+            ease: 'power2.inOut',
+            onComplete: () => {
+              if (mobileCard1InitialRef.current) {
+                mobileCard1InitialRef.current.style.pointerEvents = 'none';
+              }
+            },
+            onReverseComplete: () => {
+              if (mobileCard1InitialRef.current) {
+                mobileCard1InitialRef.current.style.pointerEvents = 'auto';
+              }
+            },
           },
-          onReverseComplete: () => {
-            if (mobileCard1InitialRef.current) {
-              mobileCard1InitialRef.current.style.pointerEvents = 'auto';
-            }
-          },
-        });
+          0
+        );
       }
 
       // Stage 1b: Card 1 5 Floating Service Options reveal and take full body
@@ -198,11 +221,11 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
           {
             opacity: 1,
             y: 0,
-            duration: 0.45,
+            duration: 0.35,
             ease: 'power2.out',
             pointerEvents: 'auto',
           },
-          '<0.1'
+          0.1
         );
 
         const validMobileOptions = mobileOptionsItemsRef.current.filter(Boolean);
@@ -210,63 +233,106 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
           tl.fromTo(
             validMobileOptions,
             { opacity: 0, scale: 0.92, y: 10 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out' },
-            '<'
+            { opacity: 1, scale: 1, y: 0, duration: 0.3, stagger: 0.04, ease: 'power2.out' },
+            0.15
           );
         }
       }
 
-      tl.addLabel('card1');
+      // State 1 active label (Card 1 full with service options)
+      tl.addLabel('card1', 0.5);
 
-      // Pacing pause to view Card 1's options
-      tl.to({}, { duration: 0.2 });
+      // Brief pacing pause for Card 1
+      tl.to({}, { duration: 0.25 }, 0.5);
 
-      // Stage 2: Deck shifts to State 2 (Card 2 becomes active)
-      // Card 2 moves from middle (y: 44) to front/active (y: 88, scale: 1, opacity: 1)
-      // Card 1 moves from front (y: 88) to middle (y: 44, scale: 0.95, opacity: 0.88)
-      // Card 3 stays at top (y: 0, scale: 0.90, opacity: 0.78)
+      // Stage 2: Deck shifts to State 2 (Card 2 comes in from lower, becomes visible & active; Card 3 remains invisible)
+      tl.set(card2Ref.current, { pointerEvents: 'auto' }, 0.75);
+
+      // Card 2 moves from lower to active position (y: HEADER_H) and fades in
       tl.to(
         card2Ref.current,
-        { y: 88, scale: 1, opacity: 1, duration: 0.7, ease: 'power2.inOut' }
+        {
+          y: HEADER_H,
+          scale: 1,
+          opacity: 1,
+          duration: 0.75,
+          ease: 'power2.inOut',
+        },
+        0.75
       );
+      // Card 1 shifts to stacked behind at top (y: 0)
       tl.to(
         card1Ref.current,
-        { y: 44, scale: 0.95, opacity: 0.88, duration: 0.7, ease: 'power2.inOut' },
-        '<'
+        {
+          y: 0,
+          scale: 0.96,
+          opacity: 0.88,
+          duration: 0.75,
+          ease: 'power2.inOut',
+        },
+        0.75
       );
-      tl.set(card2Ref.current, { zIndex: 30 }, '<0.2');
-      tl.set(card1Ref.current, { zIndex: 20 }, '<');
-      tl.set(card3Ref.current, { zIndex: 10 }, '<');
 
-      tl.addLabel('card2');
+      // Mid-transition z-index updates
+      tl.set(card2Ref.current, { zIndex: 30 }, 0.75 + 0.35);
+      tl.set(card1Ref.current, { zIndex: 10 }, 0.75 + 0.35);
 
-      // Pacing pause to view Card 2
-      tl.to({}, { duration: 0.2 });
+      // State 2 active label (Card 2 full, Card 3 remains invisible)
+      tl.addLabel('card2', 1.5);
 
-      // Stage 3: Deck shifts to State 3 (Card 3 becomes active)
-      // Card 3 moves from top (y: 0) to front/active (y: 88, scale: 1, opacity: 1)
-      // Card 2 moves from front (y: 88) to middle (y: 44, scale: 0.95, opacity: 0.88)
-      // Card 1 moves from middle (y: 44) to top (y: 0, scale: 0.90, opacity: 0.78)
+      // Brief pacing pause for Card 2
+      tl.to({}, { duration: 0.25 }, 1.5);
+
+      // Stage 3: Deck shifts to State 3 (Card 3 comes in from lower, becomes visible & active)
+      tl.set(card3Ref.current, { pointerEvents: 'auto' }, 1.75);
+
+      // Card 3 moves from lower to active position (y: 2 * HEADER_H) and fades in
       tl.to(
         card3Ref.current,
-        { y: 88, scale: 1, opacity: 1, duration: 0.7, ease: 'power2.inOut' }
+        {
+          y: 2 * HEADER_H,
+          scale: 1,
+          opacity: 1,
+          duration: 0.75,
+          ease: 'power2.inOut',
+        },
+        1.75
       );
+      // Card 2 shifts to stacked behind below Card 1 (y: HEADER_H)
       tl.to(
         card2Ref.current,
-        { y: 44, scale: 0.95, opacity: 0.88, duration: 0.7, ease: 'power2.inOut' },
-        '<'
+        {
+          y: HEADER_H,
+          scale: 0.96,
+          opacity: 0.88,
+          duration: 0.75,
+          ease: 'power2.inOut',
+        },
+        1.75
       );
+      // Card 1 stays stacked at top (y: 0)
       tl.to(
         card1Ref.current,
-        { y: 0, scale: 0.90, opacity: 0.78, duration: 0.7, ease: 'power2.inOut' },
-        '<'
+        {
+          y: 0,
+          scale: 0.94,
+          opacity: 0.82,
+          duration: 0.75,
+          ease: 'power2.inOut',
+        },
+        1.75
       );
-      tl.set(card3Ref.current, { zIndex: 30 }, '<0.2');
-      tl.set(card2Ref.current, { zIndex: 20 }, '<');
-      tl.set(card1Ref.current, { zIndex: 10 }, '<');
 
-      tl.addLabel('card3');
-      tl.to({}, { duration: 0.15 });
+      // Mid-transition z-index updates
+      tl.set(card3Ref.current, { zIndex: 30 }, 1.75 + 0.35);
+      tl.set(card2Ref.current, { zIndex: 20 }, 1.75 + 0.35);
+      tl.set(card1Ref.current, { zIndex: 10 }, 1.75 + 0.35);
+
+      // State 3 active label (Card 3 full)
+      tl.addLabel('card3', 2.5);
+
+      // Final pause buffer
+      tl.to({}, { duration: 0.2 }, 2.5);
 
       return () => {
         mobileTimelineRef.current = null;
@@ -492,9 +558,17 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
     if (!tl || !st) return;
 
     const labelNames = ['card1', 'card2', 'card3'];
-    const label = labelNames[cardIndex];
-    // Card 0 targets the start of the pinned section (Card 1 initial full state)
-    const labelTime = cardIndex === 0 ? 0 : (tl.labels?.[label] ?? 0);
+    let targetLabel = labelNames[cardIndex];
+
+    // If already at card1 options, clicking Card 1 again toggles to initial view
+    if (cardIndex === 0) {
+      const currentTlTime = (st.progress || 0) * (tl.totalDuration() || 1);
+      if (Math.abs(currentTlTime - (tl.labels?.['card1'] ?? 0.5)) < 0.2) {
+        targetLabel = 'card1-initial';
+      }
+    }
+
+    const labelTime = tl.labels?.[targetLabel] ?? 0;
     const totalDuration = tl.totalDuration() || 1;
     const progress = Math.min(1, Math.max(0, labelTime / totalDuration));
 
@@ -517,18 +591,18 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
           A. MOBILE VIEW (< 768px): Stacking Deck with Visible Header Tabs
       ───────────────────────────────────────────────────────── */}
       <div className="block md:hidden relative px-4 sm:px-6 w-full max-w-lg mx-auto">
-        <div ref={mobileDeckRef} className="relative w-full h-[clamp(500px,76vh,580px)]">
+        <div ref={mobileDeckRef} className="relative w-full h-[clamp(500px,76vh,580px)] overflow-hidden rounded-3xl">
           {/* ──────── CARD 1: SIRI Global Solutions (Active Front Card in State 1) ──────── */}
           <div
             ref={card1Ref}
             style={{
               top: '0px',
-              transform: 'translate3d(0, 88px, 0) scale(1)',
+              transform: 'translate3d(0, 0px, 0) scale(1)',
               transformOrigin: 'top center',
               zIndex: 30,
               opacity: 1,
             }}
-            className="absolute left-0 right-0 h-[clamp(370px,56vh,430px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
+            className="absolute left-0 right-0 h-[calc(100%-96px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
           >
             {/* Vivid Background Image with Bottom-Weighted Scrim */}
             <img
@@ -543,7 +617,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               type="button"
               onClick={() => navigateToMobileCard(0)}
               aria-label={`Show ${showcaseCards[0].title}`}
-              className="w-full text-left relative z-10 h-[46px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
+              className="w-full text-left relative z-10 h-[48px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
             >
               <div className="flex items-center gap-2.5">
                 <h3 className="text-base sm:text-lg font-black text-white tracking-tight truncate drop-shadow-sm">
@@ -582,23 +656,21 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                 </div>
               </div>
 
-              {/* State 2: 5 Floating Service Options (Takes Full Body on Scroll) */}
+              {/* State 2: 5 Floating Service Options (Positioned in Lower Card on Scroll) */}
               <div
                 ref={mobileCard1OptionsRef}
-                className="absolute inset-x-4 sm:inset-x-5 inset-y-3 sm:inset-y-4 flex flex-col justify-center gap-1.5 sm:gap-2 opacity-0 pointer-events-none"
+                className="absolute inset-x-4 sm:inset-x-5 inset-y-4 sm:inset-y-5 flex flex-col justify-end gap-1 sm:gap-1.5 opacity-0 pointer-events-none"
               >
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#72BF44] flex items-center justify-between mb-0.5">
-                </div>
                 {serviceBadges.map((badge, idx) => (
                   <a
                     key={badge.id}
                     href={badge.href}
                     onClick={(e) => handleCtaClick(e, badge.href)}
                     ref={(el) => (mobileOptionsItemsRef.current[idx] = el)}
-                    className="w-full bg-transparent hover:bg-white/10 text-white px-3 sm:px-3.5 py-1.5 sm:py-2.5 rounded-2xl text-xs sm:text-base font-extrabold flex items-center justify-between active:scale-95 transition-all group cursor-pointer drop-shadow-md"
+                    className="w-full bg-transparent hover:bg-white/10 text-white px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl text-sm min-[375px]:text-[15px] sm:text-base font-bold flex items-center justify-between active:scale-95 transition-all group cursor-pointer drop-shadow-md"
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
-                      <span className="text-base sm:text-lg shrink-0">{badge.icon}</span>
+                      <span className="text-lg sm:text-xl shrink-0">{badge.icon}</span>
                       <span className="truncate">{badge.label}</span>
                     </div>
                   </a>
@@ -612,12 +684,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             ref={card2Ref}
             style={{
               top: '0px',
-              transform: 'translate3d(0, 44px, 0) scale(0.95)',
+              transform: 'translate3d(0, 100%, 0) scale(0.98)',
               transformOrigin: 'top center',
               zIndex: 20,
-              opacity: 0.88,
+              opacity: 0,
+              pointerEvents: 'none',
             }}
-            className="absolute left-0 right-0 h-[clamp(370px,56vh,430px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
+            className="absolute left-0 right-0 h-[calc(100%-96px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
           >
             {/* Vivid Background Image */}
             <img
@@ -632,7 +705,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               type="button"
               onClick={() => navigateToMobileCard(1)}
               aria-label={`Show ${showcaseCards[1].title}`}
-              className="w-full text-left relative z-10 h-[46px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
+              className="w-full text-left relative z-10 h-[48px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
             >
               <div className="flex items-center gap-2.5">
                 <h3 className="text-base sm:text-lg font-black text-white tracking-tight truncate drop-shadow-sm">
@@ -672,12 +745,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             ref={card3Ref}
             style={{
               top: '0px',
-              transform: 'translate3d(0, 0px, 0) scale(0.90)',
+              transform: 'translate3d(0, 100%, 0) scale(0.96)',
               transformOrigin: 'top center',
               zIndex: 10,
-              opacity: 0.78,
+              opacity: 0,
+              pointerEvents: 'none',
             }}
-            className="absolute left-0 right-0 h-[clamp(370px,56vh,430px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
+            className="absolute left-0 right-0 h-[calc(100%-96px)] rounded-3xl border border-white/25 shadow-2xl overflow-hidden flex flex-col text-white will-change-transform bg-slate-900/95"
           >
             {/* Vivid Background Image */}
             <img
@@ -692,7 +766,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               type="button"
               onClick={() => navigateToMobileCard(2)}
               aria-label={`Show ${showcaseCards[2].title}`}
-              className="w-full text-left relative z-10 h-[46px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
+              className="w-full text-left relative z-10 h-[48px] px-4 sm:px-5 flex items-center justify-between border-b border-white/15 bg-slate-900/95 backdrop-blur-md shrink-0 cursor-pointer select-none"
             >
               <div className="flex items-center gap-2.5">
                 <h3 className="text-base sm:text-lg font-black text-white tracking-tight truncate drop-shadow-sm">

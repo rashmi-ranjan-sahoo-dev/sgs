@@ -162,16 +162,16 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
     <section
       id="services-global"
       ref={sectionRef}
-      className="relative w-full flex flex-col justify-center pt-1 sm:pt-2 lg:pt-3 pb-6 sm:pb-8 lg:pb-10 select-none bg-transparent overflow-hidden scroll-mt-24"
+      className="relative w-full flex flex-col justify-center py-1 sm:py-2 select-none bg-transparent overflow-hidden scroll-mt-24"
     >
       {/* Target Anchor Hooks for Navbar Hash Links */}
       <div id="services-hr" className="scroll-mt-24" />
       <div id="services-manpower" className="scroll-mt-24" />
       <div id="services-csr" className="scroll-mt-24" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-1 sm:mt-2 lg:mt-3 mb-auto">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
         {/* Top Centered Section Badge */}
-        <div className="text-center mb-4 sm:mb-6">
+        <div className="text-center mb-2.5 sm:mb-3.5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#72BF44]/40 bg-[#F2FBF0]/95 text-[#72BF44] text-[11px] sm:text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs">
             <span className="flex items-center gap-1">
             </span>
@@ -184,7 +184,7 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
         </div>
 
         {/* Main 2-Column Split Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-center mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-center mb-3 sm:mb-4">
           {/* Left Column: 3D Sculpted Photo Collage + Rotating Circular Seal */}
           <div
             ref={collageRef}
@@ -305,7 +305,7 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
         {/* Bottom 4-Stat Ribbon (Enhanced Contrast & Hierarchy on Mobile) */}
         <div
           ref={statsRef}
-          className="pt-3 sm:pt-5 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 items-stretch"
+          className="pt-2 sm:pt-3 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 items-stretch"
         >
           {stats.map((st) => (
             <div

@@ -4,9 +4,9 @@ import Hero from '@/components/sections/Hero';
 import ShowcaseCards from '@/components/sections/ShowcaseCards';
 import ServicesMarquee from '@/components/sections/services/ServicesMarquee';
 import ServicesStack from '@/components/sections/services/ServicesStack';
-// Temporarily disabled for redesign:
-// import WhyPartnerUs from '@/components/sections/WhyPartnerUs';
-// import Testimonials from '@/components/sections/Testimonials';
+import AboutUs from '@/components/sections/AboutUs';
+import Testimonials from '@/components/sections/Testimonials';
+import Footer from '@/components/layout/Footer';
 import GlobalBackground from '@/components/layout/GlobalBackground';
 import PageLoader from '@/components/ui/PageLoader';
 import ContactModal from '@/components/ui/ContactModal';
@@ -112,9 +112,14 @@ export default function App() {
         {/* 3 Core Industry Verticals: 3D Stacking Card Deck */}
         <ServicesStack onOpenContact={handleOpenContact} />
 
+        {/* Enterprise About Us Section (Consulo-Inspired "Our Company" with authentic sigigroup.pdf data) */}
+        <AboutUs onOpenContact={handleOpenContact} />
+
+        {/* 3D Perspective Spotlight Testimonials Section (Option 1) */}
+        <Testimonials onOpenContact={handleOpenContact} />
+
         {/* Temporarily disabled for redesign:
         <WhyPartnerUs />
-        <Testimonials />
         */}
 
         {/* Contact Section (Temporarily disabled for redesign) */}
@@ -176,6 +181,9 @@ export default function App() {
         </section>
         */}
       </main>
+
+      {/* Luxury Consulo-Inspired Footer with Authentic SIRI Group Data */}
+      <Footer onOpenContact={handleOpenContact} />
     </div>
   );
 }

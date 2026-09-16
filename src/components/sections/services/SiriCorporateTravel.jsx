@@ -112,14 +112,14 @@ export default function SiriCorporateTravel({ onOpenContact }) {
     <section
       id="services-travel"
       ref={sectionRef}
-      className="relative w-full flex flex-col justify-center py-6 sm:py-8 lg:py-10 select-none bg-transparent overflow-hidden scroll-mt-24"
+      className="relative w-full flex flex-col justify-center py-1 sm:py-2 select-none bg-transparent overflow-hidden scroll-mt-24"
     >
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
         {/* Header (Matching Reference Template) */}
         <div
           ref={headerRef}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-5 sm:mb-8"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-2.5 mb-3 sm:mb-5"
         >
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#0072CE]/40 bg-[#F0F7FD]/95 text-[#0072CE] text-[11px] sm:text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs mb-1.5">
