@@ -53,7 +53,8 @@ export default function AboutUs({ onOpenContact }) {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 80%',
-              toggleActions: 'play none none reverse',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -75,7 +76,8 @@ export default function AboutUs({ onOpenContact }) {
               scrollTrigger: {
                 trigger: sectionRef.current,
                 start: 'top 80%',
-                toggleActions: 'play none none reverse',
+                toggleActions: 'play reverse play reverse',
+                invalidateOnRefresh: true,
               },
             }
           );

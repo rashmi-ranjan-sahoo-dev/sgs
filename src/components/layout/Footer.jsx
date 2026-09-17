@@ -44,7 +44,8 @@ export default function Footer({ onOpenContact }) {
             scrollTrigger: {
               trigger: footerRef.current,
               start: 'top 85%',
-              toggleActions: 'play none none reverse',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -61,7 +62,8 @@ export default function Footer({ onOpenContact }) {
             scrollTrigger: {
               trigger: bottomBarRef.current,
               start: 'top 95%',
-              toggleActions: 'play none none reverse',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );

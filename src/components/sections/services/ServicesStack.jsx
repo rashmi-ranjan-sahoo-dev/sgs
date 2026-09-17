@@ -46,7 +46,8 @@ export default function ServicesStack({ onOpenContact }) {
             scrollTrigger: {
               trigger: card,
               start: 'top 85%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );

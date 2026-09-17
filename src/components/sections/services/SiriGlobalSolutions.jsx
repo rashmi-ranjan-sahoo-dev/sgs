@@ -42,7 +42,8 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 75%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -62,7 +63,8 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 75%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -82,7 +84,8 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
             scrollTrigger: {
               trigger: bar,
               start: 'top 85%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -102,7 +105,8 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
             scrollTrigger: {
               trigger: statsRef.current,
               start: 'top 90%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );

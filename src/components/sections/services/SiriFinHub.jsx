@@ -32,7 +32,8 @@ export default function SiriFinHub({ onOpenContact }) {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 75%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -59,7 +60,8 @@ export default function SiriFinHub({ onOpenContact }) {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 75%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -78,7 +80,8 @@ export default function SiriFinHub({ onOpenContact }) {
             scrollTrigger: {
               trigger: bar,
               start: 'top 85%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );

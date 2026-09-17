@@ -32,7 +32,8 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 75%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -61,7 +62,8 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             scrollTrigger: {
               trigger: card,
               start: 'top 80%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );

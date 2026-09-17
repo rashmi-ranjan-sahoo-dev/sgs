@@ -117,7 +117,8 @@ export default function Testimonials({ onOpenContact }) {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 80%',
-              toggleActions: 'play none none reverse',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );
@@ -136,7 +137,8 @@ export default function Testimonials({ onOpenContact }) {
             scrollTrigger: {
               trigger: carouselTrackRef.current,
               start: 'top 85%',
-              toggleActions: 'play none none reverse',
+              toggleActions: 'play reverse play reverse',
+              invalidateOnRefresh: true,
             },
           }
         );

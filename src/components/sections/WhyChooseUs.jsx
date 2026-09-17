@@ -32,6 +32,7 @@ export default function WhyChooseUs({ onOpenContact }) {
   const sectionRef = useRef(null);
   const mediaRef = useRef(null);
   const contentRef = useRef(null);
+  const cardsContainerRef = useRef(null);
   const badgeSpinRef = useRef(null);
   const cardsRef = useRef([]);
 
@@ -54,12 +55,12 @@ export default function WhyChooseUs({ onOpenContact }) {
         });
       }
 
-      // 2. Slow cinematic scroll-triggered entrance for Top Section
+      // 2. Slow cinematic scroll-triggered entrance for Top Section (animates every time scrolled into view)
       const topTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top 75%',
-          toggleActions: 'play none none none',
+          toggleActions: 'play reverse play reverse',
           invalidateOnRefresh: true,
         },
         defaults: { ease: 'power3.out' },
@@ -82,7 +83,7 @@ export default function WhyChooseUs({ onOpenContact }) {
         );
       }
 
-      // 3. Stagger reveal for the 3 Strategic Pillar Cards
+      // 3. Stagger reveal for the 3 Strategic Pillar Cards (animates every time scrolled into view)
       const validCards = cardsRef.current.filter(Boolean);
       if (validCards.length > 0) {
         gsap.fromTo(
@@ -96,9 +97,9 @@ export default function WhyChooseUs({ onOpenContact }) {
             stagger: 0.15,
             ease: 'power3.out',
             scrollTrigger: {
-              trigger: validCards[0],
+              trigger: cardsContainerRef.current || validCards[0],
               start: 'top 85%',
-              toggleActions: 'play none none none',
+              toggleActions: 'play reverse play reverse',
               invalidateOnRefresh: true,
             },
           }
@@ -324,7 +325,10 @@ export default function WhyChooseUs({ onOpenContact }) {
         {/* ============================================================ */}
         {/* BOTTOM FEATURE CARDS (choose-bottom): 3 Core Pillars         */}
         {/* ============================================================ */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch [perspective:1200px]">
+        <div
+          ref={cardsContainerRef}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch [perspective:1200px]"
+        >
           {pillarCards.map((card, idx) => (
             <div
               key={card.id}

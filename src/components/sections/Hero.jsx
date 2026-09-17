@@ -1,7 +1,12 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import siriAboutMain from '@/assets/images/about/siri-about-main.jpg';
 import siriLogo from '@/assets/images/siri-logo.png';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /**
  * Mobile-First, Highly Responsive Hero Section (Raycast-Style Aesthetic)
@@ -155,6 +160,15 @@ export default function Hero({ onOpenServicesModal, onOpenContact }) {
             clearTimeout(safetyTimer);
           };
         }
+        // Re-trigger entrance animation whenever user scrolls back up into Hero
+        ScrollTrigger.create({
+          trigger: heroRef.current,
+          start: 'top 60%',
+          end: 'bottom top',
+          onEnterBack: () => {
+            runEntrance();
+          },
+        });
       }
     }, heroRef);
 
