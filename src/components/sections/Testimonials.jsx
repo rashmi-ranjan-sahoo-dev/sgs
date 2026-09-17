@@ -74,13 +74,24 @@ const TESTIMONIALS = [
 
 export default function Testimonials({ onOpenContact }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
 
   const sectionRef = useRef(null);
   const headerRef = useRef(null);
   const carouselTrackRef = useRef(null);
-  const cardRefs = useRef([]);
+  const innerCardRefs = useRef([]);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+
+  // Track responsive screen width for dynamic 3D positioning
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // ─────────────────────────────────────────────────────────────
   // 1. GSAP ScrollTrigger Section Entrance
@@ -93,7 +104,6 @@ export default function Testimonials({ onOpenContact }) {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      // Header reveal
       if (headerRef.current) {
         gsap.fromTo(
           headerRef.current.children,
@@ -113,7 +123,6 @@ export default function Testimonials({ onOpenContact }) {
         );
       }
 
-      // Carousel entrance
       if (carouselTrackRef.current) {
         gsap.fromTo(
           carouselTrackRef.current,
@@ -138,24 +147,18 @@ export default function Testimonials({ onOpenContact }) {
   }, []);
 
   // ─────────────────────────────────────────────────────────────
-  // 2. Infinite Auto-Scroll Carousel Timer (Every 5 Seconds)
+  // 2. Infinite Auto-Scroll Carousel Timer (Left to Right)
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
+    if (isPaused) return;
+
     const timer = setInterval(() => {
+      // Continuous infinite progression: cards glide from right to left
       setActiveIndex((prev) => (prev + 1) % TESTIMONIALS.length);
-    }, 5000);
+    }, 4500);
 
     return () => clearInterval(timer);
-  }, [activeIndex]);
-
-  // Reset any desktop mouse parallax GSAP inline props when active slide changes
-  useEffect(() => {
-    cardRefs.current.forEach((el) => {
-      if (el) {
-        gsap.set(el, { clearProps: 'rotateX,rotateY' });
-      }
-    });
-  }, [activeIndex]);
+  }, [isPaused]);
 
   // ─────────────────────────────────────────────────────────────
   // 3. Navigation Handlers
@@ -193,12 +196,11 @@ export default function Testimonials({ onOpenContact }) {
   };
 
   // ─────────────────────────────────────────────────────────────
-  // 4. Desktop 3D Mouse Parallax Tilt for Active Card
+  // 4. Desktop 3D Mouse Parallax Tilt for Active Middle Card
   // ─────────────────────────────────────────────────────────────
   const handleCardMouseMove = (e, index) => {
-    if (index !== activeIndex) return;
-    if (typeof window === 'undefined' || window.innerWidth < 1024) return;
-    const cardEl = cardRefs.current[index];
+    if (windowWidth < 1024) return;
+    const cardEl = innerCardRefs.current[index];
     if (!cardEl) return;
 
     const rect = cardEl.getBoundingClientRect();
@@ -213,28 +215,112 @@ export default function Testimonials({ onOpenContact }) {
     gsap.to(cardEl, {
       rotateX,
       rotateY,
-      duration: 0.4,
+      transformPerspective: 1000,
+      duration: 0.35,
       ease: 'power2.out',
     });
   };
 
   const handleCardMouseLeave = (index) => {
-    const cardEl = cardRefs.current[index];
+    const cardEl = innerCardRefs.current[index];
     if (cardEl) {
       gsap.to(cardEl, {
         rotateX: 0,
         rotateY: 0,
-        duration: 0.6,
+        duration: 0.5,
         ease: 'power2.out',
       });
     }
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // 5. Compute Card Position Across 3 Distinct Positions (Left, Middle, Right)
+  // ─────────────────────────────────────────────────────────────
+  const getDiff = (index) => {
+    let diff = index - activeIndex;
+    const n = TESTIMONIALS.length;
+    while (diff > n / 2) diff -= n;
+    while (diff < -n / 2) diff += n;
+    return diff;
+  };
+
+  const getCardStyle = (diff) => {
+    const isWideDesktop = windowWidth >= 1280;
+    const isDesktop = windowWidth >= 1024 && windowWidth < 1280;
+    const isTablet = windowWidth >= 768 && windowWidth < 1024;
+
+    if (diff === 0) {
+      // MIDDLE (Active Focal Card)
+      return {
+        transform: 'translate(-50%, -50%) translateX(0px) scale(1) rotateY(0deg)',
+        opacity: 1,
+        zIndex: 30,
+        pointerEvents: 'auto',
+        cursor: 'default',
+        filter: 'none',
+      };
+    }
+
+    if (diff === -1) {
+      // LEFT POSITION (Previous Card - Separated with clean space)
+      const xOffset = isWideDesktop ? -480 : isDesktop ? -430 : isTablet ? -340 : -340;
+      const opacity = isWideDesktop || isDesktop || isTablet ? 0.75 : 0;
+      const rotateY = isWideDesktop || isDesktop ? 8 : isTablet ? 5 : 0;
+      const scale = isWideDesktop ? 0.88 : isDesktop ? 0.86 : isTablet ? 0.84 : 0.8;
+      return {
+        transform: `translate(-50%, -50%) translateX(${xOffset}px) scale(${scale}) rotateY(${rotateY}deg)`,
+        opacity,
+        zIndex: 20,
+        pointerEvents: isWideDesktop || isDesktop || isTablet ? 'auto' : 'none',
+        cursor: 'pointer',
+        filter: isWideDesktop || isDesktop || isTablet ? 'none' : 'blur(4px)',
+      };
+    }
+
+    if (diff === 1) {
+      // RIGHT POSITION (Next Card - Separated with clean space)
+      const xOffset = isWideDesktop ? 480 : isDesktop ? 430 : isTablet ? 340 : 340;
+      const opacity = isWideDesktop || isDesktop || isTablet ? 0.75 : 0;
+      const rotateY = isWideDesktop || isDesktop ? -8 : isTablet ? -5 : 0;
+      const scale = isWideDesktop ? 0.88 : isDesktop ? 0.86 : isTablet ? 0.84 : 0.8;
+      return {
+        transform: `translate(-50%, -50%) translateX(${xOffset}px) scale(${scale}) rotateY(${rotateY}deg)`,
+        opacity,
+        zIndex: 20,
+        pointerEvents: isWideDesktop || isDesktop || isTablet ? 'auto' : 'none',
+        cursor: 'pointer',
+        filter: isWideDesktop || isDesktop || isTablet ? 'none' : 'blur(4px)',
+      };
+    }
+
+    if (diff === -2) {
+      // FAR LEFT (Hidden Offstage, Entering)
+      const xOffset = isWideDesktop ? -780 : isDesktop ? -700 : -520;
+      return {
+        transform: `translate(-50%, -50%) translateX(${xOffset}px) scale(0.72)`,
+        opacity: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
+        filter: 'blur(6px)',
+      };
+    }
+
+    // FAR RIGHT (Hidden Offstage, Entering)
+    const xOffset = isWideDesktop ? 780 : isDesktop ? 700 : 520;
+    return {
+      transform: `translate(-50%, -50%) translateX(${xOffset}px) scale(0.72)`,
+      opacity: 0,
+      zIndex: 0,
+      pointerEvents: 'none',
+      filter: 'blur(6px)',
+    };
   };
 
   return (
     <section
       id="testimonials"
       ref={sectionRef}
-      className="relative pt-2 sm:pt-4 lg:pt-6 pb-4 sm:pb-6 lg:pb-8 w-full overflow-hidden select-none scroll-mt-24"
+      className="relative pt-6 sm:pt-10 lg:pt-12 pb-10 sm:pb-14 lg:pb-16 w-full overflow-hidden select-none scroll-mt-24"
       aria-label="Client Testimonials - SIRI Groups"
     >
       {/* Ambient Radial Background Glows */}
@@ -248,14 +334,14 @@ export default function Testimonials({ onOpenContact }) {
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header - Compact Spacing */}
-        <div ref={headerRef} className="text-center max-w-2xl mx-auto mb-4 sm:mb-5">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#0072CE]/30 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md text-[#0072CE] text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-xs mb-2">
+        {/* Header - Generous Mobile Clearance */}
+        <div ref={headerRef} className="text-center max-w-2xl mx-auto mb-4 sm:mb-8">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#0072CE]/30 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md text-[#0072CE] text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-xs mb-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#0072CE] animate-pulse" />
             <span>Client Endorsements</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1E293B] tracking-tight leading-tight">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-[#1E293B] tracking-tight leading-tight px-2">
             Trusted by Leaders Across{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0072CE] via-[#0284C7] to-[#72BF44]">
               India&apos;s Core Industries
@@ -264,107 +350,96 @@ export default function Testimonials({ onOpenContact }) {
         </div>
 
         {/* ─────────────────────────────────────────────────────────
-            3D PERSPECTIVE SPOTLIGHT CAROUSEL TRACK
+            3D PERSPECTIVE 3-CARD SPOTLIGHT STAGE (LEFT, MIDDLE, RIGHT)
         ───────────────────────────────────────────────────────── */}
         <div
           ref={carouselTrackRef}
-          className="relative w-full max-w-4xl mx-auto min-h-[300px] sm:min-h-[330px] lg:min-h-[360px] flex items-center justify-center [perspective:1400px]"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          className="relative w-full h-[300px] sm:h-[290px] lg:h-[280px] flex items-center justify-center [perspective:1400px] my-2 sm:my-4"
         >
           {TESTIMONIALS.map((item, idx) => {
-            // Position offset relative to active slide
-            const offset = (idx - activeIndex + TESTIMONIALS.length) % TESTIMONIALS.length;
-            const isCenter = offset === 0;
-            const isRight = offset === 1;
-            const isLeft = offset === TESTIMONIALS.length - 1;
-
-            let cardStyles = '';
-            let zIndex = 0;
-
-            if (isCenter) {
-              cardStyles =
-                'translate-x-0 scale-100 opacity-100 z-30 rotate-y-0 pointer-events-auto cursor-default shadow-2xl shadow-slate-900/15';
-              zIndex = 30;
-            } else if (isRight) {
-              cardStyles =
-                'translate-x-[105%] md:translate-x-[68%] scale-90 opacity-0 md:opacity-45 z-10 md:rotate-y-[-18deg] pointer-events-none md:pointer-events-auto md:hover:opacity-75 cursor-pointer';
-              zIndex = 10;
-            } else if (isLeft) {
-              cardStyles =
-                'translate-x-[-105%] md:translate-x-[-68%] scale-90 opacity-0 md:opacity-45 z-10 md:rotate-y-[18deg] pointer-events-none md:pointer-events-auto md:hover:opacity-75 cursor-pointer';
-              zIndex = 10;
-            } else {
-              const isFarRight = offset <= Math.floor(TESTIMONIALS.length / 2);
-              cardStyles = `${
-                isFarRight ? 'translate-x-[140%]' : 'translate-x-[-140%]'
-              } scale-75 opacity-0 z-0 pointer-events-none`;
-              zIndex = 0;
-            }
+            const diff = getDiff(idx);
+            const isCenter = diff === 0;
+            const style = getCardStyle(diff);
 
             return (
               <div
                 key={item.id}
-                ref={(el) => (cardRefs.current[idx] = el)}
                 onClick={() => !isCenter && goToSlide(idx)}
-                onMouseMove={(e) => handleCardMouseMove(e, idx)}
-                onMouseLeave={() => handleCardMouseLeave(idx)}
-                className={`absolute w-full max-w-[340px] sm:max-w-[480px] lg:max-w-[620px] rounded-3xl p-4 sm:p-6 lg:p-7 bg-white/95 backdrop-blur-xl border border-white/80 shadow-slate-900/15 text-slate-900 transition-all duration-700 ease-out flex flex-col justify-between will-change-transform ${cardStyles}`}
+                className="absolute top-1/2 left-1/2 will-change-transform select-none w-[90vw] max-w-[340px] sm:max-w-[390px] md:max-w-[340px] lg:max-w-[390px] xl:max-w-[420px]"
                 style={{
-                  zIndex,
+                  ...style,
+                  transition:
+                    'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.7s ease, filter 0.7s ease',
                   transformStyle: 'preserve-3d',
                 }}
               >
-                {/* Decorative Giant Watermark Quote */}
+                {/* Inner Card wrapper that receives 3D mouse parallax on middle card */}
                 <div
-                  className="absolute top-2.5 right-4 sm:top-4 sm:right-6 text-6xl sm:text-7xl lg:text-8xl font-serif text-slate-200/60 select-none pointer-events-none leading-none -z-10"
-                  aria-hidden="true"
+                  ref={(el) => (innerCardRefs.current[idx] = el)}
+                  onMouseMove={(e) => isCenter && handleCardMouseMove(e, idx)}
+                  onMouseLeave={() => isCenter && handleCardMouseLeave(idx)}
+                  className={`relative w-full rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 bg-white/95 backdrop-blur-xl border text-slate-900 transition-all duration-300 flex flex-col justify-between ${
+                    isCenter
+                      ? 'border-[#0072CE]/35 shadow-2xl shadow-slate-900/15 ring-1 ring-[#0072CE]/20'
+                      : 'border-slate-200/90 shadow-lg shadow-slate-900/5 hover:border-[#0072CE]/40 hover:opacity-100 hover:shadow-xl'
+                  }`}
+                  style={{ transformStyle: 'preserve-3d' }}
                 >
-                  “
-                </div>
-
-                {/* Top Badge: Vertical & Star Rating */}
-                <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider border ${item.tagBg}`}
+                  {/* Decorative Watermark Quote */}
+                  <div
+                    className="absolute top-2 right-4 sm:top-3 sm:right-5 text-3xl sm:text-5xl font-serif text-slate-200/40 select-none pointer-events-none leading-none -z-10"
+                    aria-hidden="true"
                   >
-                    <span>✦</span>
-                    <span>{item.vertical}</span>
-                  </span>
-
-                  <div className="flex items-center gap-0.5 text-amber-400 text-xs sm:text-sm">
-                    {[...Array(item.rating)].map((_, i) => (
-                      <span key={i}>★</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Testimonial Quote */}
-                <p className="text-sm sm:text-base lg:text-lg text-slate-700 font-medium leading-relaxed mb-3 sm:mb-4 italic drop-shadow-2xs">
-                  &ldquo;{item.quote}&rdquo;
-                </p>
-
-                {/* Author Footer & Credential */}
-                <div className="pt-3 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-                  <div>
-                    <h3 className="text-sm sm:text-base font-black text-[#1E293B] tracking-tight">
-                      {item.author}
-                    </h3>
-                    <div className="text-xs text-slate-500 font-medium">
-                      {item.role}
-                    </div>
-                    <div className="text-[11px] font-bold text-[#0072CE] mt-0.5">
-                      {item.company}
-                    </div>
+                    “
                   </div>
 
-                  {/* Impact Metric Chip */}
-                  <div className="self-start sm:self-center shrink-0">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-[10px] sm:text-xs font-black text-slate-700">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#72BF44]" />
-                      <span>{item.stat}</span>
+                  {/* Top Badge: Vertical & Star Rating */}
+                  <div className="flex items-center justify-between gap-1.5 mb-2 sm:mb-3">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] sm:text-[10px] font-black uppercase tracking-wider border shrink-0 ${item.tagBg}`}
+                    >
+                      <span>✦</span>
+                      <span>{item.vertical}</span>
                     </span>
+
+                    <div className="flex items-center gap-0.5 text-amber-400 text-[10px] sm:text-xs shrink-0">
+                      {[...Array(item.rating)].map((_, i) => (
+                        <span key={i}>★</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Testimonial Quote */}
+                  <p className="text-[11px] sm:text-[13.5px] lg:text-sm text-slate-700 font-medium leading-relaxed mb-2.5 sm:mb-3.5 italic">
+                    &ldquo;{item.quote}&rdquo;
+                  </p>
+
+                  {/* Author Footer & Credential */}
+                  <div className="pt-2 sm:pt-3 border-t border-slate-200/80 flex items-center justify-between gap-2">
+                    <div className="min-w-0 pr-1">
+                      <h3 className="text-[11px] sm:text-sm font-black text-[#1E293B] tracking-tight truncate leading-tight">
+                        {item.author}
+                      </h3>
+                      <div className="text-[9px] sm:text-[11px] text-slate-500 font-medium truncate leading-tight mt-0.5">
+                        {item.role}
+                      </div>
+                      <div className="text-[8.5px] sm:text-[10.5px] font-bold text-[#0072CE] truncate leading-tight mt-0.5">
+                        {item.company}
+                      </div>
+                    </div>
+
+                    {/* Impact Metric Chip */}
+                    <div className="shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg sm:rounded-xl bg-slate-100/90 border border-slate-200 text-[8px] sm:text-[10px] font-black text-slate-700 whitespace-nowrap shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#72BF44]" />
+                        <span>{item.stat}</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -373,21 +448,21 @@ export default function Testimonials({ onOpenContact }) {
         </div>
 
         {/* ─────────────────────────────────────────────────────────
-            CAROUSEL CONTROLS & DOTS - Compact Margin
+            CAROUSEL CONTROLS & DOTS
         ───────────────────────────────────────────────────────── */}
-        <div className="mt-3.5 sm:mt-4 flex items-center justify-center gap-4 sm:gap-6">
-          {/* Previous Arrow Button */}
+        <div className="mt-4 sm:mt-7 flex items-center justify-center gap-3 sm:gap-6">
+          {/* Previous Arrow Button (Glide Left-to-Right) */}
           <button
             type="button"
             onClick={prevSlide}
             aria-label="Previous Testimonial"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white border border-slate-200 text-slate-700 shadow-md flex items-center justify-center active:scale-95 transition-all cursor-pointer hover:border-[#0072CE] hover:text-[#0072CE]"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 hover:bg-white border border-slate-200 text-slate-700 shadow-sm hover:shadow-md flex items-center justify-center active:scale-95 transition-all cursor-pointer hover:border-[#0072CE] hover:text-[#0072CE]"
           >
-            <span className="text-sm sm:text-base font-bold">←</span>
+            <span className="text-xs sm:text-base font-bold">←</span>
           </button>
 
           {/* Dot Indicators */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {TESTIMONIALS.map((_, idx) => (
               <button
                 key={idx}
@@ -396,8 +471,8 @@ export default function Testimonials({ onOpenContact }) {
                 aria-label={`Go to testimonial ${idx + 1}`}
                 className={`transition-all duration-300 rounded-full cursor-pointer ${
                   idx === activeIndex
-                    ? 'w-7 h-2.5 bg-gradient-to-r from-[#0072CE] to-[#72BF44]'
-                    : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
+                    ? 'w-5 sm:w-8 h-1.5 sm:h-2.5 bg-gradient-to-r from-[#0072CE] to-[#72BF44]'
+                    : 'w-1.5 sm:w-2.5 h-1.5 sm:h-2.5 bg-slate-300 hover:bg-slate-400'
                 }`}
               />
             ))}
@@ -408,13 +483,13 @@ export default function Testimonials({ onOpenContact }) {
             type="button"
             onClick={nextSlide}
             aria-label="Next Testimonial"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white border border-slate-200 text-slate-700 shadow-md flex items-center justify-center active:scale-95 transition-all cursor-pointer hover:border-[#0072CE] hover:text-[#0072CE]"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 hover:bg-white border border-slate-200 text-slate-700 shadow-sm hover:shadow-md flex items-center justify-center active:scale-95 transition-all cursor-pointer hover:border-[#0072CE] hover:text-[#0072CE]"
           >
-            <span className="text-sm sm:text-base font-bold">→</span>
+            <span className="text-xs sm:text-base font-bold">→</span>
           </button>
         </div>
-
       </div>
     </section>
   );
 }
+

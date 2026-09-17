@@ -158,9 +158,9 @@ export default function SiriFinHub({ onOpenContact }) {
           {/* Left Column: Simple Data + Facility Tags + Progress Bars */}
           <div
             ref={leftColRef}
-            className="lg:col-span-6 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xl space-y-5"
+            className="lg:col-span-6 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 shadow-xl space-y-3 sm:space-y-4"
           >
-            <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
               Empowering businesses with structured B2B commercial loans to accelerate scale. We provide
               end-to-end liaison with premier public banks, private lenders, and NBFCs for fast-track credit
               sanctions.
@@ -171,7 +171,7 @@ export default function SiriFinHub({ onOpenContact }) {
               {loanTags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2.5 py-1 rounded-full bg-[#F0F7FD] border border-slate-200/90 text-xs sm:text-sm font-bold text-[#0072CE] hover:border-[#0072CE] transition-colors"
+                  className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-[#F0F7FD] border border-slate-200/90 text-xs font-bold text-[#0072CE] hover:border-[#0072CE] transition-colors"
                 >
                   ✓ {tag}
                 </span>
@@ -179,23 +179,23 @@ export default function SiriFinHub({ onOpenContact }) {
             </div>
 
             {/* 3 Progress / Speed Bars */}
-            <div className="space-y-3.5 pt-1">
+            <div className="space-y-2 pt-0.5">
               {financeMetrics.map((met, idx) => (
                 <div key={met.label} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm sm:text-base font-bold text-[#1E293B]">
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-[#1E293B]">
                     <span>{met.label}</span>
                     <span className="font-mono text-[#0072CE]">
                       {met.percentage}%
                     </span>
                   </div>
-                  <div className="relative w-full h-2 rounded-full bg-slate-100 overflow-visible">
+                  <div className="relative w-full h-1.5 sm:h-2 rounded-full bg-slate-100 overflow-visible">
                     <div
                       ref={(el) => (progressBarsRef.current[idx] = el)}
                       data-target-width={`${met.percentage}%`}
                       className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#0072CE] to-[#72BF44] rounded-full transition-all duration-300 relative"
                       style={{ width: `${met.percentage}%` }}
                     >
-                      <span className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-[#72BF44] border-2 border-white shadow-md" />
+                      <span className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#72BF44] border border-white shadow-md" />
                     </div>
                   </div>
                 </div>
@@ -203,16 +203,15 @@ export default function SiriFinHub({ onOpenContact }) {
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-2 flex flex-wrap items-center gap-3">
+            <div className="pt-1 flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => onOpenContact && onOpenContact('B2B Commercial Financing & Loans')}
-                className="min-h-[42px] px-6 py-2.5 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 hover:scale-[1.02] cursor-pointer"
+                className="min-h-[38px] px-5 py-2 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 hover:scale-[1.02] cursor-pointer"
               >
                 <span>Apply for Financing</span>
                 <span className="text-base">→</span>
               </button>
-                          
             </div>
           </div>
 
@@ -224,7 +223,7 @@ export default function SiriFinHub({ onOpenContact }) {
             className="lg:col-span-6 relative transition-transform duration-300 ease-out"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-2xl bg-white/90 group aspect-[16/11]">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-2xl bg-white/90 group aspect-[16/10] sm:aspect-[16/10.5]">
               <img
                 src={corporateLoansImg}
                 alt="SIRI Fin Hub Corporate Loans"
@@ -235,22 +234,22 @@ export default function SiriFinHub({ onOpenContact }) {
 
               {/* Bottom Card Overlay: 4 Key Specifications */}
               <div
-                className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-white/95 border border-slate-200/90 backdrop-blur-md grid grid-cols-2 gap-2 text-center shadow-lg"
+                className="absolute bottom-2.5 left-2.5 right-2.5 p-2 sm:p-2.5 rounded-xl bg-white/95 border border-slate-200/90 backdrop-blur-md grid grid-cols-2 gap-1.5 text-center shadow-lg"
                 style={{ transform: 'translateZ(20px)' }}
               >
                 <div>
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Ticket Size
                   </div>
-                  <div className="text-sm sm:text-base font-mono font-bold text-[#0072CE]">
+                  <div className="text-xs sm:text-sm font-mono font-bold text-[#0072CE]">
                     ₹25 Lakh - ₹100 Cr+
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Processing
                   </div>
-                  <div className="text-sm sm:text-base font-bold text-[#1E293B]">
+                  <div className="text-xs sm:text-sm font-bold text-[#1E293B]">
                     Fast Appraisal SLA
                   </div>
                 </div>

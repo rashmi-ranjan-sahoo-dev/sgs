@@ -135,33 +135,39 @@ export default function PageLoader({ onComplete }) {
         ref={contentRef}
         className="relative z-10 flex flex-col items-center gap-5 px-6 max-w-sm text-center"
       >
-        {/* SIRI Logo with frosted plate */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+        {/* SIRI Logo with original colors on clean white plate */}
+        <div className="px-6 py-3.5 sm:px-8 sm:py-4 rounded-2xl bg-white shadow-2xl shadow-blue-950/40 border border-white/30 ring-1 ring-black/5 flex items-center justify-center">
           <img
             src={siriLogo}
             alt="SIRI Group"
             width="180"
             height="68"
-            className="h-11 sm:h-13 w-auto object-contain brightness-0 invert"
+            className="h-10 sm:h-12 w-auto object-contain"
           />
         </div>
 
-        {/* Animated Progress Accent Line */}
+        {/* Animated Progress Line in Brand Colors (Green to Blue) */}
         <div className="w-48 sm:w-56 h-[3px] bg-white/15 rounded-full overflow-hidden relative">
           <div
             ref={lineRef}
-            className="absolute inset-0 bg-secondary rounded-full"
+            className="absolute inset-0 bg-gradient-to-r from-[#72BF44] via-[#0284C7] to-[#0072CE] rounded-full"
             style={{ transform: 'scaleX(0)', transformOrigin: 'left center' }}
           />
         </div>
 
-        {/* Brand Motto Subtitle */}
-        <span
+        {/* Brand Name & Motto in Original Colors */}
+        <div
           ref={subtitleRef}
-          className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-white/80"
+          className="flex flex-col items-center gap-1"
         >
-          People &bull; Purpose &bull; Travel
-        </span>
+          <span className="text-xs sm:text-sm font-extrabold tracking-[0.2em] uppercase">
+            <span className="text-[#72BF44]">SIRI</span>{' '}
+            <span className="text-[#0072CE]">GROUP</span>
+          </span>
+          <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase text-slate-400">
+            People &bull; Purpose &bull; Travel
+          </span>
+        </div>
       </div>
     </aside>
   );

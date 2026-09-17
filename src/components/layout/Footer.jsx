@@ -124,12 +124,12 @@ export default function Footer({ onOpenContact }) {
             <a
               href="#hero"
               onClick={(e) => smoothScrollTo(e, '#hero')}
-              aria-label="SIRI Groups Home"
+              aria-label="SIRI Group Home"
               className="inline-block self-start p-2 rounded-2xl bg-white/95 backdrop-blur-md border border-white/20 shadow-md hover:scale-[1.02] transition-transform"
             >
               <img
                 src={siriLogo}
-                alt="SIRI Groups Logo"
+                alt="SIRI Group Logo"
                 className="h-9 sm:h-10 w-auto object-contain"
                 loading="lazy"
               />
@@ -153,7 +153,7 @@ export default function Footer({ onOpenContact }) {
                 href="https://www.linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="SIRI Groups on LinkedIn"
+                aria-label="SIRI Group on LinkedIn"
                 className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-[#0072CE] border border-slate-800 hover:border-[#0072CE] text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -166,7 +166,7 @@ export default function Footer({ onOpenContact }) {
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="SIRI Groups on X"
+                aria-label="SIRI  on X"
                 className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-[#0072CE] border border-slate-800 hover:border-[#0072CE] text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@ export default function Footer({ onOpenContact }) {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="SIRI Groups on Facebook"
+                aria-label="SIRI Group on Facebook"
                 className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-[#0072CE] border border-slate-800 hover:border-[#0072CE] text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -192,7 +192,7 @@ export default function Footer({ onOpenContact }) {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="SIRI Groups on Instagram"
+                aria-label="SIRI Group on Instagram"
                 className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-[#72BF44] border border-slate-800 hover:border-[#72BF44] text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

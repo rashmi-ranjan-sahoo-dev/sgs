@@ -119,24 +119,21 @@ export default function SiriCorporateTravel({ onOpenContact }) {
         {/* Header (Matching Reference Template) */}
         <div
           ref={headerRef}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-2.5 mb-3 sm:mb-5"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-2 sm:mb-4"
         >
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#0072CE]/40 bg-[#F0F7FD]/95 text-[#0072CE] text-[11px] sm:text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs mb-1.5">
-              <span className="flex items-center gap-1">
-              </span>
-              <span> SIRI Corporate Travel</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#0072CE]/40 bg-[#F0F7FD]/95 text-[#0072CE] text-[11px] sm:text-xs font-bold tracking-wide shadow-xs backdrop-blur-xs mb-1">
+              <span>SIRI Corporate Travel</span>
             </div>
 
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#1E293B] tracking-tight leading-tight max-w-xl">
               Smart Business Travel with Global Mobility Expertise
             </h2>
           </div>
-
         </div>
 
         {/* 3-Cards Layout with 3D Tilt and Unique Images */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5 lg:gap-6 items-stretch">
           {/* Card 1: Flight & Transit Logistics (Unique Image 1) */}
           <div
             ref={(el) => (cardsRef.current[0] = el)}
@@ -145,7 +142,7 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xl flex flex-col justify-between group transition-all duration-300"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <div className="relative aspect-[16/9] sm:aspect-[16/10] w-full overflow-hidden">
+            <div className="relative aspect-[16/9] sm:aspect-[16/9.5] w-full overflow-hidden">
               <img
                 src={corporateTravelImg}
                 alt="Corporate Flights and Airport Logistics"
@@ -153,25 +150,25 @@ export default function SiriCorporateTravel({ onOpenContact }) {
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-2.5 left-2.5">
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider bg-[#0072CE]/80 px-2 py-0.5 rounded backdrop-blur-xs">
+              <div className="absolute bottom-2 left-2">
+                <span className="text-[9.5px] sm:text-[10px] font-bold text-white uppercase tracking-wider bg-[#0072CE]/80 px-2 py-0.5 rounded backdrop-blur-xs">
                   Air & Ground Logistics
                 </span>
               </div>
             </div>
 
-            <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between">
+            <div className="p-3.5 sm:p-4 lg:p-5 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-[#1E293B] mt-1 mb-2 group-hover:text-[#0072CE] transition-colors">
+                <h3 className="text-sm sm:text-base lg:text-lg font-bold text-[#1E293B] mt-0.5 mb-1.5 group-hover:text-[#0072CE] transition-colors">
                   Flight Bookings & Airport Transfers
                 </h3>
-                <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed mb-4 font-normal">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed mb-3 font-normal line-clamp-3">
                   Corporate fare advantages with zero-hassle cancellations, seat preference, and
                   chauffeured airport transfers.
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              <div className="pt-2.5 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>Preferred Airline Desks</span>
               </div>
             </div>
@@ -182,42 +179,42 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             ref={(el) => (cardsRef.current[1] = el)}
             onMouseMove={(e) => handleCardMouseMove(e, 1)}
             onMouseLeave={() => handleCardMouseLeave(1)}
-            className="relative rounded-2xl sm:rounded-3xl p-4.5 sm:p-7 bg-[#72BF44] text-slate-950 flex flex-col justify-between shadow-2xl shadow-[#72BF44]/25 border-2 border-[#8DEB58] transition-all duration-300"
+            className="relative rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 bg-[#72BF44] text-slate-950 flex flex-col justify-between shadow-2xl shadow-[#72BF44]/25 border-2 border-[#8DEB58] transition-all duration-300"
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/10 text-slate-950 text-xs font-bold uppercase tracking-wider mb-3.5">
-                <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-950/10 text-slate-950 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-2 sm:mb-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping" />
                 <span>24/7 Corporate Travel Desk</span>
               </div>
 
-              <h3 className="text-xl sm:text-2xl font-extrabold text-slate-950 tracking-tight leading-snug mb-2.5">
+              <h3 className="text-base sm:text-xl lg:text-2xl font-extrabold text-slate-950 tracking-tight leading-snug mb-1.5 sm:mb-2">
                 Centralized Enterprise Mobility Management
               </h3>
 
-              <p className="text-sm sm:text-base font-semibold text-slate-950 leading-relaxed mb-5">
+              <p className="text-xs sm:text-sm font-semibold text-slate-950 leading-relaxed mb-3 sm:mb-4">
                 One dedicated partner managing duty of care, traveler emergency support, and
                 departmental spend governance.
               </p>
 
               {/* 3 Simple Bullet Points */}
-              <div className="space-y-2.5">
+              <div className="space-y-1.5 sm:space-y-2">
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-950">
-                  <span className="w-5 h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[10px] flex-shrink-0">
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[9px] sm:text-[10px] flex-shrink-0">
                     ✓
                   </span>
                   <span>18–25% Average Travel Cost Reduction</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-950">
-                  <span className="w-5 h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[10px] flex-shrink-0">
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[9px] sm:text-[10px] flex-shrink-0">
                     ✓
                   </span>
                   <span>&lt; 15 Minute Rapid Ticket Issuance</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-950">
-                  <span className="w-5 h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[10px] flex-shrink-0">
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-950 text-[#72BF44] flex items-center justify-center text-[9px] sm:text-[10px] flex-shrink-0">
                     ✓
                   </span>
                   <span>100% GST Invoice & Audit Compliance</span>
@@ -226,14 +223,14 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             </div>
 
             {/* Bottom Arrow Action */}
-            <div className="pt-5 mt-5 border-t border-slate-950/15 flex items-center justify-between">
-              <span className="text-xs font-extrabold text-slate-950 uppercase tracking-wider">
+            <div className="pt-3 mt-3 sm:pt-4 sm:mt-4 border-t border-slate-950/15 flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-extrabold text-slate-950 uppercase tracking-wider">
                 Send an Enquiry
               </span>
               <button
                 type="button"
                 onClick={() => onOpenContact && onOpenContact('Corporate Travel & Mobility')}
-                className="w-9 h-9 rounded-full bg-slate-950 text-white flex items-center justify-center text-sm font-bold shadow hover:scale-110 transition-transform cursor-pointer"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-950 text-white flex items-center justify-center text-sm font-bold shadow hover:scale-110 transition-transform cursor-pointer"
                 aria-label="Setup Corporate Travel Desk"
               >
                 →
@@ -249,7 +246,7 @@ export default function SiriCorporateTravel({ onOpenContact }) {
             className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xl flex flex-col justify-between group transition-all duration-300"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <div className="relative aspect-[16/9] sm:aspect-[16/10] w-full overflow-hidden">
+            <div className="relative aspect-[16/9] sm:aspect-[16/9.5] w-full overflow-hidden">
               <img
                 src={corporateHotelVisaImg}
                 alt="Executive 5-Star Hotel Stay & Visa Desks"
@@ -257,25 +254,25 @@ export default function SiriCorporateTravel({ onOpenContact }) {
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-2.5 left-2.5">
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider bg-[#0072CE]/80 px-2 py-0.5 rounded backdrop-blur-xs">
+              <div className="absolute bottom-2 left-2">
+                <span className="text-[9.5px] sm:text-[10px] font-bold text-white uppercase tracking-wider bg-[#0072CE]/80 px-2 py-0.5 rounded backdrop-blur-xs">
                   Stays & Consular Visas
                 </span>
               </div>
             </div>
 
-            <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between">
+            <div className="p-3.5 sm:p-4 lg:p-5 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-[#1E293B] mt-1 mb-2 group-hover:text-[#0072CE] transition-colors">
+                <h3 className="text-sm sm:text-base lg:text-lg font-bold text-[#1E293B] mt-0.5 mb-1.5 group-hover:text-[#0072CE] transition-colors">
                   Executive Stays, Visas & Insurance
                 </h3>
-                <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed mb-4 font-normal">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed mb-3 font-normal line-clamp-3">
                   Handpicked 5-star corporate hotels with negotiated tariffs, express business visa
                   handling, and comprehensive trip protection.
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+              <div className="pt-2.5 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>Fast-Track Consular Liaison</span>
               </div>
             </div>

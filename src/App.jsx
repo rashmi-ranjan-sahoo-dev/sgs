@@ -4,6 +4,7 @@ import Hero from '@/components/sections/Hero';
 import ShowcaseCards from '@/components/sections/ShowcaseCards';
 import ServicesMarquee from '@/components/sections/services/ServicesMarquee';
 import ServicesStack from '@/components/sections/services/ServicesStack';
+import WhyChooseUs from '@/components/sections/WhyChooseUs';
 import AboutUs from '@/components/sections/AboutUs';
 import Testimonials from '@/components/sections/Testimonials';
 import Footer from '@/components/layout/Footer';
@@ -112,15 +113,14 @@ export default function App() {
         {/* 3 Core Industry Verticals: 3D Stacking Card Deck */}
         <ServicesStack onOpenContact={handleOpenContact} />
 
-        {/* Enterprise About Us Section (Consulo-Inspired "Our Company" with authentic sigigroup.pdf data) */}
+        {/* Why Choose Us Section (Consulo-Inspired "Why Choose Us" home-2 with authentic sirigroup.pdf data) */}
+        <WhyChooseUs onOpenContact={handleOpenContact} />
+
+        {/* Enterprise About Us Section (Consulo-Inspired "Our Company" with authentic sirigroup.pdf data) */}
         <AboutUs onOpenContact={handleOpenContact} />
 
         {/* 3D Perspective Spotlight Testimonials Section (Option 1) */}
         <Testimonials onOpenContact={handleOpenContact} />
-
-        {/* Temporarily disabled for redesign:
-        <WhyPartnerUs />
-        */}
 
         {/* Contact Section (Temporarily disabled for redesign) */}
         {/*

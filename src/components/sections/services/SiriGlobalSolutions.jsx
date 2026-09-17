@@ -255,19 +255,19 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
           {/* Right Column: Card with Simple Data + Animated 3D Progress Bars */}
           <div
             ref={contentColRef}
-            className="lg:col-span-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 rounded-xl sm:rounded-3xl p-4 sm:p-6 shadow-xl space-y-3.5"
+            className="lg:col-span-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 rounded-xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-5 shadow-xl space-y-3"
           >
-            <p className="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
               SIRI Global Solutions delivers unified talent acquisition, flexible industrial
               staffing, and compliant Corporate Social Responsibility programs designed to build
               resilient corporate teams and lasting social impact.
             </p>
 
             {/* 3 Progress / Capability Bars */}
-            <div className="space-y-2.5 pt-0.5">
+            <div className="space-y-2 pt-0.5">
               {capabilities.map((cap, idx) => (
                 <div key={cap.label} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm sm:text-base font-bold text-[#1E293B] dark:text-white">
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-[#1E293B] dark:text-white">
                     <span className="truncate pr-2">{cap.label}</span>
                     <span className="font-mono text-[#0072CE] shrink-0">
                       {cap.percentage}%
@@ -292,12 +292,11 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
               <button
                 type="button"
                 onClick={() => onOpenContact && onOpenContact('Workforce & Staffing Solutions')}
-                className="min-h-[40px] px-5 py-2 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 hover:scale-[1.02] cursor-pointer"
+                className="min-h-[38px] px-5 py-2 rounded-full bg-[#0072CE] hover:bg-[#005FA8] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 hover:scale-[1.02] cursor-pointer"
               >
                 <span>Start a Conversation</span>
                 <span className="text-sm">→</span>
               </button>
-
             </div>
           </div>
         </div>
@@ -305,17 +304,17 @@ export default function SiriGlobalSolutions({ onOpenContact }) {
         {/* Bottom 4-Stat Ribbon (Enhanced Contrast & Hierarchy on Mobile) */}
         <div
           ref={statsRef}
-          className="pt-2 sm:pt-3 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 items-stretch"
+          className="pt-2 sm:pt-2.5 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 items-stretch"
         >
           {stats.map((st) => (
             <div
               key={st.label}
-              className="p-3 sm:p-3.5 rounded-2xl bg-white/85 border border-slate-200/90 shadow-xs backdrop-blur-xs flex flex-col justify-center text-center sm:text-left transition-all hover:border-[#0072CE]/40"
+              className="p-2.5 sm:p-3 rounded-2xl bg-white/85 border border-slate-200/90 shadow-xs backdrop-blur-xs flex flex-col justify-center text-center sm:text-left transition-all hover:border-[#0072CE]/40"
             >
-              <div className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0072CE] tracking-tight">
+              <div className="text-lg sm:text-2xl lg:text-3xl font-black text-[#0072CE] tracking-tight">
                 {st.number}
               </div>
-              <div className="text-xs sm:text-sm font-bold text-[#334155] mt-0.5 leading-snug">
+              <div className="text-[11px] sm:text-xs font-bold text-[#334155] mt-0.5 leading-snug">
                 {st.label}
               </div>
             </div>

@@ -8,13 +8,13 @@ import SiriFinHub from './SiriFinHub';
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Enterprise 3D Stacking Deck for the 3 Core Industry Verticals
+ * 3 Core Industry Verticals: Natural Sequential Flow
  * 
  * Features:
- * - GSAP ScrollTrigger hardware-accelerated scrub stacking animation
- * - 3D perspective depth: previous cards scale down and dim as new sections stack over them
- * - Full-width screen layout with fixed hero background color (no "big card" borders or notches)
- * - Responsive layout: 3D stacking deck on desktop, natural flowing full visibility on mobile phones
+ * - Natural, sequential document flow with zero sticky overlap
+ * - Clean section boundaries and comfortable vertical spacing
+ * - Smooth scroll-triggered entrance reveals
+ * - Full visibility of all cards, metrics, and CTAs on all screen sizes
  */
 export default function ServicesStack({ onOpenContact }) {
   const containerRef = useRef(null);
@@ -31,71 +31,17 @@ export default function ServicesStack({ onOpenContact }) {
 
     const mm = gsap.matchMedia();
 
-    // ─────────────────────────────────────────────────────────────
-    // Desktop & Tablet (>= 768px): 3D ScrollTrigger Scrub Stacking Deck
-    // ─────────────────────────────────────────────────────────────
-    mm.add('(min-width: 768px)', () => {
-      // 1. As Card 2 stacks over Card 1:
-      if (card1Ref.current && card2Ref.current) {
-        gsap.to(card1Ref.current, {
-          scale: 0.95,
-          opacity: 0.9,
-          transformPerspective: 1200,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: card2Ref.current,
-            start: 'top bottom',
-            end: 'top top',
-            scrub: 0.5,
-          },
-        });
-      }
-
-      // 2. As Card 3 stacks over Card 2:
-      if (card2Ref.current && card3Ref.current) {
-        gsap.to(card2Ref.current, {
-          scale: 0.95,
-          opacity: 0.9,
-          transformPerspective: 1200,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: card3Ref.current,
-            start: 'top bottom',
-            end: 'top top',
-            scrub: 0.5,
-          },
-        });
-
-        // Card 1 recedes further into background depth
-        if (card1Ref.current) {
-          gsap.to(card1Ref.current, {
-            scale: 0.9,
-            opacity: 0.75,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card3Ref.current,
-              start: 'top bottom',
-              end: 'top top',
-              scrub: 0.5,
-            },
-          });
-        }
-      }
-    });
-
-    // ─────────────────────────────────────────────────────────────
-    // Mobile Devices (< 768px): Smooth ScrollTrigger Entrance Reveals
-    // ─────────────────────────────────────────────────────────────
-    mm.add('(max-width: 767px)', () => {
+    // Smooth subtle entrance reveals for each vertical section as it scrolls into view
+    mm.add('(min-width: 0px)', () => {
       const cards = [card1Ref.current, card2Ref.current, card3Ref.current].filter(Boolean);
       cards.forEach((card) => {
         gsap.fromTo(
           card,
-          { opacity: 0.88, y: 25 },
+          { opacity: 0.92, y: 25 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.75,
+            duration: 0.7,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: card,
@@ -119,33 +65,31 @@ export default function ServicesStack({ onOpenContact }) {
   return (
     <div id="services" ref={containerRef} className="relative w-full select-none bg-transparent">
       {/* ─────────────────────────────────────────────────────────
-          CARD 01: SIRI Global Solutions (Base Stacking Card)
+          SECTION 01: SIRI Global Solutions
       ───────────────────────────────────────────────────────── */}
       <div
         ref={card1Ref}
-        className="relative md:sticky top-0 z-10 w-full min-h-auto md:min-h-[100dvh] origin-top bg-transparent transition-all duration-300 flex flex-col justify-center overflow-x-hidden pt-1 sm:pt-2 pb-2 sm:pb-4"
+        className="relative w-full bg-transparent overflow-x-hidden pt-4 pb-6 sm:pt-6 sm:pb-8 lg:pt-6 lg:pb-10"
       >
         <SiriGlobalSolutions onOpenContact={onOpenContact} />
       </div>
 
       {/* ─────────────────────────────────────────────────────────
-          CARD 02: SIRI Corporate Travel (Second Stacking Card)
-          Full-width screen with fixed hero background color (no big card sheet)
+          SECTION 02: SIRI Corporate Travel
       ───────────────────────────────────────────────────────── */}
       <div
         ref={card2Ref}
-        className="relative md:sticky top-0 z-20 w-full min-h-auto md:min-h-[100dvh] origin-top bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-[0_-20px_50px_rgba(0,0,0,0.06)] transition-all duration-300 flex flex-col justify-center overflow-x-hidden py-3 sm:py-4 lg:py-6"
+        className="relative w-full bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-xs overflow-x-hidden py-6 sm:py-8 lg:py-10"
       >
         <SiriCorporateTravel onOpenContact={onOpenContact} />
       </div>
 
       {/* ─────────────────────────────────────────────────────────
-          CARD 03: SIRI Fin Hub (Top Stacking Card)
-          Full-width screen with fixed hero background color (no big card sheet)
+          SECTION 03: SIRI Fin Hub
       ───────────────────────────────────────────────────────── */}
       <div
         ref={card3Ref}
-        className="relative md:sticky top-0 z-30 w-full min-h-auto md:min-h-[100dvh] origin-top bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-[0_-25px_50px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-center overflow-x-hidden py-3 sm:py-4 lg:py-6"
+        className="relative w-full bg-[#F8FAFC] hero-animated-gradient-bg border-t border-slate-200/60 shadow-xs overflow-x-hidden py-6 sm:py-8 lg:py-10"
       >
         <SiriFinHub onOpenContact={onOpenContact} />
       </div>

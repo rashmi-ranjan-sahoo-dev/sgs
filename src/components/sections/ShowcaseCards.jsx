@@ -363,14 +363,14 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
         );
       };
 
-      // Desktop Master Timeline
+      // Desktop Master Timeline - Responsive, Snappy, with Comfortable Hold
       const desktopTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 60px',
-          end: '+=280%',
+          start: 'top 12px',
+          end: '+=120%',
           pin: true,
-          scrub: 0.8,
+          scrub: 0.25,
           invalidateOnRefresh: true,
           anticipatePin: 1,
         },
@@ -384,21 +384,21 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       });
       gsap.set(desktopCard2WrapperRef.current, {
         autoAlpha: 0,
-        x: 24,
-        scale: 0.97,
+        x: 20,
+        scale: 0.98,
       });
       gsap.set(desktopCard3WrapperRef.current, {
         autoAlpha: 0,
-        x: 24,
-        scale: 0.97,
+        x: 20,
+        scale: 0.98,
       });
 
       // ── Step 1: Card 1 morphs in center (Initial Description + CTA fades out) ──
       if (desktopCard1InitialRef.current) {
         desktopTl.to(desktopCard1InitialRef.current, {
           opacity: 0,
-          y: -20,
-          duration: 0.45,
+          y: -15,
+          duration: 0.2,
           ease: 'power2.inOut',
           onComplete: () => {
             if (desktopCard1InitialRef.current) {
@@ -417,65 +417,68 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       if (desktopCard1OptionsRef.current) {
         desktopTl.fromTo(
           desktopCard1OptionsRef.current,
-          { opacity: 0, y: 20, pointerEvents: 'none' },
+          { opacity: 0, y: 15, pointerEvents: 'none' },
           {
             opacity: 1,
             y: 0,
-            duration: 0.5,
+            duration: 0.22,
             ease: 'power2.out',
             pointerEvents: 'auto',
           },
-          '<0.15'
+          '<0.06'
         );
 
         const validDesktopOptions = desktopOptionsItemsRef.current.filter(Boolean);
         if (validDesktopOptions.length > 0) {
           desktopTl.fromTo(
             validDesktopOptions,
-            { opacity: 0, scale: 0.9, y: 15 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.35, stagger: 0.06, ease: 'power2.out' },
+            { opacity: 0, scale: 0.94, y: 10 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.18, stagger: 0.02, ease: 'power2.out' },
             '<'
           );
         }
       }
 
-      // Pacing pause on Card 1 with options centered
-      desktopTl.to({}, { duration: 0.3 });
+      // ── Step 2 & 3: Fast synchronized glide & cascade ──
+      // Card 1 glides from center to Left Column position
+      desktopTl.to(
+        desktopCard1WrapperRef.current,
+        {
+          x: 0,
+          duration: 0.45,
+          ease: 'power2.out',
+        },
+        '+=0.04'
+      );
 
-      // ── Step 2: Card 1 smoothly glides from center to Left Column position ──
-      desktopTl.to(desktopCard1WrapperRef.current, {
-        x: 0,
-        duration: 0.8,
-        ease: 'power2.inOut',
-      });
-
-      // Simultaneously, Card 2 slides in from right and docks in Center Column
+      // Simultaneously, Card 2 slides in to Center Column
       desktopTl.to(
         desktopCard2WrapperRef.current,
         {
           autoAlpha: 1,
           x: 0,
           scale: 1,
-          duration: 0.8,
+          duration: 0.45,
           ease: 'power2.out',
         },
-        '<0.15'
+        '<0.08'
       );
 
-      // Pacing pause on Cards 1 & 2
-      desktopTl.to({}, { duration: 0.3 });
+      // Card 3 slides in to Right Column right after
+      desktopTl.to(
+        desktopCard3WrapperRef.current,
+        {
+          autoAlpha: 1,
+          x: 0,
+          scale: 1,
+          duration: 0.45,
+          ease: 'power2.out',
+        },
+        '<0.1'
+      );
 
-      // ── Step 3: Card 3 slides in from right and docks in Right Column ──
-      desktopTl.to(desktopCard3WrapperRef.current, {
-        autoAlpha: 1,
-        x: 0,
-        scale: 1,
-        duration: 0.8,
-        ease: 'power2.out',
-      });
-
-      // Final pause: All 3 cards displayed side-by-side
-      desktopTl.to({}, { duration: 0.4 });
+      // Comfortable hold buffer so users can appreciate all 3 cards before unpinning
+      desktopTl.to({}, { duration: 0.35 });
     });
 
     return () => mm.revert();
@@ -584,7 +587,7 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
     <section
       ref={sectionRef}
       id="showcase"
-      className="relative w-full overflow-hidden pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-6 select-none bg-transparent"
+      className="relative w-full overflow-hidden pt-1 pb-1 sm:pt-2 sm:pb-2 lg:pt-1.5 lg:pb-1.5 select-none bg-transparent"
     >
 
       {/* ─────────────────────────────────────────────────────────
@@ -857,14 +860,14 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
       <div className="hidden lg:block relative w-full px-4 sm:px-6 lg:px-8 xl:px-10 overflow-hidden">
         <div
           ref={desktopContainerRef}
-          className="relative w-full max-w-7xl mx-auto flex items-center justify-center gap-4 xl:gap-6 will-change-transform"
+          className="relative w-full max-w-7xl mx-auto flex items-center justify-center gap-3.5 xl:gap-6 will-change-transform min-h-[clamp(320px,calc(100vh-60px),450px)]"
         >
           {/* ──────── DESKTOP CARD 1: SIRI Global Solutions (Centered -> Left Dock) ──────── */}
           <div
             ref={desktopCard1WrapperRef}
             onMouseMove={(e) => handleCardMouseMove(e, desktopCard1InnerRef)}
             onMouseLeave={() => handleCardMouseLeave(desktopCard1InnerRef)}
-            className="w-full max-w-[370px] xl:max-w-[400px] h-[480px] xl:h-[500px] relative will-change-transform shrink [perspective:1200px]"
+            className="w-full max-w-[320px] lg:max-w-[350px] xl:max-w-[390px] h-[clamp(330px,calc(100vh-140px),420px)] xl:h-[clamp(350px,calc(100vh-140px),440px)] relative will-change-transform shrink [perspective:1200px]"
           >
             {/* Inner Card Handling Perspective Tilt & Hover Effects (Matching Hero Section Capsule) */}
             <div
@@ -888,53 +891,63 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
               <div className="absolute inset-0 bg-gradient-to-br from-[#72BF44]/20 to-transparent opacity-35 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none" />
 
               {/* Header Area */}
-              <div className="relative z-10 p-7 xl:p-8 pb-0 shrink-0">
-                <div className="flex items-center justify-between mb-3">
-                 
-                </div>
-                <h3 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
+              <div className="relative z-10 p-4 xl:p-5 pb-0 shrink-0">
+                <h3 className="text-lg xl:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   {showcaseCards[0].title}
                 </h3>
               </div>
 
               {/* Card 1 Body with 2-State Morph (Eliminating Extra Space) */}
-              <div className="relative z-10 flex-1 p-7 xl:p-8 pt-3 overflow-hidden">
+              <div className="relative z-10 flex-1 p-4 xl:p-5 pt-1.5 overflow-hidden">
                 {/* Layer A: Initial Description + CTA */}
                 <div
                   ref={desktopCard1InitialRef}
-                  className="absolute inset-x-7 xl:inset-x-8 inset-y-3 flex flex-col justify-end"
+                  className="absolute inset-x-4 xl:inset-x-5 inset-y-1.5 flex flex-col justify-end"
                 >
-                  <div className="mb-4">
-                    <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
+                  <div className="mb-2 xl:mb-3">
+                    <p className="text-xs xl:text-[13px] text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm line-clamp-3 xl:line-clamp-4">
                       {showcaseCards[0].description}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-white/20 flex items-center justify-between gap-3">
+                  <div className="pt-2.5 xl:pt-3 border-t border-white/20 flex items-center justify-between gap-2 xl:gap-3">
                     <button
                       type="button"
                       onClick={(e) => handleCtaClick(e, showcaseCards[0])}
-                      className="group/cta inline-flex items-center gap-2.5 px-6 py-3 rounded-full font-black text-xs xl:text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 bg-[#72BF44] text-slate-950 hover:brightness-110"
+                      className="group/cta inline-flex items-center gap-2 px-3.5 xl:px-5 py-1.5 xl:py-2.5 rounded-full font-black text-xs xl:text-[13px] shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 bg-[#72BF44] text-slate-950 hover:brightness-110"
                     >
                       <span>{showcaseCards[0].ctaLabel}</span>
-                      <span className="w-5 h-5 rounded-full bg-black/15 flex items-center justify-center text-current group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform">
+                      <span className="w-4 h-4 xl:w-5 xl:h-5 rounded-full bg-black/15 flex items-center justify-center text-current group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform text-xs">
                         ↗
                       </span>
                     </button>
-                    <span className="text-xs font-bold text-slate-300">Scroll to explore</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (sectionRef.current) {
+                          const targetY = sectionRef.current.offsetTop + window.innerHeight * 0.95;
+                          window.scrollTo({ top: targetY, behavior: 'smooth' });
+                        }
+                      }}
+                      className="text-xs font-bold text-slate-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1 group/scroll"
+                      aria-label="Advance to reveal all 3 cards"
+                    >
+                      <span>Scroll to explore</span>
+                      <span className="text-[10px] group-hover/scroll:translate-y-0.5 transition-transform">↓</span>
+                    </button>
                   </div>
                 </div>
 
                 {/* Layer B: 5 Floating Service Options (Full Body) */}
                 <div
                   ref={desktopCard1OptionsRef}
-                  className="absolute inset-x-7 xl:inset-x-8 inset-y-2 flex flex-col justify-center gap-2 opacity-0 pointer-events-none"
+                  className="absolute inset-x-3.5 xl:inset-x-5 inset-y-1 flex flex-col justify-center gap-1 xl:gap-1.5 opacity-0 pointer-events-none"
                 >
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-[#72BF44] flex items-center justify-between mb-0.5">
+                  <div className="text-[10px] xl:text-[11px] font-bold uppercase tracking-wider text-[#72BF44] flex items-center justify-between mb-0.5">
                     <span className="flex items-center gap-1.5">
                       <span>✦</span> 5 Core Verticals
                     </span>
-                    <span className="text-[11px] text-slate-300 font-medium">Click to explore</span>
+                    <span className="text-[9px] xl:text-[10px] text-slate-300 font-medium">Click to explore</span>
                   </div>
                   {serviceBadges.map((badge, idx) => (
                     <a
@@ -942,13 +955,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
                       href={badge.href}
                       onClick={(e) => handleCtaClick(e, badge.href)}
                       ref={(el) => (desktopOptionsItemsRef.current[idx] = el)}
-                      className="w-full bg-transparent hover:bg-white/10 text-white px-4 py-2.5 rounded-2xl text-base xl:text-lg font-extrabold flex items-center justify-between transition-all duration-300 hover:scale-[1.02] active:scale-95 group cursor-pointer drop-shadow-md"
+                      className="w-full bg-transparent hover:bg-white/10 text-white px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-xl text-xs xl:text-[13px] font-extrabold flex items-center justify-between transition-all duration-300 hover:scale-[1.02] active:scale-95 group cursor-pointer drop-shadow-md"
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg xl:text-xl shrink-0">{badge.icon}</span>
+                      <div className="flex items-center gap-2 xl:gap-2.5 truncate">
+                        <span className="text-sm xl:text-base shrink-0">{badge.icon}</span>
                         <span className="font-extrabold text-white truncate drop-shadow-sm">{badge.label}</span>
                       </div>
-                      <span className="text-slate-300 group-hover:text-[#72BF44] text-base xl:text-lg transition-colors shrink-0">
+                      <span className="text-slate-300 group-hover:text-[#72BF44] text-xs xl:text-sm transition-colors shrink-0">
                         ↗
                       </span>
                     </a>
@@ -963,13 +976,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             ref={desktopCard2WrapperRef}
             onMouseMove={(e) => handleCardMouseMove(e, desktopCard2InnerRef)}
             onMouseLeave={() => handleCardMouseLeave(desktopCard2InnerRef)}
-            className="w-full max-w-[370px] xl:max-w-[400px] h-[480px] xl:h-[500px] relative will-change-transform shrink [perspective:1200px]"
+            className="w-full max-w-[320px] lg:max-w-[350px] xl:max-w-[390px] h-[clamp(330px,calc(100vh-140px),420px)] xl:h-[clamp(350px,calc(100vh-140px),440px)] relative will-change-transform shrink [perspective:1200px]"
           >
             {/* Inner Card Handling Perspective Tilt & Hover Effects (Matching Hero Section Capsule) */}
             <div
               ref={desktopCard2InnerRef}
               onClick={(e) => handleCtaClick(e, showcaseCards[1])}
-              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#0072CE]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#0072CE]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-pointer"
+              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#0072CE]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#0072CE]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-4 xl:p-5 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-pointer"
             >
               {/* Vivid Background Image with Smooth Scale Zoom on Hover */}
               <img
@@ -989,33 +1002,31 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
 
               {/* Header */}
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                </div>
-                <h3 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
+                <h3 className="text-lg xl:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   {showcaseCards[1].title}
                 </h3>
               </div>
 
               {/* Clean Description (Positioned in Lower Card Body) */}
-              <div className="relative z-10 mt-auto mb-4">
-                <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
+              <div className="relative z-10 mt-auto mb-2 xl:mb-3">
+                <p className="text-xs xl:text-[13px] text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm line-clamp-3 xl:line-clamp-4">
                   {showcaseCards[1].description}
                 </p>
               </div>
 
               {/* Redirect Button */}
-              <div className="relative z-10 pt-4 border-t border-white/20 flex items-center justify-between gap-3">
+              <div className="relative z-10 pt-2.5 xl:pt-3 border-t border-white/20 flex items-center justify-between gap-2 xl:gap-3">
                 <button
                   type="button"
                   onClick={(e) => handleCtaClick(e, showcaseCards[1])}
-                  className="group/cta inline-flex items-center gap-2.5 px-6 py-3 rounded-full font-black text-xs xl:text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 bg-[#0072CE] text-white hover:brightness-110"
+                  className="group/cta inline-flex items-center gap-2 px-3.5 xl:px-5 py-1.5 xl:py-2.5 rounded-full font-black text-xs xl:text-[13px] shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 bg-[#0072CE] text-white hover:brightness-110"
                 >
                   <span>{showcaseCards[1].ctaLabel}</span>
-                  <span className="w-5 h-5 rounded-full bg-black/15 flex items-center justify-center text-current group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform">
+                  <span className="w-4 h-4 xl:w-5 xl:h-5 rounded-full bg-black/15 flex items-center justify-center text-current group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform text-xs">
                     ↗
                   </span>
                 </button>
-                <span className="text-xs font-bold text-slate-300">Mobility Desk</span>
+                <span className="text-[10px] xl:text-xs font-bold text-slate-300">Mobility Desk</span>
               </div>
             </div>
           </div>
@@ -1025,13 +1036,13 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
             ref={desktopCard3WrapperRef}
             onMouseMove={(e) => handleCardMouseMove(e, desktopCard3InnerRef)}
             onMouseLeave={() => handleCardMouseLeave(desktopCard3InnerRef)}
-            className="w-full max-w-[370px] xl:max-w-[400px] h-[480px] xl:h-[500px] relative will-change-transform shrink [perspective:1200px]"
+            className="w-full max-w-[320px] lg:max-w-[350px] xl:max-w-[390px] h-[clamp(330px,calc(100vh-140px),420px)] xl:h-[clamp(350px,calc(100vh-140px),440px)] relative will-change-transform shrink [perspective:1200px]"
           >
             {/* Inner Card Handling Perspective Tilt & Hover Effects (Matching Hero Section Capsule) */}
             <div
               ref={desktopCard3InnerRef}
               onClick={(e) => handleCtaClick(e, showcaseCards[2])}
-              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#00A8E8]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#00A8E8]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-7 xl:p-8 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-pointer"
+              className="w-full h-full rounded-3xl border border-white/20 hover:border-[#00A8E8]/60 shadow-2xl shadow-slate-950/40 hover:shadow-[#00A8E8]/20 bg-slate-900/95 backdrop-blur-md relative overflow-hidden p-4 xl:p-5 flex flex-col justify-between text-white transition-shadow duration-500 group will-change-transform cursor-pointer"
             >
               {/* Vivid Background Image with Smooth Scale Zoom on Hover */}
               <img
@@ -1051,33 +1062,31 @@ export default function ShowcaseCards({ onOpenServicesModal }) {
 
               {/* Header */}
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                </div>
-                <h3 className="text-2xl xl:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
+                <h3 className="text-lg xl:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-sm">
                   {showcaseCards[2].title}
                 </h3>
               </div>
 
               {/* Clean Description (Positioned in Lower Card Body) */}
-              <div className="relative z-10 mt-auto mb-4">
-                <p className="text-base xl:text-base text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm">
+              <div className="relative z-10 mt-auto mb-2 xl:mb-3">
+                <p className="text-xs xl:text-[13px] text-slate-100 leading-relaxed font-normal sm:font-medium drop-shadow-sm line-clamp-3 xl:line-clamp-4">
                   {showcaseCards[2].description}
                 </p>
               </div>
 
               {/* Redirect Button */}
-              <div className="relative z-10 pt-4 border-t border-white/20 flex items-center justify-between gap-3">
+              <div className="relative z-10 pt-2.5 xl:pt-3 border-t border-white/20 flex items-center justify-between gap-2 xl:gap-3">
                 <button
                   type="button"
                   onClick={(e) => handleCtaClick(e, showcaseCards[2])}
-                  className="group/cta inline-flex items-center gap-2.5 px-6 py-3 rounded-full font-black text-xs xl:text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 bg-[#00A8E8] text-white hover:brightness-110"
+                  className="group/cta inline-flex items-center gap-2 px-3.5 xl:px-5 py-1.5 xl:py-2.5 rounded-full font-black text-xs xl:text-[13px] shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 bg-[#00A8E8] text-white hover:brightness-110"
                 >
                   <span>{showcaseCards[2].ctaLabel}</span>
-                  <span className="w-5 h-5 rounded-full bg-black/15 flex items-center justify-center text-current group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform">
+                  <span className="w-4 h-4 xl:w-5 xl:h-5 rounded-full bg-black/15 flex items-center justify-center text-current group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform text-xs">
                     ↗
                   </span>
                 </button>
-                <span className="text-xs font-bold text-slate-300">B2B Loans</span>
+                <span className="text-[10px] xl:text-xs font-bold text-slate-300">B2B Loans</span>
               </div>
             </div>
           </div>

@@ -185,7 +185,7 @@ export default function AboutUs({ onOpenContact }) {
                 {/* Boardroom Image */}
                 <img
                   src={siriAboutMain}
-                  alt="SIRI Groups Strategic Boardroom"
+                  alt="SIRI Group Strategic Boardroom"
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out pointer-events-none"
                   loading="lazy"
                 />
@@ -214,7 +214,7 @@ export default function AboutUs({ onOpenContact }) {
                 <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 z-10">
                   <div className="text-white">
                     <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#72BF44] mb-1">
-                      SIRI Groups Ecosystem
+                      SIRI Group Ecosystem
                     </div>
                     <p className="text-xs sm:text-sm text-slate-200 font-medium leading-snug drop-shadow-sm max-w-sm">
                       Integrating Talent Acquisition, Social Impact Governance, Global Mobility, and Strategic Capital.

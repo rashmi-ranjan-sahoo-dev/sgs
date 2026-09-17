@@ -56,7 +56,7 @@ export const NAV_LINKS = [
   },
   {
     label: 'Why Choose Us',
-    href: '#why-partner',
+    href: '#why-choose-us',
   },
   {
     label: 'Testimonials',
